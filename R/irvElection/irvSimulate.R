@@ -10,9 +10,9 @@ irvSimulate <- function(
         stop("this function requires the extraDistr package")
     }
 
-    # randomLeaf function takes a node arg and selects a random leaf below it
+    # randomLeaf function takes a tree arg and selects a random leaf
     randomLeaf <- function(node) {
-        height <- node$height - 1
+        height <- node$candidates
         # Specifies a random path (by child indices)
         path <- mapply(function(x) rdunif(1,1,x), height:1)
 
