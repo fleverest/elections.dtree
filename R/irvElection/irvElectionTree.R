@@ -17,7 +17,7 @@ irvElectionTree = function(
         
         for( candidate in vecCandidates ){
             # add a child to the parent for the candidate
-            child <- node$AddChild(paste(node$name, candidate))
+            child <- node$AddChild(paste(node$name, candidate, sep='.'))
             # build the subtree using only the remaining candidates
             buildSubTree(child, vecCandidates[vecCandidates != candidate])
         }
@@ -25,6 +25,8 @@ irvElectionTree = function(
 
     # Create the root node
     root <- Node$new()
+    # Store number of candidates in root node for efficient access
+    root$Set(candidates = candidates)
     vecCandidates = 1:candidates
 
     # Build the tree
