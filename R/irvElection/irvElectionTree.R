@@ -9,18 +9,33 @@ irvElectionTree = function(
 
     # Builds the a subtree under node with all possible orderings of candidates
     buildSubTree <- function(node, vecCandidates){
-        # do nothing at leaf
-        if( length(vecCandidates) == 0 ){
-            node$Set(ballots = 0)
-            return()
+
+        node$Set(ballots = 0)
+
+        # stop building nodes at leaf
+        if( length(vecCandidates) == 1 ){
+            return(1)
         }
-        
+
+        params = c()
         for( candidate in vecCandidates ){
             # add a child to the parent for the candidate
-            child <- node$AddChild(paste(node$name, candidate, sep='.'))
+            child <- node$AddChild(paste(node$name, candidate, sep=''))
+
             # build the subtree using only the remaining candidates
-            buildSubTree(child, vecCandidates[vecCandidates != candidate])
+            params = c(
+                params, 
+                buildSubTree(
+                    child, 
+                    vecCandidates[vecCandidates != candidate]
+                )
+            )
         }
+
+        node$Set(alpha = params)
+
+        return(sum(params))
+
     }
 
     # Create the root node
