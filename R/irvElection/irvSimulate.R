@@ -11,26 +11,28 @@ irvSimulate <- function(
     }
 
     # randomLeaf function takes a tree arg and selects a random leaf
-    randomLeaf <- function(node) {
-        height <- node$candidates
-        # Specifies a random path (by child indices)
-        path <- mapply(function(x) rdunif(1,1,x), height:1)
+    randomSamples <- function(n, node) {
 
-        # traverses tree to the leaf
-        for( num in path ){
-            node <- node$children[[num]]
+        node$ballots = node$ballot + n
+
+        if(length(node$children)==0){
+            return()
         }
 
-        # returns the leaf
-        return(node)
+        params <- node$alpha
+
+        # Get n samples from dirichlet multinomial
+        dat <- rdirmnom(n,1,params)
+
+        # continue sampling at each subtree
+        i=1
+        for(m in dat){
+            randomLeaf(m,node$children[i])
+            i = i + 1
+        }
     }
 
-
-    # Repeat n times
-    for( i in 1:n ) {
-
-        leaf <- randomLeaf(root)
-        leaf$ballots = leaf$ballots + 1
-
-    }
+    return(
+        randomSamples(n, root)
+    )
 }
