@@ -1,75 +1,70 @@
-addtrees <- function(
-    election.tree,  # the Election Tree
-    sub.tree   # subtree of ballots to be split
-) {
-    tree <- Node$new() # New tree to be the sum of the others
-    
-    # Ballots at root equal to sum of subtree and election tree root ballots
-    if( !is.null(sub.tree$ballots) ){
-        tree$ballots <- election.tree$ballots + sub.tree$ballots
-    } else {
-        tree$ballots <- election.tree$ballots
-    }
-
-    # Name follows election tree format
-    tree$name <- election.tree$name
-
-    # Add the tree ballots at the children recursively
-    for( child in election.tree$children ){
-        tree$AddChild(addtrees( # Add the subtree to the rest of the election tree
-            sub.tree$Climb(name=paste(
-                str_sub(sub.tree$name,1,1), # first char, corresponding to losing party
-                str_sub(child$name,2), # rest of path
-                sep=""
-                )),
-            child
-        ))
-    }
-    return(tree)
+dirtree.eliminate.candidate <- function(
+    dtree, # dirtree to eliminate from
+    candidate # candidate to eliminate
+){
+    # Prune the candidate branches and distribute
+    dtree$Do(
+        function(n) distribute.nextpref(n),
+        filterFun = function(n) candidate==lastchar(n$name),
+        traversal="post-order"
+    )
+    # Prune the leaves and candidate branched
+    Prune(
+        dtree,
+        function(n) {
+            if( isLeaf(n) || candidate==lastchar(n$name) ){
+                return(FALSE)
+            } else {
+                return(TRUE)
+            }
+        }
+    )
 }
 
-majorityCandidate <- function(tree) {
-    total <- tree$ballots
-    
-    # Temporary fix to approximately determine majority candidate based on
-    # incorrect social choice procedure (smaller subtrees ignored)
-    if( length(tree$children)==2 ){
-        if( tree$children[[1]]$ballots >= tree$children[[2]]$ballots ){
-            return( tree$children[[1]]$name )
-        } else {
-            return( tree$children[[2]]$name )
+# This function takes a string input and returns the last character
+lastchar <- function(str) {
+    return(
+        substr(str,nchar(str),nchar(str))
+    )
+}
+
+# Function to distribute ballots at a node to their next preferences
+distribute.nextpref <- function(
+    node # node to eliminate at, or to do nothing
+){
+    print(node$name)
+
+    # Node last character is the candidate to be pruned
+    candidate = lastchar(node$name)
+
+    # clone subtree
+    clone <- Clone(node)
+    # Remove the candidate from the subtree names
+    clone$Do(
+        function(n){
+            n$name <- gsub(candidate,'',n$name)
         }
+    )
+
+    parent <- node$parent
+    # Send params and ballots to next preferences
+    for( child in clone$children ){
+        addTrees(child, parent$children[[child$name]])
     }
 
-
-    for( child in tree$children ){
-        if( child$ballots >= ceiling(total/2) ){
-            return( child$name )
-        }
+}
+# Helper for distribute: Adds the alpha parameter and ballot count of the first
+# tree to those values on the second.
+addTrees <- function(tree1,tree2){
+    tree2$ballots <- tree1$ballots + tree2$ballots
+    tree2$alpha <- tree1$alpha + tree2$alpha
+    for( child in tree1$children ){
+        addTrees(child, tree2$children[[child$name]])#add subtree with same name
     }
-    return( "" )
 }
 
 dirtree.irv.socialchoice <- function(
     tree # completed tree of ballots to decide the election winner
 ) {
-    if(!require("stringr")){
-        stop("The social choice function requires `stringr` to evaluate election results.")
-    }
 
-    # Proceed with social choice function until majority candidate is identified
-    while( (cand <- majorityCandidate(tree))=="" ){
-        minindex <- which.min(
-            Map(function(n) n$ballots, tree$children)
-        )[[1]]
-        # Get subtree
-        sub.tree <- tree$children[[minindex]]
-        # prune the current losing candidate
-        Prune(tree, function(node) str_sub(node$name,-1)!=minindex)
-        # prune the redundant leaves
-        Prune(tree, function(n) !isLeaf(n))
-    }
-
-    # Return the majority candidate
-    return(cand)
 }
