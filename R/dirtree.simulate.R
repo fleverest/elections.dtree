@@ -15,8 +15,10 @@ dirtree.simulate <- function(
         return(paste(node$name,n,sep=':'))
     }
 
+    # get alphas of the children
+    alphas <- sapply(node$children, function(child) child$alpha)
     # sample n times, with new dirichlet sample each time (otherwise use 1,n)
-    dat <- colSums(rdirmnom(n, 1, node$alpha))
+    dat <- colSums(rdirmnom(n, 1, alphas))
 
     # sample at each child node, corresponding to the number of samples which
     # continue down that subtree

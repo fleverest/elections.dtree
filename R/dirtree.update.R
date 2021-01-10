@@ -24,7 +24,7 @@ update <- function(node, ballot, count){
             child <- node$children[[i]]
             if( startsWith(ballot, child$name) ){
                 # update appropriate alpha parameter
-                node$alpha[i] <- node$alpha[i] + count
+                child$alpha <- child$alpha + count
                 # Continue down the subtree
                 update(child, ballot, count)
             }
