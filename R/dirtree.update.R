@@ -1,8 +1,8 @@
 # Format ballot count
 formatCount <- function(ballotStr){
-    split <- strsplit(ballotStr, ":")
+    split <- strsplit(ballotStr, ":")[[1]]
     ballot <- split[1]
-    count <- strtoi(split[2])
+    count <- split[2]
 
     return(c(ballot, count))
 }
@@ -15,15 +15,18 @@ update <- function(node, ballot, count){
 
     node$ballots <- node$ballots + count
 
-    if(length(node$children)>0){
-        
-        for( i in 1:length(node$chilren)){
+    n_children <- length(node$children)
+
+
+    if(n_children>0){
+        for( i in 1:n_children){
             # Check that the ballot path matches
-            if( str_locate(node$children[i]$name, ballot)[1]==1 ){
+            child <- node$children[[i]]
+            if( startsWith(ballot, child$name) ){
                 # update appropriate alpha parameter
                 node$alpha[i] <- node$alpha[i] + count
                 # Continue down the subtree
-                update(node$children[i], ballot, count)
+                update(child, ballot, count)
             }
         }
 
@@ -37,8 +40,9 @@ dirtree.update <- function(
     for( ballotStr in data ){
         bc <- formatCount(ballotStr)
         ballot <- bc[1]
-        count <- bc[2]
+        count <- strtoi(bc[2])
 
-        
+        update(tree, ballot, count)
+
     }
 }

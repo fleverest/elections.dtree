@@ -10,7 +10,6 @@ dirtree.simulate <- function(
     if(!require('extraDistr')){
         stop("Sampling requires the `extraDistr` package!")
     }
-    print(node$name)
     # terminate at leaf nodes
     if(length(node$children)==0){
         return(paste(node$name,n,sep=':'))
@@ -24,7 +23,7 @@ dirtree.simulate <- function(
     results <- c()
     if( length(node$children)>0 ){
         for(i in 1:length(node$children)){
-            result <- dirtree.simulate(n = dat[i], node = node$children[i])
+            result <- dirtree.simulate(n = dat[i], node = node$children[[i]])
             results <- c(results, result)
         }
     }
