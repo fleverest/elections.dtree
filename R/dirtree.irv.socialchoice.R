@@ -1,18 +1,33 @@
-dirtree.eliminate.candidate <- function(
+last.candidate <- function( str ){
+    out = sub(
+        ".",
+        "",
+        str_extract(str, "\\.[:digit:]+$")
+    )
+
+    if( is.na(out) ){
+        return( '' )
+    } else {
+        return( out )
+    }
+    
+}
+
+eliminate.candidate <- function(
     dtree, # dirtree to eliminate from
     candidate # candidate to eliminate
 ){
     # Prune the candidate branches and distribute
     dtree$Do(
         function(n) distribute.nextpref(n),
-        filterFun = function(n) candidate==lastchar(n$name),
+        filterFun = function(n) candidate==last.candidate(n$name),
         traversal="post-order"
     )
     # Prune the leaves and candidate branched
     Prune(
         dtree,
         function(n) {
-            if( isLeaf(n) || candidate==lastchar(n$name) ){
+            if( isLeaf(n) || candidate==last.candidate(n$name) ){
                 return(FALSE)
             } else {
                 return(TRUE)
@@ -21,28 +36,20 @@ dirtree.eliminate.candidate <- function(
     )
 }
 
-# This function takes a string input and returns the last character
-lastchar <- function(str) {
-    return(
-        substr(str,nchar(str),nchar(str))
-    )
-}
-
 # Function to distribute ballots at a node to their next preferences
 distribute.nextpref <- function(
-    node # node to eliminate at, or to do nothing
+    node # node to eliminate at, or to do nothing-
 ){
-    print(node$name)
 
     # Node last character is the candidate to be pruned
-    candidate = lastchar(node$name)
+    candidate = last.candidate(node$name)
 
     # clone subtree
     clone <- Clone(node)
     # Remove the candidate from the subtree names
     clone$Do(
         function(n){
-            n$name <- gsub(candidate,'',n$name)
+            n$name <- gsub(paste('.',candidate),'',n$name)
         }
     )
 
@@ -67,4 +74,43 @@ dirtree.irv.socialchoice <- function(
     tree # completed tree of ballots to decide the election winner
 ) {
 
+    # Clone the tree so we can evaluate social choice without mutating it
+    tree.clone = Clone(tree)
+
+    # while more than two candidates remain:
+    while( length(tree.clone$children) > 2 ){
+        # Eliminate minimum candidate:
+
+        # Get the ballot counts for each child (by index)
+        ballots = c()
+        children = tree.clone$children
+        for( i in 1:length(children) ){
+            ballots = c(ballots, children[[i]]$ballots)
+        }
+
+        eliminate.index = which.min(ballots)
+        eliminated.candidate = last.candidate(children[[eliminate.index]]$name)
+
+
+        eliminate.candidate(
+            tree.clone,
+            eliminated.candidate
+        )
+
+    }
+
+    # Return the winning candidate
+    ballots = c()
+    children = tree.clone$children
+    for( i in 1:length(children) ){
+        ballots = c(ballots, children[[i]]$ballots)
+    }
+
+    victor.index = which.max(ballots)
+    victorious.candidate = last.candidate(children[[victor.index]]$name)
+
+
+    return(
+        victorious.candidate
+    )
 }

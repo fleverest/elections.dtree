@@ -4,9 +4,13 @@ buildSubTree <- function(node, vecCandidates, ptype){
     node$Set(ballots = 0)
 
     if(ptype == "ones"){
-        node$alpha = 1
-    } else if(ptype == "dirichlet"){
-        node$alpha = sum(sapply(node$children, function(child) child$alpha))
+        node$alpha <- 1
+    } else if(ptype == "dirichlet") {
+        if( length(node$children) > 2 ) { # Only applies to non-leaf nodes
+            node$alpha <- sum(sapply(node$children, function(child) child$alpha))
+        } else {
+            node$alpha <- 1
+        }
     } else{
         stop("Invalid value for `ptype`: expected either 'ones' or 'dirichlet'")
     }
@@ -19,7 +23,7 @@ buildSubTree <- function(node, vecCandidates, ptype){
     params = c()
     for( candidate in vecCandidates ){
         # add a child to the parent for the candidate
-        name <- paste(node$name, candidate, sep='')
+        name <- paste(node$name, candidate, sep='.')
         child <- node$AddChild(name)
         child$name <- name
 
@@ -43,7 +47,7 @@ dirtree.irv = function(
     }
 
     # Create the root node
-    root <- Node$new('.')
+    root <- Node$new('')
     root$type <- 'irv'
 
     # Store number of candidates in root node for efficient access
