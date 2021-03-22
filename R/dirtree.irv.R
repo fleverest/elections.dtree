@@ -1,18 +1,18 @@
 # Builds the a subtree under node with all possible orderings of candidates
-buildSubTree <- function(node, vecCandidates, ptype){
+buildSubTree <- function(node, vecCandidates, ptype, scale){
 
     node$Set(ballots = 0)
 
-    if(ptype == "ones"){
-        node$alpha <- 1
+    if(ptype == "constant"){
+        node$alpha <- scale
     } else if(ptype == "dirichlet") {
         if( length(node$children) > 2 ) { # Only applies to non-leaf nodes
             node$alpha <- sum(sapply(node$children, function(child) child$alpha))
         } else {
-            node$alpha <- 1
+            node$alpha <- scale
         }
     } else{
-        stop("Invalid value for `ptype`: expected either 'ones' or 'dirichlet'")
+        stop("Invalid value for `ptype`: expected either 'constant' or 'dirichlet'")
     }
 
     # stop building nodes at leaf
@@ -31,7 +31,8 @@ buildSubTree <- function(node, vecCandidates, ptype){
         buildSubTree(
             child, 
             vecCandidates[vecCandidates != candidate],
-            ptype
+            ptype,
+            scale
         )
     }
 }
@@ -39,7 +40,8 @@ buildSubTree <- function(node, vecCandidates, ptype){
 # This Function creates a new ballot tree for IRV elections.
 dirtree.irv = function(
     candidates = 5,
-    ptype = "ones"
+    ptype = "constant",
+    scale = 1
 ){
     #ensure required packages are available
     if(!require(data.tree)){
@@ -55,7 +57,7 @@ dirtree.irv = function(
     vecCandidates = 1:candidates
 
     # Build the tree
-    buildSubTree(root, vecCandidates, ptype)
+    buildSubTree(root, vecCandidates, ptype, scale)
     
     return(root)
 }

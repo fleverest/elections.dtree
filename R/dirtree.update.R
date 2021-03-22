@@ -35,14 +35,22 @@ update <- function(node, ballot, count){
 
 dirtree.update <- function(
     tree, # Tree to update
-    data  # ballot data, as a list of "ballot:count" strings
+    data  # ballot data, as a vector of ".1st.2nd.3rd...last" strings
 ){
-    for( ballotStr in data ){
-        bc <- formatCount(ballotStr)
-        ballot <- bc[1]
-        count <- strtoi(bc[2])
-
-        update(tree, ballot, count)
-
+    ballot.counts <- list()
+    for( ballot in data ){
+        if( length(ballot.counts[[ballot]])>0 ){
+            ballot.counts[[ballot]] <- ballot.counts[[ballot]] + 1
+        } else {
+            ballot.counts[[ballot]] <- 1
+        }
+    }
+    
+    for( ballot in names(ballot.counts) ){
+        update(
+            node=tree,
+            ballot=ballot,
+            count=ballot.counts[[ballot]]
+        )
     }
 }

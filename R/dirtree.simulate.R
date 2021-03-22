@@ -12,7 +12,7 @@ dirtree.simulate <- function(
     }
     # terminate at leaf nodes
     if(length(node$children)==0){
-        return(paste(node$name,n,sep=':'))
+        return(rep(node$name,n))
     }
 
     # get alphas of the children
@@ -23,11 +23,11 @@ dirtree.simulate <- function(
     # sample at each child node, corresponding to the number of samples which
     # continue down that subtree
     results <- c()
-    if( length(node$children)>0 ){
-        for(i in 1:length(node$children)){
-            result <- dirtree.simulate(n = dat[i], node = node$children[[i]])
-            results <- c(results, result)
-        }
+    
+    for(i in 1:length(node$children)){
+        child.result <- dirtree.simulate(n = dat[i], node = node$children[[i]])
+        results <- c(results, child.result)
     }
+
     return(results)
 }
