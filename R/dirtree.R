@@ -1,7 +1,8 @@
 dirtree <- function(
     type = "irv",
-    ptype = "ones",
-    candidates = 5
+    candidates = 5,
+    ptype = "constant",
+    scale = 1
 ){
     if(type=="irv"){
         root <- dirtree.irv(candidates = candidates, ptype = ptype)
