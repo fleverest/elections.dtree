@@ -1,12 +1,14 @@
 require('dirtree.elections')
 require('readr')
 
-NUM_ELECTIONS <- 100
+NUM_ELECTIONS <- 25
+
+num_candidates <- 6
 
 # In this script, we load two elections, one close between two candidates,
 # and the other uniform across all ballots.
-close.election <- read_lines('close_election.txt')
-uniform.election <- read_lines('uniform_election.txt')
+close.election <- read_lines('simulations/close_election_6candidates_6wins.txt')
+uniform.election <- read_lines('simulations/uniform_election_6candidates_4wins.txt')
 
 # We wish to evaluate the effects of altering the initial 'scale' of the
 # dirichlet and dirichlet-tree distributions. We expect that as the scale
@@ -19,59 +21,17 @@ uniform.election <- read_lines('uniform_election.txt')
 # plot the determined probability masses for each candidate winning. We complete
 # these plots using scale factors ranging across the same values.
 
-outcomes <- c('1','2','3','4')
+outcomes <- 1:num_candidates
 
 genPlot <- function(ballots, scale) {
     # initialize trees
-    tree.constant <- dirtree.irv(candidates=4, ptype='constant', scale=scale)
-    tree.dirichlet <- dirtree.irv(candidates=4, ptype='dirichlet', scale=scale)
-    # update with first ballot
-    dirtree.update(tree.constant,ballots[1])
-    dirtree.update(tree.dirichlet,ballots[1])
-    # calculate probabilities
-    outcomes.constant1 <- table(factor(
-        dirtree.montecarlo(
-            tree.constant,
-            999,
-            NUM_ELECTIONS
-        ),
-        levels=outcomes
-    ))
-    outcomes.dirichlet1 <- table(factor(
-        dirtree.montecarlo(
-            tree.dirichlet,
-            999,
-            NUM_ELECTIONS
-        ),
-        levels=outcomes
-    ))
+    tree.constant <- dirtree.irv(candidates=num_candidates, ptype='constant', scale=scale)
+    tree.dirichlet <- dirtree.irv(candidates=num_candidates, ptype='dirichlet', scale=scale)
 
     # Update
-    dirtree.update(tree.constant,ballots[2:10])
-    dirtree.update(tree.dirichlet,ballots[2:10])
-    
-    # Calculate probabilities
-    outcomes.constant10 <- table(factor(
-        dirtree.montecarlo(
-            tree.constant,
-            990,
-            NUM_ELECTIONS
-        ),
-        levels=outcomes
-    ))
-    outcomes.dirichlet10 <- table(factor(
-        dirtree.montecarlo(
-            tree.dirichlet,
-            990,
-            NUM_ELECTIONS
-        ),
-        levels=outcomes
-    ))
-    
-
-    # Update
-    dirtree.update(tree.constant,ballots[11:100])
-    dirtree.update(tree.dirichlet,ballots[11:100])
+    print('Updating with first 100 ballots')
+    dirtree.update(tree.constant,ballots[1:100])
+    dirtree.update(tree.dirichlet,ballots[1:100])
     
     # Calculate probabilities
     outcomes.constant100 <- table(factor(
@@ -92,6 +52,7 @@ genPlot <- function(ballots, scale) {
     ))
 
     # Update
+    print('Updating with first 500 ballots')
     dirtree.update(tree.constant,ballots[101:500])
     dirtree.update(tree.dirichlet,ballots[101:500])
     
@@ -114,6 +75,7 @@ genPlot <- function(ballots, scale) {
     ))
 
     # Update
+    print('Updating with first 900 ballots')
     dirtree.update(tree.constant,ballots[501:900])
     dirtree.update(tree.dirichlet,ballots[501:900])
     
@@ -136,16 +98,6 @@ genPlot <- function(ballots, scale) {
     ))
 
     # make plots
-    barplot(
-        rbind(outcomes.dirichlet1, outcomes.constant1),
-        beside=T,
-        legend=c("dirichlet1","constant1")
-    )
-    barplot(
-        rbind(outcomes.dirichlet10, outcomes.constant10),
-        beside=T,
-        legend=c("dirichlet10","constant10")
-    )
     barplot(
         rbind(outcomes.dirichlet100, outcomes.constant100),
         beside=T,
@@ -171,20 +123,20 @@ genPlot <- function(ballots, scale) {
 ballots.close <- sample(close.election,900)
 ballots.uniform <- sample(uniform.election,900)
 
-png('close.png', width=3000, height=3000)
-par(mfrow=c(5,5))
+png('close6.png', width=3000, height=3000)
+par(mfrow=c(4,3))
 
-for (scale in c(1,10,100,1000,10000)) {
+for (scale in c(1,100,1000,10000)) {
     print(scale)
     genPlot(ballots.close,scale)
 }
 
 dev.off()
 
-png('uniform.png', width=3000, height=3000)
-par(mfrow=c(5,5))
+png('uniform6.png', width=3000, height=3000)
+par(mfrow=c(4,3))
 
-for (scale in c(1,10,100,1000,10000)) {
+for (scale in c(1,100,1000,10000)) {
     print(scale)
     genPlot(ballots.uniform,scale)
 }
