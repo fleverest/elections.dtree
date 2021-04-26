@@ -19,7 +19,7 @@ uniform.irv <- dirtree(
 
 # we generate the first by updating with two ballots, and then sampling
 dirtree.update(
-    tree=close.irv,
+    tree=close.irv(
         '.1.2.3.4.5',
         '.6.5.4.3.2'
     )
