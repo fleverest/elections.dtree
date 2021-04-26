@@ -23,7 +23,7 @@ eliminate.candidate <- function(
         filterFun = function(n) candidate==last.candidate(n$name),
         traversal="post-order"
     )
-    # Prune the leaves and candidate branched
+    # Prune the leaves and candidate branches
     Prune(
         dtree,
         function(n) {
