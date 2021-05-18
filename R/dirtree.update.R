@@ -4,7 +4,7 @@ formatCount <- function(ballotStr){
     ballot <- split[1]
     count <- split[2]
 
-    return(c(ballot, count))
+    return(c(ballot, strtoi(count)))
 }
 
 # Update the parameters of a tree given a ballot and a count
