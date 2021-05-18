@@ -2,9 +2,11 @@
 formatCount <- function(ballotStr){
     split <- strsplit(ballotStr, " : ")[[1]]
     ballot <- split[1]
-    count <- split[2]
-
-    return(c(ballot, strtoi(count)))
+    count <- strtoi(split[2])
+    out <- list()
+    out$ballot <- ballot
+    out$count <- count
+    return(out)
 }
 
 # Update the parameters of a tree given a ballot and a count
@@ -55,7 +57,7 @@ dirtree.update <- function(
     if (format=='counts'){
         for (count in data) {
             ballot.data = formatCount(count)
-            ballot.counts[[ballot.data[1]]] <- ballot.data[2]
+            ballot.counts[[ballot.data$ballot]] <- ballot.data$count
         }
     } else if (format=='duplicated') {
         for( ballot in data ){
