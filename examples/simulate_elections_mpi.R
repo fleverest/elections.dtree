@@ -1,3 +1,15 @@
+args <- commandArgs(trailingOnly=TRUE)
+
+if (length(args)>0){
+    outdir <- args[1]
+} else {
+    stop("must supply output directory as argument")
+}
+
+if (!file.access(paste(args[1],'/test.test'), mode=2)) {
+    stop("Directory supplied must be writeable")
+}
+
 library("Rmpi")
 require('dirtree.elections')
 require('readr')
@@ -29,7 +41,7 @@ victor <- dirtree.irv.socialchoice(root)
 
 write_lines(
     ballots,
-    paste(outfile,victor,'.txt')
+    paste(outdir,outfile,victor,'.txt')
 )
 
 mpi.barrier(comm = 0)
