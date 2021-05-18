@@ -32,6 +32,6 @@ simulate <- function(){
             n=ballots
         ),
         outfile
-    )        
+    )
 }
 
