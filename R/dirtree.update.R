@@ -1,6 +1,6 @@
 # Format ballot count
 formatCount <- function(ballotStr){
-    split <- strsplit(ballotStr, ":")[[1]]
+    split <- strsplit(ballotStr, " : ")[[1]]
     ballot <- split[1]
     count <- split[2]
 
