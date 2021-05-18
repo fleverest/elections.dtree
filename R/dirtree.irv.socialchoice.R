@@ -1,16 +1,13 @@
 last.candidate <- function( str ){
-    out = sub(
-        ".",
-        "",
-        str_extract(str, "\\.[:digit:]+$")
-    )
+    cands <- strsplit(str, split = "\\.")[[1]]
+    last <- cands[length(cands)]
 
-    if( is.na(out) ){
+    if( is.na(last) ){
         return( '' )
     } else {
-        return( out )
+        return( last )
     }
-    
+
 }
 
 eliminate.candidate <- function(
