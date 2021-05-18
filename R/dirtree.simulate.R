@@ -16,7 +16,7 @@ dirtree.simulate <- function(
     # terminate at leaf nodes or when n is 0
     if(n==0 || length(node$children)==0){
         if (format=='counts' && n!=0){
-            return(paste(node:name,':',n))
+            return(paste(node$name,':',n))
         } else if (format=='duplicated') {
             return(rep(node$name,n))
         }
