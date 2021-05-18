@@ -20,7 +20,7 @@ dirtree.simulate <- function(
         } else if (format=='duplicated') {
             return(rep(node$name,n))
         }
-        return('')
+        return()
     }
 
     # get alphas of the children
