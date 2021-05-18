@@ -43,7 +43,7 @@ dirtree.update <- function(
     if (format!='counts' && format!='duplicated') {
         stop("Expected one of 'counts' or 'duplicated' for `format` parameter.")
     }
-    if (filepath) {
+    if (filepath!='') {
         if (!require('readr')) {
             print("Ballot IO requires the `readr` library.")
         }
