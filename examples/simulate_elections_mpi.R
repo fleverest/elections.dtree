@@ -14,12 +14,16 @@ library("Rmpi")
 require('dirtree.elections')
 require('readr')
 
+print("Setting simulation parameters.")
+
 candidates=10
 ballots = 100000
 unfair.ballots <- c(
     '.1.2.3.4.5.6.7.8.9.',
     '.10.9.8.7.6.5.4.3.2'
 )
+
+print("Constructing election tree.")
 
 root <- dirtree( type='irv', candidates=candidates )
 
@@ -32,10 +36,14 @@ if ( mpi.comm.rank(comm = 0) == 0 ) {
     dirtree.update(root,unfair.ballots)
 }
 
+print("Simulating ballots")
+
 ballots <- dirtree.simulate(
     node=root,
     n=ballots
 )
+
+print("Evaluating socialchoice")
 
 victor <- dirtree.irv.socialchoice(root)
 
