@@ -15,11 +15,17 @@ eliminate.candidate <- function(
     candidate # candidate to eliminate
 ){
     # Prune the candidate branches and distribute
-    dtree$Do(
-        function(n) distribute.nextpref(n),
-        filterFun = function(n) candidate==last.candidate(n$name),
-        traversal="post-order"
-    )
+#    dtree$Do(
+#        function(n) distribute.nextpref(n),
+#        filterFun = function(n) candidate==last.candidate(n$name),
+#        traversal="post-order"
+#    )
+    for (child in dtree$children) {
+        if (last.candidate(child$name)==candidate) {
+            distribute.nextpref(child)
+            break
+        }
+    }
     # Prune the leaves and candidate branches
     Prune(
         dtree,
@@ -41,10 +47,8 @@ distribute.nextpref <- function(
     # Node last character is the candidate to be pruned
     candidate = last.candidate(node$name)
 
-    # clone subtree
-    clone <- Clone(node)
     # Remove the candidate from the subtree names
-    clone$Do(
+    node$Do(
         function(n){
             n$name <- gsub(paste('.',candidate),'',n$name)
         }
@@ -52,7 +56,7 @@ distribute.nextpref <- function(
 
     parent <- node$parent
     # Send params and ballots to next preferences
-    for( child in clone$children ){
+    for( child in node$children ){
         addTrees(child, parent$children[[child$name]])
     }
 
@@ -68,19 +72,23 @@ addTrees <- function(tree1,tree2){
 }
 
 dirtree.irv.socialchoice <- function(
-    tree # completed tree of ballots to decide the election winner
+    tree, # completed tree of ballots to decide the election winner
+    duplicate = TRUE # Whether or not the tree should be duplicated
+                     # in order to preserve the data.
 ) {
 
-    # Clone the tree so we can evaluate social choice without mutating it
-    tree.clone = Clone(tree)
+    if (duplicate) {
+        # Clone the tree so we can evaluate social choice without mutating it
+        tree = Clone(tree)
+    }
 
     # while more than two candidates remain:
-    while( length(tree.clone$children) > 2 ){
+    while( length(tree$children) > 2 ){
         # Eliminate minimum candidate:
 
         # Get the ballot counts for each child (by index)
         ballots = c()
-        children = tree.clone$children
+        children = tree$children
         for( i in 1:length(children) ){
             ballots = c(ballots, children[[i]]$ballots)
         }
@@ -88,9 +96,8 @@ dirtree.irv.socialchoice <- function(
         eliminate.index = which.min(ballots)
         eliminated.candidate = last.candidate(children[[eliminate.index]]$name)
 
-
         eliminate.candidate(
-            tree.clone,
+            tree,
             eliminated.candidate
         )
 
@@ -98,7 +105,7 @@ dirtree.irv.socialchoice <- function(
 
     # Return the winning candidate
     ballots = c()
-    children = tree.clone$children
+    children = tree$children
     for( i in 1:length(children) ){
         ballots = c(ballots, children[[i]]$ballots)
     }

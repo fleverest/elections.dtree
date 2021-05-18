@@ -24,7 +24,7 @@ update <- function(node, ballot, count){
         for( i in 1:n_children){
             # Check that the ballot path matches
             child <- node$children[[i]]
-            if( startsWith(ballot, paste('.',child$name)) ){
+            if( startsWith(ballot, child$name) ){
                 # update appropriate alpha parameter
                 child$alpha <- child$alpha + count
                 # Continue down the subtree
