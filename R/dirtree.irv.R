@@ -29,7 +29,7 @@ buildSubTree <- function(node, vecCandidates, ptype, scale){
 
         # build the subtree using only the remaining candidates
         buildSubTree(
-            child, 
+            child,
             vecCandidates[vecCandidates != candidate],
             ptype,
             scale
@@ -58,6 +58,6 @@ dirtree.irv = function(
 
     # Build the tree
     buildSubTree(root, vecCandidates, ptype, scale)
-    
+
     return(root)
 }
