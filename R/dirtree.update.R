@@ -15,10 +15,7 @@ update <- function(node, ballot, count){
         stop("Requires `stringr` package to navigate dirtrees.")
     }
 
-    node$ballots <- node$ballots + count
-
     n_children <- length(node$children)
-
 
     if(n_children>0){
         for( i in 1:n_children){
@@ -27,8 +24,10 @@ update <- function(node, ballot, count){
             if( startsWith(ballot, child$name) ){
                 # update appropriate alpha parameter
                 child$alpha <- child$alpha + count
+                child$ballots <- child$ballots + count
                 # Continue down the subtree
                 update(child, ballot, count)
+                break
             }
         }
 
