@@ -66,19 +66,19 @@ int** rDirichletMultinomial(
  * partial-ballot.
  *
  * Returns an array of elections of length nElections, each with nBallots[i]
- * sampled ballots which are prepended with the first nCompleted choices of start.
+ * sampled ballots which are prepended with the first nCompleted choices of indexArray.
  */
 election* rElections(
         int* nBallots,
         int nElections,
         int nCandidates,
-        int* start,
+        int* indexArray,
+        int* permutationArray,
         int nChosen,
         std::mt19937 engine
 ){
     BallotCount* bc;
     bool atLeastOne;
-    int n;
     int* nextNBallots;
     int** countsForChildren;
     election* childBallotSets;
@@ -88,17 +88,15 @@ election* rElections(
         alpha[i] = 1.;
     }
     if( nChosen == nCandidates - 1 ){ // If ballot is completely specified, return.
-        for( int i = 0; i<nElections; ++i ){
+        for( int i = 0; i < nElections; ++i ){
             if( nBallots[i] == 0 ) continue;
             bc = new BallotCount;
             bc->count = nBallots[i];
-            bc->ballot = new int[nChosen];
-            for( int j = nChosen - 1; j >= 0; --j ){
-                n = start[j];
-                for( int k = j; k >= 0; --k ){
-                    if( start[k] <= start[j] ) ++n;
-                }
-                bc->ballot[j] = n;
+            bc->ballotIndices = new int[nChosen];
+            bc->ballotPermutation = new int[nChosen];
+            for( int j = nChosen; j >= 0; --j ){
+                bc->ballotIndices[j] = indexArray[j];
+                bc->ballotPermutation[j] = permutationArray[j];
             }
             out[i].push_back(*bc);
         }
@@ -110,7 +108,7 @@ election* rElections(
             nElections, nBallots, alpha, nCandidates - nChosen, engine
     );
 
-    for( int i = 0; i < nCandidates; ++i ){
+    for( int i = 0; i < nCandidates - nChosen; ++i ){
         nextNBallots = new int[nElections];
         atLeastOne = 0;
         for( int j = 0; j < nElections; ++j ){ // construct next nBallots array for samples.
@@ -121,10 +119,12 @@ election* rElections(
         // we simply skip to return an empty result set for this index.
         if( !atLeastOne ) continue;
         // Get candidate number of corresponding index.
-        start[nChosen] = i;
+        indexArray[nChosen] = i;
+        std::swap(permutationArray[i+nChosen], permutationArray[nChosen]);
         childBallotSets = rElections(
-            nextNBallots, nElections, nCandidates, start, nChosen + 1, engine
+            nextNBallots, nElections, nCandidates, indexArray, permutationArray, nChosen + 1, engine
         );
+        std::swap(permutationArray[i+nChosen], permutationArray[nChosen]);
         for( int j = 0; j < nElections; ++j ){
             out[j].insert(
                     out[j].end(),

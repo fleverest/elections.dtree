@@ -7,9 +7,10 @@
 
 struct BallotCount
 {
-    int* ballot; // A ballot is represented by a list of indices which
-                 // navigate down the tree to the corresponding node.
-    int count;   // The number of occurances of that ballot in the set.
+    int* ballotIndices;     // A ballot is represented by a list of indices which
+                            // navigate down the tree to the corresponding node.
+    int* ballotPermutation; // Ballot represented as a permutation.
+    int count;              // The number of occurances of that ballot in the set.
 };
 
 typedef std::vector<BallotCount> election;
@@ -18,7 +19,7 @@ typedef std::vector<BallotCount> election;
 std::string bcToStr(BallotCount bc, int nCandidates){
     std::ostringstream out;
     for( int i = 0; i <= nCandidates - 2; ++i ){
-        out << bc.ballot[i] << ",";
+        out << bc.ballotPermutation[i] << ",";
     }
 
     out << bc.count;
