@@ -5,13 +5,13 @@
 int main() {
 
   std::cout << "Starting" << std::endl;
-  unsigned seed = 0;
-  int nElections = 10;
-  int nBallots = 1000;
-  int nCandidates = 5;
+  unsigned seed = 5;
+  int nElections = 5;
+  int nBallots = 10000;
+  int nCandidates = 10;
   BallotCount bc = *(new BallotCount);
-  bc.ballotIndices = new int[4]{0, 0, 0, 0};
-  bc.ballotPermutation = new int[4]{1, 2, 3, 4};
+  bc.ballotIndices = new int[9]{0, 0, 0, 0, 0, 0, 0, 0, 0};
+  bc.ballotPermutation = new int[9]{1, 2, 3, 4, 5, 6, 7, 8, 9};
   bc.count = 1;
   float scale = 1.;
   bool treeType = TREE_TYPE_VANILLA_DIRICHLET;

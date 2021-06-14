@@ -56,7 +56,7 @@ public:
 
   std::mt19937 getEngine() { return engine; }
 
-  int factorial(int i) { return factorials[i]; }
+  int *getFactorials() { return factorials; }
 };
 
 // A class for the internal nodes of a dirichlet tree.
@@ -85,7 +85,7 @@ public:
     alphas = new float[nCandidates];
     if (baseTree->getTreeType() == TREE_TYPE_VANILLA_DIRICHLET) {
       std::fill(alphas, alphas + nCandidates,
-                baseTree->getScale() * baseTree->factorial(nCandidates));
+                baseTree->getScale() * baseTree->getFactorials()[nCandidates]);
     } else if (baseTree->getTreeType() == TREE_TYPE_DIRICHLET_TREE) {
       std::fill(alphas, alphas + nCandidates, baseTree->getScale());
     }
@@ -147,6 +147,7 @@ public:
     if (nCandidates == 2) {
       for (int i = 0; i < nElections; ++i) {
         for (int j = 0; j < nCandidates; ++j) {
+          std::swap(permutationArray[nChosen + j], permutationArray[nChosen]);
           if (countsForChildren[i][j] == 0)
             continue;
           bc = new BallotCount;
@@ -188,9 +189,11 @@ public:
       if (children[i] == NULL) { // Sample random ballots indices.
         // Calculate candidates remaining based on index trace
         std::swap(permutationArray[nChosen + i], permutationArray[nChosen]);
-        childBallotSets = rElections(
-            nextNBallots, nElections, baseTree->getNCandidates(), indexArray,
-            permutationArray, nChosen + 1, baseTree->getEngine());
+        childBallotSets =
+            rElections(baseTree->getScale(), nextNBallots, nElections,
+                       baseTree->getNCandidates(), indexArray, permutationArray,
+                       nChosen + 1, baseTree->getEngine(),
+                       baseTree->getTreeType(), baseTree->getFactorials());
         std::swap(permutationArray[nChosen + i], permutationArray[nChosen]);
         for (int j = 0; j < nElections; ++j) {
           results[j].insert(results[j].end(),
