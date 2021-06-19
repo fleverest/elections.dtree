@@ -37,7 +37,7 @@ public:
   // Custom constructor to calculate factorials, initialize a root node and RNG
   // generator.
   DirichletTreeIRV(int nCandidates_, float scale_, bool treeType_,
-                   unsigned seed);
+                   std::string seed);
   // Custom destructor to delete the nodes.
   ~DirichletTreeIRV();
 
@@ -45,7 +45,7 @@ public:
   void update(BallotCount bc);
 
   // For sampling from the posterior.
-  std::string *sample(int nElections, int nBallots);
+  election *sample(int nElections, int nBallots);
 
   // Getters.
   float getScale() { return scale; }
@@ -54,7 +54,7 @@ public:
 
   bool getTreeType() { return treeType; }
 
-  std::mt19937 getEngine() { return engine; }
+  std::mt19937 *getEnginePtr() { return &engine; }
 
   int *getFactorials() { return factorials; }
 };
@@ -63,7 +63,7 @@ public:
 class Node {
 private:
   int nCandidates; // Number of children below node
-  float *alphas;   // Array of floats corresponding to the alpha paramter
+  float *alphas;   // Array of doubles corresponding to the alpha paramter
   bool treeType;   // Boolean indicating whether the tree is a vanilla dirichlet
                    // distribution or an arbitrary dirichlet tree.
   NodePtr *children; // Array of child node pointers, initalized to NULL.
@@ -79,8 +79,9 @@ public:
    */
   Node(int nCandidates_, DirichletTreeIRV *baseTree_)
       : nCandidates(nCandidates_), baseTree(baseTree_) {
+
     if (nCandidates > 2) {
-      children = new NodePtr[nCandidates];
+      children = new NodePtr[nCandidates]{NULL};
     }
     alphas = new float[nCandidates];
     if (baseTree->getTreeType() == TREE_TYPE_VANILLA_DIRICHLET) {
@@ -98,74 +99,71 @@ public:
   ~Node() {
     for (int i = 0; i < nCandidates; ++i) {
       if (children[i] != NULL) {
-        children[i]->~Node(); // If node is initialized, call its' destructor.
+        delete children[i]; // If child is initialized, call its' destructor.
       }
     }
   }
 
   // Update the subtree with the corresponding ballot and count.
   // The ballot must be in index array form.
-  void update(BallotCount bc) {
-    int next = bc.ballotIndices[0];
+  void update(int *ballotPermutation, int count, int *permutationArray) {
+    int nextCandidate = ballotPermutation[0];
+    int i = 0;
+    while (permutationArray[i] != nextCandidate) {
+      ++i;
+    }
     // Update alpha parameter.
-    alphas[next] += bc.count;
+    alphas[i] += count;
     // Stop if the number of children is 2, since we don't need to access the
     // leaves.
     if (nCandidates == 2)
       return;
-    // If the next node is uninitiated, initiate it.
-    if (children[next] == NULL) {
+    // If the next node is uninitialized, initialize it.
+    if (children[i] == NULL) {
       // Each child node has one less candidate available to choose from.
-      children[next] = new Node(nCandidates - 1, baseTree);
+      children[i] = new Node(nCandidates - 1, baseTree);
     }
     // Update the corresponding child, passing it the array starting at next
     // index.
-    children[next]->update(bc);
+    std::swap(permutationArray[0], permutationArray[i]);
+    children[i]->update(ballotPermutation + 1, count, permutationArray + 1);
   }
 
   /* Sample from the dirichlet tree distribution.
    *
-   * Given an int array (number of ballots to sample for each set), and
-   * the number of elections, we return an array of vectors of ballot
-   * counts (i.e. an array of elections).
+   * Append sampled ballots to the output vector.
    */
-  election *sample(int *nBallots, int nElections, int *indexArray,
-                   int *permutationArray, int nChosen) {
-    BallotCount *bc;
+  void sample(int *nBallots, int nElections, int *permutationArray, int nChosen,
+              election *out) {
+    BallotCount bc;
     int *nextNBallots;
     bool atLeastOne;
-    election *childBallotSets;
-    election *results = new election[nElections];
     int **countsForChildren = rDirichletMultinomial(
         nElections, nBallots, alphas, nCandidates,
-        baseTree->getEngine()); // nElections arrays of length nCandidates, each
-                                // containing an array of counts which
-    // correspond to the number of ballots which choose child i as the next
-    // preference.
+        baseTree->getEnginePtr()); // nElections arrays of length nCandidates,
+                                   // each containing an array of counts which
+                                   // correspond to the number of ballots which
+                                   // choose child i as the next preference.
 
     // If nCandidates is 2, we stop recursing and return the array of elections.
     if (nCandidates == 2) {
-      for (int i = 0; i < nElections; ++i) {
-        for (int j = 0; j < nCandidates; ++j) {
-          std::swap(permutationArray[nChosen + j], permutationArray[nChosen]);
+      for (int j = 0; j < nCandidates; ++j) {
+        std::swap(permutationArray[nChosen + j], permutationArray[nChosen]);
+        for (int i = 0; i < nElections; ++i) {
           if (countsForChildren[i][j] == 0)
             continue;
-          bc = new BallotCount;
-          bc->count = countsForChildren[i][j];
-          bc->ballotIndices = new int[nChosen];
-          bc->ballotPermutation = new int[nChosen];
+          bc = *(new BallotCount);
+          bc.count = countsForChildren[i][j];
+          bc.ballotPermutation = new int[nChosen + 2];
           // Convert start to a candidate permutation.
-          indexArray[nChosen] = j;
-          for (int k = 0; k < nChosen; ++k) {
-            bc->ballotIndices[k] = indexArray[k];
-            bc->ballotPermutation[k] = permutationArray[k];
+          for (int k = 0; k <= nChosen + 1; ++k) {
+            bc.ballotPermutation[k] = permutationArray[k];
           }
-          bc->ballotPermutation[nChosen] = permutationArray[nChosen];
-          results[i].push_back(*bc);
-          std::swap(permutationArray[nChosen + j], permutationArray[nChosen]);
+          out[i].push_back(bc);
         }
+        std::swap(permutationArray[nChosen + j], permutationArray[nChosen]);
       }
-      return results;
+      return;
     }
 
     // Otherwise, we continue recursively distributing the ballots via
@@ -175,8 +173,8 @@ public:
       // For each candidate we determine the number of ballots in each election.
       nextNBallots = new int[nElections];
       atLeastOne = 0;
-      for (int j = 0; j < nElections;
-           ++j) { // construct next nBallots array for samples.
+      for (int j = 0; j < nElections; ++j) {
+        // construct next nBallots array for samples.
         nextNBallots[j] = countsForChildren[j][i];
         atLeastOne = (atLeastOne || nextNBallots[j]);
       }
@@ -184,37 +182,20 @@ public:
       // we simply skip to return an empty result set for this index.
       if (!atLeastOne)
         continue;
-      // Get candidate number of corresponding index.
-      indexArray[nChosen] = i;
+      // Update next candidate.
+      std::swap(permutationArray[nChosen + i], permutationArray[nChosen]);
       if (children[i] == NULL) { // Sample random ballots indices.
-        // Calculate candidates remaining based on index trace
-        std::swap(permutationArray[nChosen + i], permutationArray[nChosen]);
-        childBallotSets =
-            rElections(baseTree->getScale(), nextNBallots, nElections,
-                       baseTree->getNCandidates(), indexArray, permutationArray,
-                       nChosen + 1, baseTree->getEngine(),
-                       baseTree->getTreeType(), baseTree->getFactorials());
-        std::swap(permutationArray[nChosen + i], permutationArray[nChosen]);
-        for (int j = 0; j < nElections; ++j) {
-          results[j].insert(results[j].end(),
-                            std::make_move_iterator(childBallotSets[j].begin()),
-                            std::make_move_iterator(childBallotSets[j].end()));
-        }
-        delete[] childBallotSets;
+        rElections(baseTree->getScale(), nextNBallots, nElections,
+                   baseTree->getNCandidates(), permutationArray, nChosen + 1,
+                   baseTree->getEnginePtr(), baseTree->getTreeType(),
+                   baseTree->getFactorials(), out);
       } else {
-        childBallotSets =
-            children[i]->sample(nextNBallots, nElections, indexArray,
-                                permutationArray, nChosen + 1);
+        children[i]->sample(nextNBallots, nElections, permutationArray,
+                            nChosen + 1, out);
         // Concat the results for each election.
-        for (int j = 0; j < nElections; ++j) {
-          results[j].insert(results[j].end(),
-                            std::make_move_iterator(childBallotSets[j].begin()),
-                            std::make_move_iterator(childBallotSets[j].end()));
-        }
-        delete[] childBallotSets;
       }
+      std::swap(permutationArray[nChosen + i], permutationArray[nChosen]);
     }
-    return results;
   }
 };
 
@@ -224,9 +205,15 @@ public:
  * and we initialize the factorials array for vanilla dirichlet distributions.
  */
 DirichletTreeIRV::DirichletTreeIRV(int nCandidates_, float scale_,
-                                   bool treeType_, unsigned seed)
-    : nCandidates(nCandidates_), scale(scale_), treeType(treeType_),
-      engine(std::mt19937(seed)) {
+                                   bool treeType_, std::string seed)
+    : nCandidates(nCandidates_), scale(scale_), treeType(treeType_) {
+
+  std::seed_seq s(seed.begin(), seed.end());
+  std::mt19937 e(s);
+  for (int i = 0; i < 100; ++i) {
+    e(); // Warming up prng
+  }
+  engine = e;
 
   if (treeType == TREE_TYPE_VANILLA_DIRICHLET) {
     // Initialize factorials for initial alpha calculations on each node.
@@ -239,21 +226,27 @@ DirichletTreeIRV::DirichletTreeIRV(int nCandidates_, float scale_,
   root = new Node(nCandidates, this);
 }
 
-// Update a dirichlet tree with a ballot and count in index form.
-void DirichletTreeIRV::update(BallotCount bc) { root->update(bc); }
+// Custom destructor.
+DirichletTreeIRV::~DirichletTreeIRV() { delete root; }
+
+// Update a dirichlet tree with a ballot and count in permutation form.
+void DirichletTreeIRV::update(BallotCount bc) {
+  int *permutationArray = new int[nCandidates];
+  for (int i = 0; i < nCandidates; ++i) {
+    permutationArray[i] = i + 1;
+  }
+
+  root->update(bc.ballotPermutation, bc.count, permutationArray);
+}
 
 /* Sample elections (i.e. distinct sets of ballots) from the Dirichlet Tree.
- *
- * Outputs an array of arrays of strings.
  */
-std::string *DirichletTreeIRV::sample(
+election *DirichletTreeIRV::sample(
     int nElections, // Number of elections to sample.
     int nBallots    // Number of ballots to sample per election.
 ) {
-  std::string *out = new std::string[nElections];
-  election *es;
-  int *indexArray = new int[nCandidates - 1];
-  int *permutationArray = new int[nCandidates - 1];
+  election *out = new election[nElections];
+  int *permutationArray = new int[nCandidates];
   for (int i = 0; i < nCandidates; ++i) {
     permutationArray[i] = i + 1;
   }
@@ -263,12 +256,7 @@ std::string *DirichletTreeIRV::sample(
     ballots[i] = nBallots;
   }
 
-  es = root->sample(ballots, nElections, indexArray, permutationArray, nChosen);
-
-  // Convert ballot counts to string format.
-  for (int i = 0; i < nElections; ++i) {
-    out[i] = electionToStr(es[i], nCandidates);
-  }
+  root->sample(ballots, nElections, permutationArray, nChosen, out);
   return out;
 }
 
