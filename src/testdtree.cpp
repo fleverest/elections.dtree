@@ -1,5 +1,6 @@
 #include "ballot.h"
 #include "dirichlet-tree.h"
+#include <cstdlib>
 #include <iostream>
 #include <vector>
 
@@ -29,46 +30,36 @@ void hc(election s, int nCandidates) {
   std::cout << std::endl;
 }
 
-int main() {
+int main(int argc, char **argv) {
 
-  std::cout << "Starting" << std::endl;
-  std::string seed = "08971";
-  int nElections = 2;
+  std::string seed = argv[1];
+  int nElections = atof(argv[2]);
+  float scale = atof(argv[3]);
+  int nCandidates = atoi(argv[4]);
+  int nBallots = atoi(argv[5]);
+
   election *out;
-  int nBallots1 = 100000000;
-  int nBallots2 = 100000000;
-  int nCandidates = 10;
-  float scale = 1.;
-  bool treeType = TREE_TYPE_DIRICHLET_TREE;
 
-  // std::cout << "Initializing Tree" << std::endl;
   DirichletTreeIRV *dtree =
-      new DirichletTreeIRV(nCandidates, scale, treeType, seed);
+      new DirichletTreeIRV(nCandidates, scale, TREE_TYPE_DIRICHLET_TREE, seed);
 
-  // std::cout << "Sampling" << std::endl;
+  out = dtree->sample(nElections, nBallots);
 
-  out = dtree->sample(nElections, nBallots1);
+  for (int i = 0; i < nElections; ++i) {
+    hc(out[i], nCandidates);
+  }
 
-  // std::cout << "---- Initial ballot stats: ----" << std::endl;
-  hc(out[0], nCandidates);
+  std::cout << "Updating posterior with first batch" << std::endl;
+  for (BallotCount bc : out[0]) {
+    dtree->update(bc);
+  }
 
-  // std::cout << "-------------------------------" << std::endl;
-  hc(out[1], nCandidates);
+  std::cout << "Sampling second batch" << std::endl;
+  out = dtree->sample(nElections, nBallots);
 
-  // std::cout << "hits: " << hits << ", samples: " << timesCalled << std::endl;
+  for (int i = 0; i < nElections; ++i) {
+    hc(out[i], nCandidates);
+  }
 
-  //  std::cout << "Updating posterior with first batch" << std::endl;
-  //  for (BallotCount bc : out[0]) {
-  //    dtree->update(bc);
-  //  }
-  //
-  //  std::cout << "Sampling second batch" << std::endl;
-  //  out = dtree->sample(nElections, nBallots2);
-  //
-  //  std::cout << "----- Second ballot stats -----" << std::endl;
-  //  hc(out[0], nCandidates);
-  //  std::cout << "-------------------------------" << std::endl;
-  //  hc(out[1], nCandidates);
-  //
-  return 1;
+  return 0;
 }

@@ -180,8 +180,10 @@ public:
       }
       // If there are no non-zero ballot counts for this candidate,
       // we simply skip to return an empty result set for this index.
-      if (!atLeastOne)
+      if (!atLeastOne) {
+        delete[] nextNBallots;
         continue;
+      }
       // Update next candidate.
       std::swap(permutationArray[nChosen + i], permutationArray[nChosen]);
       if (children[i] == NULL) { // Sample random ballots indices.
@@ -195,7 +197,12 @@ public:
         // Concat the results for each election.
       }
       std::swap(permutationArray[nChosen + i], permutationArray[nChosen]);
+      delete[] nextNBallots;
     }
+    for (int i = 0; i < nElections; ++i) {
+      delete[] countsForChildren[i];
+    }
+    delete[] countsForChildren;
   }
 };
 
@@ -237,6 +244,7 @@ void DirichletTreeIRV::update(BallotCount bc) {
   }
 
   root->update(bc.ballotPermutation, bc.count, permutationArray);
+  delete[] permutationArray;
 }
 
 /* Sample elections (i.e. distinct sets of ballots) from the Dirichlet Tree.
@@ -257,6 +265,10 @@ election *DirichletTreeIRV::sample(
   }
 
   root->sample(ballots, nElections, permutationArray, nChosen, out);
+
+  delete[] permutationArray;
+  delete[] ballots;
+
   return out;
 }
 
