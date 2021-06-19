@@ -10,11 +10,11 @@
  * Returns an array of dirichlet multinomial samples, where each of the
  * samples is an array of category counts.
  */
-int **rDirichletMultinomial(int n,              // Number of repetitions.
-                            int *draws,         // number of draws per sample.
-                            float *alpha,       // alpha parameter.
-                            int d,              // dimension of alpha parameter.
-                            std::mt19937 engine // RNG engine.
+int **rDirichletMultinomial(int n,        // Number of repetitions.
+                            int *draws,   // number of draws per sample.
+                            float *alpha, // alpha parameter.
+                            int d,        // dimension of alpha parameter.
+                            std::mt19937 *engine // RNG engine.
 ) {
 
   int **out = new int *[n]; // output array:
@@ -22,8 +22,8 @@ int **rDirichletMultinomial(int n,              // Number of repetitions.
   float **gammas =
       new float *[d]; // Array for the gamma(alphaj,1) samples for each
                       // repetition. Note the dimension-first index.
-  int *gamma_sums =
-      new int[n]; // Array of sum of gamma variates for each repetition.
+  float *gamma_sums =
+      new float[n]{0.}; // Array of sum of gamma variates for each repetition.
   float sum_ps, p, a, gam;
   int remaining, count;
 
@@ -35,7 +35,7 @@ int **rDirichletMultinomial(int n,              // Number of repetitions.
     std::gamma_distribution<float> g(a, 1.0);
     // Sample the gamma variate for category i+1 for the jth repetition.
     for (int j = 0; j < n; ++j) {
-      gam = g(engine);
+      gam = g(*engine);
       gammas[i][j] = gam;
       gamma_sums[j] += gam;
     }
@@ -51,7 +51,7 @@ int **rDirichletMultinomial(int n,              // Number of repetitions.
     for (int i = 0; i < d - 1; ++i) {
       p = gammas[i][j] / gamma_sums[j];
       std::binomial_distribution<int> b(remaining, p / sum_ps);
-      count = b(engine);
+      count = b(*engine);
       remaining -= count;
       sum_ps -= p;
       out[j][i] = count;
@@ -65,53 +65,48 @@ int **rDirichletMultinomial(int n,              // Number of repetitions.
 /* Simulates a random election from a uniform dirichlet-tree, starting from a
  * specified partial-ballot.
  *
- * Returns an array of elections of length nElections, each with nBallots[i]
- * sampled ballots which are prepended with the first nCompleted choices of
- * indexArray.
+ * Updates an election with sampled ballots which prepended with the first
+ * nChosen choices of permutationArray.
  */
-election *rElections(float scale, int *nBallots, int nElections,
-                     int nCandidates, int *indexArray, int *permutationArray,
-                     int nChosen, std::mt19937 engine, bool isVanilla,
-                     int *factorials) {
-  BallotCount *bc;
+void rElections(float scale, int *nBallots, int nElections, int nCandidates,
+                int *permutationArray, int nChosen, std::mt19937 *engine,
+                bool isVanilla, int *factorials, election *out) {
+  BallotCount bc;
   bool atLeastOne;
   int *nextNBallots;
   int **countsForChildren;
-  election *childBallotSets;
-  election *out = new election[nElections];
-  float *alpha = new float[nCandidates - nChosen];
-  // Initalize alpha to uniform parameter of ones.
-  for (int i = 0; i < nCandidates - nChosen; ++i) {
-    alpha[i] = scale;
-    if (isVanilla)
-      alpha[i] = alpha[i] * factorials[nCandidates - nChosen];
-  }
+  float *alpha;
   if (nChosen == nCandidates - 1) {
     // If ballot is completely specified, return.
     for (int i = 0; i < nElections; ++i) {
       if (nBallots[i] == 0)
         continue;
-      bc = new BallotCount;
-      bc->count = nBallots[i];
-      bc->ballotIndices = new int[nChosen];
-      bc->ballotPermutation = new int[nChosen];
-      for (int j = nChosen; j >= 0; --j) {
-        bc->ballotIndices[j] = indexArray[j];
-        bc->ballotPermutation[j] = permutationArray[j];
+      bc = *(new BallotCount);
+      bc.count = nBallots[i];
+      bc.ballotPermutation = new int[nCandidates];
+      for (int j = 0; j < nCandidates; ++j) {
+        bc.ballotPermutation[j] = permutationArray[j];
       }
-      out[i].push_back(*bc);
+      out[i].push_back(bc);
     }
-    return out;
+    return;
   }
 
   // Else we sample from DirichletMulinomial and recursively sample next
   // candidates.
+  alpha = new float[nCandidates - nChosen];
+  // Initalize alpha to appropriate uniform scale.
+  for (int i = 0; i < nCandidates - nChosen; ++i) {
+    alpha[i] = scale;
+    if (isVanilla)
+      alpha[i] = alpha[i] * factorials[nCandidates - nChosen];
+  }
   countsForChildren = rDirichletMultinomial(nElections, nBallots, alpha,
                                             nCandidates - nChosen, engine);
 
   for (int i = 0; i < nCandidates - nChosen; ++i) {
     nextNBallots = new int[nElections];
-    atLeastOne = 0;
+    atLeastOne = false;
     // construct next nBallots array for samples.
     for (int j = 0; j < nElections; ++j) {
       nextNBallots[j] = countsForChildren[j][i];
@@ -121,20 +116,12 @@ election *rElections(float scale, int *nBallots, int nElections,
     // we simply skip to return an empty result set for this index.
     if (!atLeastOne)
       continue;
-    // Get candidate number of corresponding index.
-    indexArray[nChosen] = i;
+    // Update next candidate.
     std::swap(permutationArray[i + nChosen], permutationArray[nChosen]);
-    childBallotSets = rElections(scale, nextNBallots, nElections, nCandidates,
-                                 indexArray, permutationArray, nChosen + 1,
-                                 engine, isVanilla, factorials);
+    rElections(scale, nextNBallots, nElections, nCandidates, permutationArray,
+               nChosen + 1, engine, isVanilla, factorials, out);
     std::swap(permutationArray[i + nChosen], permutationArray[nChosen]);
-    for (int j = 0; j < nElections; ++j) {
-      out[j].insert(out[j].end(),
-                    std::make_move_iterator(childBallotSets[j].begin()),
-                    std::make_move_iterator(childBallotSets[j].end()));
-    }
   }
-  return out;
 }
 
 #endif
