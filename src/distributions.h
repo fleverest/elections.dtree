@@ -59,6 +59,13 @@ int **rDirichletMultinomial(int n,        // Number of repetitions.
     out[j][d - 1] = remaining;
   }
 
+  // Cleanup
+  for (int i = 0; i < n; ++i) {
+    delete[] gammas[i];
+  }
+  delete[] gammas;
+  delete[] gamma_sums;
+
   return out;
 }
 
@@ -114,14 +121,21 @@ void rElections(float scale, int *nBallots, int nElections, int nCandidates,
     }
     // If there are no non-zero ballot counts for this candidate,
     // we simply skip to return an empty result set for this index.
-    if (!atLeastOne)
+    if (!atLeastOne) {
+      delete[] nextNBallots;
       continue;
+    }
     // Update next candidate.
     std::swap(permutationArray[i + nChosen], permutationArray[nChosen]);
     rElections(scale, nextNBallots, nElections, nCandidates, permutationArray,
                nChosen + 1, engine, isVanilla, factorials, out);
     std::swap(permutationArray[i + nChosen], permutationArray[nChosen]);
   }
+  for (int i = 0; i < nElections; ++i) {
+    delete[] countsForChildren[i];
+  }
+  delete[] countsForChildren;
+  delete[] alpha;
 }
 
 #endif
