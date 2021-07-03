@@ -17,10 +17,9 @@ typedef std::vector<BallotCount> election;
 // Formats a BallotCount as a string.
 std::string bcToStr(BallotCount bc, int nCandidates) {
   std::ostringstream out;
-  for (int i = 0; i < nCandidates - 1; ++i) {
+  for (int i = 0; i < nCandidates; ++i) {
     out << bc.ballotPermutation[i] << ",";
   }
-
   out << bc.count;
   return out.str();
 }
@@ -28,7 +27,13 @@ std::string bcToStr(BallotCount bc, int nCandidates) {
 // Formats an election as a stringe
 std::string electionToStr(election e, int nCandidates) {
   std::ostringstream out;
+  // Format header
+  for (int i = 0; i < nCandidates; ++i) {
+    out << "choice" << i + 1 << ",";
+  }
+  out << "count" << std::endl;
 
+  // Add each ballot count line
   for (BallotCount bc : e) {
     out << bcToStr(bc, nCandidates) << std::endl;
   }
@@ -38,15 +43,14 @@ std::string electionToStr(election e, int nCandidates) {
 
 // Evaluates an election outcome, returns the winning candidate.
 int evaluateElection(election e, int nCandidates) {
-  std::vector<std::vector<BallotCount>> candidateBallotCounts =
-      *(new std::vector<std::vector<BallotCount>>[nCandidates]);
+  std::vector<std::vector<BallotCount>> candidateBallotCounts = {};
   int idx;
   int *counts = new int[nCandidates];
   bool *isEliminated = new bool[nCandidates];
   int nEliminated = 0;
   for (int i = 0; i < nCandidates; ++i) {
     isEliminated[i] = false;
-    candidateBallotCounts.push_back(*(new std::vector<BallotCount>));
+    candidateBallotCounts.push_back(std::vector<BallotCount>());
     counts[i] = 0;
   }
 
@@ -72,17 +76,19 @@ int evaluateElection(election e, int nCandidates) {
     // Mark as eliminated.
     isEliminated[idx] = true;
     ++nEliminated;
-    if (nEliminated == 3)
-      break;
     for (BallotCount bc : candidateBallotCounts[idx]) {
       // Iterate ballot to next preference.
-      bc.ballotPermutation = &(bc.ballotPermutation[1]);
+      bc.ballotPermutation = bc.ballotPermutation + 1;
       // Add ballot to the appropriate candidate.
-      candidateBallotCounts[bc.ballotPermutation[0]].push_back(bc);
+      candidateBallotCounts[bc.ballotPermutation[0] - 1].push_back(bc);
     }
   }
+
+  delete[] counts;
+
   idx = std::distance(
       isEliminated, std::min_element(isEliminated, isEliminated + nCandidates));
+  delete[] isEliminated;
   return idx + 1;
 }
 

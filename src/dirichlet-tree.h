@@ -41,11 +41,17 @@ public:
   // Custom destructor to delete the nodes.
   ~DirichletTreeIRV();
 
+  // Reset the tree to the prior.
+  void reset();
+
   // For updating prior to obtain a posterior.
   void update(BallotCount bc);
 
-  // For sampling from the posterior.
+  // For sampling ballots from the posterior.
   election *sample(int nElections, int nBallots);
+
+  // For determining posterior probabilities of each candidate winning.
+  int *samplePosterior(int nElections, int nBallots);
 
   // Getters.
   float getScale() { return scale; }
@@ -66,7 +72,7 @@ private:
   float *alphas;   // Array of doubles corresponding to the alpha paramter
   bool treeType;   // Boolean indicating whether the tree is a vanilla dirichlet
                    // distribution or an arbitrary dirichlet tree.
-  NodePtr *children; // Array of child node pointers, initalized to NULL.
+  NodePtr *children; // Array of child node pointers, initalized to nullptr.
   DirichletTreeIRV *baseTree; // pointer to the tree which this node belongs to.
 
 public:
@@ -80,9 +86,7 @@ public:
   Node(int nCandidates_, DirichletTreeIRV *baseTree_)
       : nCandidates(nCandidates_), baseTree(baseTree_) {
 
-    if (nCandidates > 2) {
-      children = new NodePtr[nCandidates]{NULL};
-    }
+    children = new NodePtr[nCandidates]{nullptr};
     alphas = new float[nCandidates];
     if (baseTree->getTreeType() == TREE_TYPE_VANILLA_DIRICHLET) {
       std::fill(alphas, alphas + nCandidates,
@@ -98,10 +102,12 @@ public:
    */
   ~Node() {
     for (int i = 0; i < nCandidates; ++i) {
-      if (children[i] != NULL) {
+      if (children[i] != nullptr) {
         delete children[i]; // If child is initialized, call its' destructor.
       }
     }
+    delete[] children;
+    delete[] alphas;
   }
 
   // Update the subtree with the corresponding ballot and count.
@@ -119,7 +125,7 @@ public:
     if (nCandidates == 2)
       return;
     // If the next node is uninitialized, initialize it.
-    if (children[i] == NULL) {
+    if (children[i] == nullptr) {
       // Each child node has one less candidate available to choose from.
       children[i] = new Node(nCandidates - 1, baseTree);
     }
@@ -135,7 +141,7 @@ public:
    */
   void sample(int *nBallots, int nElections, int *permutationArray, int nChosen,
               election *out) {
-    BallotCount bc;
+    BallotCount *bc;
     int *nextNBallots;
     bool atLeastOne;
     int **countsForChildren = rDirichletMultinomial(
@@ -152,23 +158,28 @@ public:
         for (int i = 0; i < nElections; ++i) {
           if (countsForChildren[i][j] == 0)
             continue;
-          bc = *(new BallotCount);
-          bc.count = countsForChildren[i][j];
-          bc.ballotPermutation = new int[nChosen + 2];
+          bc = new BallotCount;
+          bc->count = countsForChildren[i][j];
+          bc->ballotPermutation = new int[nChosen + 2];
           // Convert start to a candidate permutation.
           for (int k = 0; k <= nChosen + 1; ++k) {
-            bc.ballotPermutation[k] = permutationArray[k];
+            bc->ballotPermutation[k] = permutationArray[k];
           }
-          out[i].push_back(bc);
+          out[i].push_back(*bc);
+          delete bc;
         }
         std::swap(permutationArray[nChosen + j], permutationArray[nChosen]);
       }
+      for (int i = 0; i < nElections; ++i) {
+        delete[] countsForChildren[i];
+      }
+      delete[] countsForChildren;
       return;
     }
 
     // Otherwise, we continue recursively distributing the ballots via
-    // dirmultinomial sampling at each parent node, or if we reach a NULL child,
-    // we sample random permutations instead.
+    // dirmultinomial sampling at each parent node, or if we reach a nullptr
+    // child, we sample random permutations instead.
     for (int i = 0; i < nCandidates; ++i) {
       // For each candidate we determine the number of ballots in each election.
       nextNBallots = new int[nElections];
@@ -186,7 +197,7 @@ public:
       }
       // Update next candidate.
       std::swap(permutationArray[nChosen + i], permutationArray[nChosen]);
-      if (children[i] == NULL) { // Sample random ballots indices.
+      if (children[i] == nullptr) { // Sample random ballots indices.
         rElections(baseTree->getScale(), nextNBallots, nElections,
                    baseTree->getNCandidates(), permutationArray, nChosen + 1,
                    baseTree->getEnginePtr(), baseTree->getTreeType(),
@@ -234,7 +245,10 @@ DirichletTreeIRV::DirichletTreeIRV(int nCandidates_, float scale_,
 }
 
 // Custom destructor.
-DirichletTreeIRV::~DirichletTreeIRV() { delete root; }
+DirichletTreeIRV::~DirichletTreeIRV() {
+  delete root;
+  delete[] factorials;
+}
 
 // Update a dirichlet tree with a ballot and count in permutation form.
 void DirichletTreeIRV::update(BallotCount bc) {
@@ -270,6 +284,34 @@ election *DirichletTreeIRV::sample(
   delete[] ballots;
 
   return out;
+}
+
+/* Sample elections and tabulate election winners in an integer array.
+ */
+int *DirichletTreeIRV::samplePosterior(int nElections, int nBallots) {
+  int *candidateWins = new int[nCandidates]{0};
+  int winner;
+  election *e;
+
+  e = sample(nElections, nBallots);
+
+  for (int i = 0; i < nElections; ++i) {
+    winner = evaluateElection(e[i], nCandidates);
+    // Delete ballot permutations.
+    for (BallotCount bc : e[i]) {
+      delete[] bc.ballotPermutation;
+    }
+    ++candidateWins[winner - 1];
+  }
+
+  delete[] e;
+  return candidateWins;
+}
+
+// Reset to prior without replacing rng.
+void DirichletTreeIRV::reset() {
+  delete root;
+  root = new Node(nCandidates, this);
 }
 
 #endif

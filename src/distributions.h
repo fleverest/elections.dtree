@@ -10,13 +10,13 @@
  * Returns an array of dirichlet multinomial samples, where each of the
  * samples is an array of category counts.
  */
+#include <iostream>
 int **rDirichletMultinomial(int n,        // Number of repetitions.
                             int *draws,   // number of draws per sample.
                             float *alpha, // alpha parameter.
                             int d,        // dimension of alpha parameter.
                             std::mt19937 *engine // RNG engine.
 ) {
-
   int **out = new int *[n]; // output array:
                             // categorical counts for each repetition.
   float **gammas =
@@ -46,6 +46,7 @@ int **rDirichletMultinomial(int n,        // Number of repetitions.
     out[j] = new int[d];
     sum_ps = 1.0;
     remaining = draws[j];
+
     // We calculate a multinomial sample by obtaining binomial samples at each
     // border
     for (int i = 0; i < d - 1; ++i) {
@@ -60,7 +61,7 @@ int **rDirichletMultinomial(int n,        // Number of repetitions.
   }
 
   // Cleanup
-  for (int i = 0; i < n; ++i) {
+  for (int i = 0; i < d; ++i) {
     delete[] gammas[i];
   }
   delete[] gammas;
@@ -78,7 +79,7 @@ int **rDirichletMultinomial(int n,        // Number of repetitions.
 void rElections(float scale, int *nBallots, int nElections, int nCandidates,
                 int *permutationArray, int nChosen, std::mt19937 *engine,
                 bool isVanilla, int *factorials, election *out) {
-  BallotCount bc;
+  BallotCount *bc;
   bool atLeastOne;
   int *nextNBallots;
   int **countsForChildren;
@@ -88,13 +89,14 @@ void rElections(float scale, int *nBallots, int nElections, int nCandidates,
     for (int i = 0; i < nElections; ++i) {
       if (nBallots[i] == 0)
         continue;
-      bc = *(new BallotCount);
-      bc.count = nBallots[i];
-      bc.ballotPermutation = new int[nCandidates];
+      bc = new BallotCount;
+      bc->count = nBallots[i];
+      bc->ballotPermutation = new int[nCandidates];
       for (int j = 0; j < nCandidates; ++j) {
-        bc.ballotPermutation[j] = permutationArray[j];
+        bc->ballotPermutation[j] = permutationArray[j];
       }
-      out[i].push_back(bc);
+      out[i].push_back(*bc);
+      delete bc;
     }
     return;
   }
@@ -130,6 +132,7 @@ void rElections(float scale, int *nBallots, int nElections, int nCandidates,
     rElections(scale, nextNBallots, nElections, nCandidates, permutationArray,
                nChosen + 1, engine, isVanilla, factorials, out);
     std::swap(permutationArray[i + nChosen], permutationArray[nChosen]);
+    delete[] nextNBallots;
   }
   for (int i = 0; i < nElections; ++i) {
     delete[] countsForChildren[i];
