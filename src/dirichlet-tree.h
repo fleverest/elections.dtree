@@ -51,7 +51,7 @@ public:
   election *sample(int nElections, int nBallots);
 
   // For determining posterior probabilities of each candidate winning.
-  int *samplePosterior(int nElections, int nBallots);
+  int *samplePosterior(int nElections, int nBallots, election incomplete);
 
   // Getters.
   float getScale() { return scale; }
@@ -247,7 +247,9 @@ DirichletTreeIRV::DirichletTreeIRV(int nCandidates_, float scale_,
 // Custom destructor.
 DirichletTreeIRV::~DirichletTreeIRV() {
   delete root;
-  delete[] factorials;
+  if (treeType == TREE_TYPE_VANILLA_DIRICHLET) {
+    delete[] factorials;
+  }
 }
 
 // Update a dirichlet tree with a ballot and count in permutation form.
@@ -288,23 +290,38 @@ election *DirichletTreeIRV::sample(
 
 /* Sample elections and tabulate election winners in an integer array.
  */
-int *DirichletTreeIRV::samplePosterior(int nElections, int nBallots) {
+#include <iostream>
+int *DirichletTreeIRV::samplePosterior(int nElections, int nBallotsRemaining,
+                                       election incomplete) {
   int *candidateWins = new int[nCandidates]{0};
   int winner;
   election *e;
 
-  e = sample(nElections, nBallots);
+  // A copy of the incomplete election
+  election incompleteCopy;
+  incompleteCopy.insert(incompleteCopy.end(), incomplete.begin(),
+                        incomplete.end());
+
+  e = sample(nElections, nBallotsRemaining);
 
   for (int i = 0; i < nElections; ++i) {
-    winner = evaluateElection(e[i], nCandidates);
-    // Delete ballot permutations.
+    incompleteCopy.erase(incompleteCopy.begin() + incomplete.size(),
+                         incompleteCopy.end());
+    incompleteCopy.insert(incompleteCopy.begin() + incomplete.size(),
+                          e[i].begin(), e[i].end());
+
+    winner = evaluateElection(incompleteCopy, nCandidates);
+
+    // Delete simulated ballot permutations.
     for (BallotCount bc : e[i]) {
       delete[] bc.ballotPermutation;
     }
+
     ++candidateWins[winner - 1];
   }
 
   delete[] e;
+
   return candidateWins;
 }
 
