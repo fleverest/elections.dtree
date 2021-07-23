@@ -24,9 +24,10 @@ int main(int argc, char **argv) {
       break;
     case 't':
       if (strcmp("dirichlet", optarg) == 0) {
+        treeType = TREE_TYPE_VANILLA_DIRICHLET;
         break;
       } else if (strcmp("dirichlettree", optarg) == 0) {
-        treeType = TREE_TYPE_VANILLA_DIRICHLET;
+        treeType = TREE_TYPE_DIRICHLET_TREE;
         break;
       } else {
         std::cout << "-t (TreeType) parameter must be one of `dirichlet` or "

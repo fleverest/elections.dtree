@@ -54,6 +54,7 @@ int main(int argc, char **argv) {
   int counted, count;
   BallotCount *bc;
   election e = {};
+  election temp = {};
   int **bPerms, **outdata;
   int steps = 9;
   std::string seed = "defaultseed";
@@ -176,10 +177,11 @@ int main(int argc, char **argv) {
   for (int i = 0; i < steps; ++i) {
     outdata[i] = new int[c + 1];
   }
+  count = nBallots / (steps + 1);
   for (int b = 0; b < nBatch; ++b) {
-    std::cout << "Batch " << b << std::endl;
+    std::cout << "Batch " << b + 1 << std::endl;
     dtree.reset();
-    count = nBallots / (steps + 1);
+    temp.clear();
     counted = 0;
     for (int s = 0; s < steps; ++s) {
       for (int i = counted; i < counted + count; ++i) {
@@ -187,11 +189,15 @@ int main(int argc, char **argv) {
         bc->count = 1;
         bc->ballotPermutation = bPerms[i];
         dtree.update(*bc);
-        delete bc;
+        temp.push_back(*bc);
+        // delete bc;
       }
       counted += count;
+      std::cout << "Step " << s + 1 << ", "
+                << "Counted: " << counted << "." << std::endl;
       // Get posterior winning probabilities for each candidate.
-      posteriorProbs = dtree.samplePosterior(nElections, nBallots - counted);
+      posteriorProbs =
+          dtree.samplePosterior(nElections, nBallots - counted, temp);
       outdata[s][0] = counted;
       for (int i = 0; i < c; ++i) {
         outdata[s][i + 1] += posteriorProbs[i];
