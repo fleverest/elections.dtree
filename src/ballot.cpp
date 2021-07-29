@@ -39,7 +39,9 @@ void electionToCSV(election e, int nCandidates, std::string out) {
 }
 
 // Evaluates an election outcome, returns the winning candidate.
-int evaluateElection(election e, int nCandidates) {
+int evaluateElection(election e) {
+  // TODO: Implement STV
+  int nCandidates = e[0].nPreferences;
   std::vector<election> candidateBallots = {};
   int idx;
   int *counts = new int[nCandidates];

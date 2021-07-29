@@ -3,7 +3,7 @@
 ## usethis namespace: start
 #' @import Rcpp
 #' @useDynLib dirtree.elections, .registration = TRUE
-#' @importFrom Rcpp sourceCpp
+#' @export RcppDirichletTreeIRV
 ## usethis namespace: end
 
 Rcpp::loadModule(module = "RcppDirichletTreeIRV", TRUE)

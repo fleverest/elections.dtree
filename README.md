@@ -1,4 +1,5 @@
 # Usage
+#### Warning: usage directions not updated since migration to Rcpp
 
 ```cpp
 g++ -Os -o simulate src/simulate_election.cpp
