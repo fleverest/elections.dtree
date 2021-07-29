@@ -1,9 +1,9 @@
 # Makevars
 
-PKG_CXXFLAGS=-std=c++11
 CC=/usr/bin/gcc
 CXX=/usr/bin/g++
-CPLUS_INCLUDE_PATH=/usr/local/include/:$CPLUS_INCLUDE_PATH
-LD_LIBRARY_PATH=/usr/local/lib/:$LD_LIBRARY_PATH
 CXXFLAGS= -g0 -O2 -Wall
 MAKE=make -j4
+PKG_CXXFLAGS=-std=c++11
+CPLUS_INCLUDE_PATH=/usr/local/include/:$CPLUS_INCLUDE_PATH
+LD_LIBRARY_PATH=/usr/local/lib/:$LD_LIBRARY_PATH
