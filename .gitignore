@@ -1,3 +1,6 @@
 simulations
 mcresults
 bin
+*.swp
+*.o
+*.so

@@ -1,73 +1,68 @@
-#ifndef BALLOT_H
-#define BALLOT_H
+// ballot.cpp
 
-#include <algorithm>
-#include <limits>
-#include <sstream>
-#include <string>
-#include <vector>
-
-struct BallotCount {
-  int *ballotPermutation; // Ballot represented as a permutation.
-  int count;              // The number of occurances of that ballot in the set.
-};
-
-typedef std::vector<BallotCount> election;
+#include "ballot.hpp"
 
 // Formats a BallotCount as a string.
-std::string bcToStr(BallotCount bc, int nCandidates) {
+std::string bToStr(Ballot b) {
   std::ostringstream out;
-  for (int i = 0; i < nCandidates; ++i) {
-    out << bc.ballotPermutation[i] << ",";
+  for (int i = 0; i < b.nPreferences; ++i) {
+    out << b.ballotPermutation[i];
+    if (i < b.nPreferences - 1)
+      out << ",";
   }
-  out << bc.count;
   return out.str();
 }
 
-// Formats an election as a stringe
-std::string electionToStr(election e, int nCandidates) {
-  std::ostringstream out;
+// Formats an election as a string
+void electionToCSV(election e, int nCandidates, std::string out) {
+  std::ofstream outfile;
+  outfile.open(out, std::ofstream::out);
+  if (!outfile.is_open()) {
+    throw std::invalid_argument("CSV output file cannot be opened");
+  }
+
   // Format header
   for (int i = 0; i < nCandidates; ++i) {
-    out << "choice" << i + 1 << ",";
+    outfile << "choice" << i + 1 << ",";
   }
-  out << "count" << std::endl;
+  outfile << "count" << std::endl;
 
   // Add each ballot count line
-  for (BallotCount bc : e) {
-    out << bcToStr(bc, nCandidates) << std::endl;
+  for (Ballot b : e) {
+    outfile << bToStr(b);
+    // Fill empty columns with ','
+    for (int i = 0; i < nCandidates - b.nPreferences; ++i) {
+      outfile << ",";
+    }
+    outfile << std::endl;
   }
-
-  return out.str();
 }
 
 // Evaluates an election outcome, returns the winning candidate.
 int evaluateElection(election e, int nCandidates) {
-  std::vector<std::vector<BallotCount>> candidateBallotCounts = {};
+  std::vector<election> candidateBallots = {};
   int idx;
   int *counts = new int[nCandidates];
   bool *isEliminated = new bool[nCandidates];
   int nEliminated = 0;
   for (int i = 0; i < nCandidates; ++i) {
     isEliminated[i] = false;
-    candidateBallotCounts.push_back(std::vector<BallotCount>());
+    candidateBallots.push_back(election());
     counts[i] = 0;
   }
 
   for (long unsigned int i = 0; i < e.size(); ++i) {
     idx = e[i].ballotPermutation[0] - 1;
-    candidateBallotCounts[idx].push_back(e[i]);
+    candidateBallots[idx].push_back(e[i]);
   }
 
   while (nEliminated < nCandidates - 1) {
     // Calculate count sums for each candidate.
     for (int i = 0; i < nCandidates; ++i) {
-      counts[i] = 0;
-      for (long unsigned int j = 0; j < candidateBallotCounts[i].size(); ++j) {
-        counts[i] += candidateBallotCounts[i][j].count;
-      }
       if (isEliminated[i]) {
         counts[i] = std::numeric_limits<int>::max();
+      } else {
+        counts[i] = candidateBallots[i].size();
       }
     }
     // Find non-eliminated candidate with lowest next-preference count.
@@ -76,11 +71,11 @@ int evaluateElection(election e, int nCandidates) {
     // Mark as eliminated.
     isEliminated[idx] = true;
     ++nEliminated;
-    for (BallotCount bc : candidateBallotCounts[idx]) {
+    for (Ballot b : candidateBallots[idx]) {
       // Iterate ballot to next preference.
-      bc.ballotPermutation = bc.ballotPermutation + 1;
+      b.ballotPermutation = b.ballotPermutation + 1;
       // Add ballot to the appropriate candidate.
-      candidateBallotCounts[bc.ballotPermutation[0] - 1].push_back(bc);
+      candidateBallots[b.ballotPermutation[0] - 1].push_back(b);
     }
   }
 
@@ -91,5 +86,3 @@ int evaluateElection(election e, int nCandidates) {
   delete[] isEliminated;
   return idx + 1;
 }
-
-#endif

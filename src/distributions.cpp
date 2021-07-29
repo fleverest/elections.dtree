@@ -1,16 +1,12 @@
-#ifndef DISTRIBUTIONS_H
-#define DISTRIBUTIONS_H
+// distributions.cpp
 
-#include "ballot.h"
-#include <algorithm>
-#include <random>
+#include "distributions.hpp"
 
 /* Draws random Dirichlet Multinomial samples as specified by alpha.
  *
  * Returns an array of dirichlet multinomial samples, where each of the
  * samples is an array of category counts.
  */
-#include <iostream>
 int **rDirichletMultinomial(int n,        // Number of repetitions.
                             int *draws,   // number of draws per sample.
                             float *alpha, // alpha parameter.
@@ -79,7 +75,7 @@ int **rDirichletMultinomial(int n,        // Number of repetitions.
 void rElections(float scale, int *nBallots, int nElections, int nCandidates,
                 int *permutationArray, int nChosen, std::mt19937 *engine,
                 bool isVanilla, int *factorials, election *out) {
-  BallotCount *bc;
+  Ballot *b;
   bool atLeastOne;
   int *nextNBallots;
   int **countsForChildren;
@@ -89,14 +85,15 @@ void rElections(float scale, int *nBallots, int nElections, int nCandidates,
     for (int i = 0; i < nElections; ++i) {
       if (nBallots[i] == 0)
         continue;
-      bc = new BallotCount;
-      bc->count = nBallots[i];
-      bc->ballotPermutation = new int[nCandidates];
+      b = new Ballot;
+      b->nPreferences = nBallots[i];
+      b->ballotPermutation = new int[nCandidates];
       for (int j = 0; j < nCandidates; ++j) {
-        bc->ballotPermutation[j] = permutationArray[j];
+        b->ballotPermutation[j] = permutationArray[j];
       }
-      out[i].push_back(*bc);
-      delete bc;
+      for (int j = 0; j < nBallots[i]; ++j) {
+        out[i].push_back(*b);
+      }
     }
     return;
   }
@@ -107,8 +104,9 @@ void rElections(float scale, int *nBallots, int nElections, int nCandidates,
   // Initalize alpha to appropriate uniform scale.
   for (int i = 0; i < nCandidates - nChosen; ++i) {
     alpha[i] = scale;
-    if (isVanilla)
+    if (isVanilla) {
       alpha[i] = alpha[i] * factorials[nCandidates - nChosen];
+    }
   }
   countsForChildren = rDirichletMultinomial(nElections, nBallots, alpha,
                                             nCandidates - nChosen, engine);
@@ -140,5 +138,3 @@ void rElections(float scale, int *nBallots, int nElections, int nCandidates,
   delete[] countsForChildren;
   delete[] alpha;
 }
-
-#endif
