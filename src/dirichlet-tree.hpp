@@ -71,10 +71,10 @@ public:
 // A class for the internal nodes of a dirichlet tree.
 class Node {
 private:
-  int nCandidates; // Number of children below node
-  float *alphas;   // Array of doubles corresponding to the alpha paramter
-  bool treeType;   // Boolean indicating whether the tree is a vanilla dirichlet
-                   // distribution or an arbitrary dirichlet tree.
+  int nChildren; // Number of children representing candidates below node
+  float *alphas; // Array of doubles corresponding to the alpha paramter
+  bool treeType; // Boolean indicating whether the tree is a vanilla dirichlet
+                 // distribution or an arbitrary dirichlet tree.
   NodePtr *children; // Array of child node pointers, initalized to nullptr.
   DirichletTreeIRV *baseTree; // pointer to the tree which this node belongs to.
 
