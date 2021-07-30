@@ -2,6 +2,31 @@
 
 #include "ballot.hpp"
 
+// Default constructor
+Ballot::Ballot(int nPreferences) : nPreferences(nPreferences) {
+  ballotPermutation = new int[nPreferences];
+}
+// Copy constructor
+Ballot::Ballot(const Ballot &obj)
+    : nPreferences(obj.nPreferences),
+      ballotPermutation(new int[obj.nPreferences]) {
+  for (auto i = 0; i < nPreferences; ++i) {
+    ballotPermutation[i] = obj.ballotPermutation[i];
+  }
+}
+// Destructor
+Ballot::~Ballot() { delete[] ballotPermutation; }
+// Nextpref method to move ballot on to its next preference
+void Ballot::nextPref() {
+  int *newBallotPermutation = new int[nPreferences - 1];
+  for (auto i = 0; i < nPreferences - 1; ++i) {
+    newBallotPermutation[i] = ballotPermutation[i + 1];
+  }
+  delete[] ballotPermutation;
+  this->ballotPermutation = newBallotPermutation;
+  this->nPreferences = nPreferences - 1;
+}
+
 // Formats a BallotCount as a string.
 std::string bToStr(Ballot b) {
   std::ostringstream out;
@@ -41,6 +66,7 @@ void electionToCSV(election e, int nCandidates, std::string out) {
 // Evaluates an election outcome, returns the winning candidate.
 int evaluateElection(election e) {
   // TODO: Implement STV
+  Ballot *temp;
   int nCandidates = e[0].nPreferences;
   std::vector<election> candidateBallots = {};
   int idx;
@@ -74,8 +100,8 @@ int evaluateElection(election e) {
     isEliminated[idx] = true;
     ++nEliminated;
     for (Ballot b : candidateBallots[idx]) {
-      // Iterate ballot to next preference.
-      b.ballotPermutation = b.ballotPermutation + 1;
+      // Move ballot to next preference.
+      b.nextPref();
       // Add ballot to the appropriate candidate.
       candidateBallots[b.ballotPermutation[0] - 1].push_back(b);
     }

@@ -9,17 +9,17 @@
  * sized arrays for the child nodes and the corresponding
  * alpha parameter for the distribution over them.
  */
-Node::Node(int nCandidates_, DirichletTreeIRV *baseTree_)
-    : nCandidates(nCandidates_), baseTree(baseTree_) {
+Node::Node(int nChildren_, DirichletTreeIRV *baseTree_)
+    : nChildren(nChildren_), baseTree(baseTree_) {
 
-  children = new NodePtr[nCandidates]{nullptr};
-  alphas = new float[nCandidates];
+  children = new NodePtr[nChildren]{nullptr};
+  alphas = new float[nChildren];
   if (baseTree->getTreeType() == TREE_TYPE_VANILLA_DIRICHLET) {
-    for (int i = 0; i < nCandidates; ++i) {
-      alphas[i] = baseTree->getScale() * baseTree->getFactorials()[nCandidates];
+    for (int i = 0; i < nChildren; ++i) {
+      alphas[i] = baseTree->getScale() * baseTree->getFactorials()[nChildren];
     }
   } else if (baseTree->getTreeType() == TREE_TYPE_DIRICHLET_TREE) {
-    for (int i = 0; i < nCandidates; ++i) {
+    for (int i = 0; i < nChildren; ++i) {
       alphas[i] = baseTree->getScale();
     }
   }
@@ -30,7 +30,7 @@ Node::Node(int nCandidates_, DirichletTreeIRV *baseTree_)
  * We must delete all child nodes to avoid memory leaks.
  */
 Node::~Node() {
-  for (int i = 0; i < nCandidates; ++i) {
+  for (int i = 0; i < nChildren; ++i) {
     if (children[i] != nullptr) {
       delete children[i]; // If child is initialized, call its' destructor.
     }
@@ -51,12 +51,12 @@ void Node::update(int *ballotPermutation, int *permutationArray) {
   alphas[i] += 1;
   // Stop if the number of children is 2, since we don't need to access the
   // leaves.
-  if (nCandidates == 2)
+  if (nChildren == 2)
     return;
   // If the next node is uninitialized, initialize it.
   if (children[i] == nullptr) {
     // Each child node has one less candidate available to choose from.
-    children[i] = new Node(nCandidates - 1, baseTree);
+    children[i] = new Node(nChildren - 1, baseTree);
   }
   // Update the corresponding child, passing it the array starting at next
   // index.
@@ -74,26 +74,24 @@ void Node::sample(int *nBallots, int nElections, int *permutationArray,
   int *nextNBallots;
   bool atLeastOne;
   int **countsForChildren = rDirichletMultinomial(
-      nElections, nBallots, alphas, nCandidates,
+      nElections, nBallots, alphas, nChildren,
       baseTree->getEnginePtr()); // nElections arrays of length nCandidates,
                                  // each containing an array of counts which
                                  // correspond to the number of ballots which
                                  // choose child i as the next preference.
 
   // If nCandidates is 2, we stop recursing and return the array of elections.
-  if (nCandidates == 2) {
-    for (int j = 0; j < nCandidates; ++j) {
+  // TODO: STV elections
+  if (nChildren == 2) {
+    // Choose last 2 candidates.
+    for (int j = 0; j < nChildren; ++j) {
       std::swap(permutationArray[nChosen + j], permutationArray[nChosen]);
       for (int i = 0; i < nElections; ++i) {
         if (countsForChildren[i][j] == 0)
           continue;
-        b = new Ballot;
-        // For IRV ballots, nPreferences is always nCandidates.
-        // TODO: Implement STV ballots
-        b->nPreferences = baseTree->getNCandidates();
-        b->ballotPermutation = new int[nChosen + 2];
+        b = new Ballot(nChosen + 2);
         // Convert start to a candidate permutation.
-        for (int k = 0; k <= nChosen + 1; ++k) {
+        for (int k = 0; k < nChosen + 2; ++k) {
           b->ballotPermutation[k] = permutationArray[k];
         }
         // Push appropriate number of copies to election.
@@ -113,7 +111,7 @@ void Node::sample(int *nBallots, int nElections, int *permutationArray,
   // Otherwise, we continue recursively distributing the ballots via
   // dirmultinomial sampling at each parent node, or if we reach a nullptr
   // child, we sample random permutations instead.
-  for (int i = 0; i < nCandidates; ++i) {
+  for (int i = 0; i < nChildren; ++i) {
     // For each candidate we determine the number of ballots in each election.
     nextNBallots = new int[nElections];
     atLeastOne = 0;
@@ -233,7 +231,7 @@ int *DirichletTreeIRV::samplePosterior(int nElections, int nBallotsRemaining,
   election *e;
 
   // A copy of the incomplete election
-  election incompleteCopy;
+  election incompleteCopy{};
   incompleteCopy.insert(incompleteCopy.end(), incomplete.begin(),
                         incomplete.end());
 

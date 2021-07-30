@@ -85,10 +85,9 @@ void rElections(float scale, int *nBallots, int nElections, int nCandidates,
     for (int i = 0; i < nElections; ++i) {
       if (nBallots[i] == 0)
         continue;
-      b = new Ballot;
-      b->nPreferences = nBallots[i];
-      b->ballotPermutation = new int[nCandidates];
-      for (int j = 0; j < nCandidates; ++j) {
+      // TODO: STV elections
+      b = new Ballot(nChosen + 1);
+      for (int j = 0; j < nChosen + 1; ++j) {
         b->ballotPermutation[j] = permutationArray[j];
       }
       for (int j = 0; j < nBallots[i]; ++j) {

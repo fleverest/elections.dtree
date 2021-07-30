@@ -10,26 +10,23 @@
 using namespace Rcpp;
 
 // Converts an R DataFrame representation to an election.
-election dfToElection(DataFrame df, int nCandidates) {
+election dfToElection(DataFrame df) {
   election e = {};
-  Ballot *b;
+  int nCandidates = df.length();
   IntegerVector col;
 
-  if (df.length() < nCandidates + 1) {
-    Rcout << "Insufficient columns to represent ballots cast in an "
+  if (df.length() < nCandidates) {
+    Rcout << "Insufficient columns (" << df.length()
+          << ") to represent ballots cast in an "
              "election with "
           << nCandidates << " candidates." << std::endl;
   }
 
-  for (int i = 0; i < df.nrows(); ++i) {
-    b = new Ballot;
-    b->nPreferences = nCandidates;
-    e.push_back(*b);
-  }
-
-  for (int i = 0; i < nCandidates; ++i) {
+  for (auto i = 0; i < nCandidates; ++i) {
     col = df[i];
-    for (int j = 0; j < df.nrows(); ++j) {
+    for (auto j = 0; j < df.nrows(); ++j) {
+      if (i == 0) // One ballot for each row.
+        e.push_back(*new Ballot(nCandidates));
       e[j].ballotPermutation[i] = col[j];
     }
   }
@@ -40,17 +37,19 @@ election dfToElection(DataFrame df, int nCandidates) {
 DataFrame electionToDF(election e, int nCandidates) {
   DataFrame out = DataFrame::create();
   IntegerVector col;
+  int nBallots = e.size();
 
   for (int i = 0; i < nCandidates; ++i) {
-    col = {};
-    for (int j = 0; j < e.size(); ++j) {
+    col = IntegerVector::create();
+    for (int j = 0; j < nBallots; ++j) {
       if (e[j].nPreferences < i) {
         col.push_back(NA_INTEGER);
-        continue;
+      } else {
+        col.push_back(e[j].ballotPermutation[i]);
       }
-      col.push_back(e[j].ballotPermutation[i]);
     }
-    out.push_back(col);
+
+    out.push_back(col, "preference" + std::to_string(i + 1));
   }
 
   return out;
@@ -73,7 +72,7 @@ public: // Methods to be exposed to R
   void reset() { dtree.reset(); }
 
   void update(DataFrame ballotCounts) {
-    election e = dfToElection(ballotCounts, nCandidates);
+    election e = dfToElection(ballotCounts);
 
     for (auto b : e) {
       dtree.update(b);
@@ -88,7 +87,7 @@ public: // Methods to be exposed to R
 
   IntegerVector samplePosterior(int nElections, int nBallots,
                                 DataFrame incompleteElection) {
-    election incomplete = dfToElection(incompleteElection, nCandidates);
+    election incomplete = dfToElection(incompleteElection);
 
     int *results = dtree.samplePosterior(nElections, nBallots, incomplete);
 

@@ -15,13 +15,20 @@ struct Ballot {
   int *ballotPermutation; // Ballot represented as a permutation.
   int nPreferences; // The number of preferences selected. In IRV elections this
                     // must be equal to the number of candidates.
-  ~Ballot() { delete[] ballotPermutation; }
+  // Default constructor
+  Ballot(int nPreferences);
+  // Copy Constructor
+  Ballot(const Ballot &b);
+  // Destructor
+  ~Ballot();
+  // Move ballot on to next preference
+  void nextPref();
 };
 
 typedef std::vector<Ballot> election;
 
 // Formats a BallotCount as a string.
-std::string bcToStr(Ballot bc);
+std::string bToStr(Ballot b);
 
 // Formats an election as a string
 void electionToCSV(election e, int nCandidates, std::string out);
