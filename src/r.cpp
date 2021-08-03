@@ -93,6 +93,11 @@ public: // Methods to be exposed to R
 
     return IntegerVector(results, results + nCandidates);
   }
+
+  int rcpp_evaluateElection(DataFrame df) {
+    election e = dfToElection(df);
+    return evaluateElection(e);
+  }
 };
 
 RCPP_MODULE(RcppDirichletTreeIRV) {
