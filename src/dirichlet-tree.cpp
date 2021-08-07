@@ -158,6 +158,7 @@ DirichletTreeIRV::DirichletTreeIRV(int nCandidates, float scale, bool treeType,
   this->nCandidates = nCandidates;
   this->scale = scale;
   this->treeType = treeType;
+  this->observedBallots = {};
 
   std::seed_seq s(seed.begin(), seed.end());
   std::mt19937 e(s);
@@ -225,22 +226,22 @@ election *DirichletTreeIRV::sample(
 /* Sample elections and tabulate election winners in an integer array.
  */
 int *DirichletTreeIRV::samplePosterior(int nElections, int nBallotsRemaining,
-                                       election incomplete) {
+                                       bool useObserved) {
   int *candidateWins = new int[nCandidates]{0};
   int winner;
   election *e;
 
   // A copy of the incomplete election
   election incompleteCopy{};
-  incompleteCopy.insert(incompleteCopy.end(), incomplete.begin(),
-                        incomplete.end());
+  incompleteCopy.insert(incompleteCopy.end(), observedBallots.begin(),
+                        observedBallots.end());
 
   e = sample(nElections, nBallotsRemaining);
 
   for (int i = 0; i < nElections; ++i) {
-    incompleteCopy.erase(incompleteCopy.begin() + incomplete.size(),
+    incompleteCopy.erase(incompleteCopy.begin() + observedBallots.size(),
                          incompleteCopy.end());
-    incompleteCopy.insert(incompleteCopy.begin() + incomplete.size(),
+    incompleteCopy.insert(incompleteCopy.begin() + observedBallots.size(),
                           e[i].begin(), e[i].end());
 
     winner = evaluateElection(incompleteCopy);
