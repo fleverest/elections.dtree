@@ -96,8 +96,6 @@ public: // Methods to be exposed to R
     election e = dfToElection(df);
     return evaluateElection(e);
   }
-
-  int evaluateSelf() { return evaluateElection(dtree.getObservedBallots()); };
 };
 
 RCPP_MODULE(RcppDirichletTreeIRV) {
@@ -106,7 +104,6 @@ RCPP_MODULE(RcppDirichletTreeIRV) {
       .method("reset", &RcppDirichletTreeIRV::reset)
       .method("update", &RcppDirichletTreeIRV::update)
       .method("evaluate", &RcppDirichletTreeIRV::evaluate)
-      .method("evaluateSelf", &RcppDirichletTreeIRV::evaluateSelf)
       .method("sample", &RcppDirichletTreeIRV::sample)
       .method("samplePosterior", &RcppDirichletTreeIRV::samplePosterior);
 };
