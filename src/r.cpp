@@ -86,18 +86,18 @@ public: // Methods to be exposed to R
   }
 
   IntegerVector samplePosterior(int nElections, int nBallots,
-                                DataFrame incompleteElection) {
-    election incomplete = dfToElection(incompleteElection);
-
-    int *results = dtree.samplePosterior(nElections, nBallots, incomplete);
+                                bool useObserved) {
+    int *results = dtree.samplePosterior(nElections, nBallots, useObserved);
 
     return IntegerVector(results, results + nCandidates);
   }
 
-  int evaluateElection(DataFrame df) {
+  int evaluate(DataFrame df) {
     election e = dfToElection(df);
     return evaluateElection(e);
   }
+
+  int evaluateSelf() { return evaluateElection(dtree.getObservedBallots()); };
 };
 
 RCPP_MODULE(RcppDirichletTreeIRV) {
@@ -105,7 +105,8 @@ RCPP_MODULE(RcppDirichletTreeIRV) {
       .constructor<int, float, std::string, std::string>()
       .method("reset", &RcppDirichletTreeIRV::reset)
       .method("update", &RcppDirichletTreeIRV::update)
-      .method("evaluateElection", &RcppDirichletTreeIRV::evaluateElection)
+      .method("evaluate", &RcppDirichletTreeIRV::evaluate)
+      .method("evaluateSelf", &RcppDirichletTreeIRV::evaluateSelf)
       .method("sample", &RcppDirichletTreeIRV::sample)
       .method("samplePosterior", &RcppDirichletTreeIRV::samplePosterior);
 };

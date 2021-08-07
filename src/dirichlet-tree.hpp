@@ -33,6 +33,8 @@ private:
       TREE_TYPE_DIRICHLET_TREE; // A boolean indicating whether the tree is a
                                 // vanilla dirichlet distribution or an
                                 // arbitrary dirichlet tree.
+  std::vector<Ballot>
+      observedBallots; // Ballots which have been observed so far.
   std::mt19937 engine;
 
 public:
@@ -53,8 +55,9 @@ public:
   // For sampling ballots from the posterior.
   election *sample(int nElections, int nBallots);
 
-  // For determining posterior probabilities of each candidate winning.
-  int *samplePosterior(int nElections, int nBallots, election incomplete);
+  // For determining posterior probabilities of each candidate winning, given a
+  // starting election.
+  int *samplePosterior(int nElections, int nBallots, bool useObserved);
 
   // Getters.
   float getScale() { return scale; }
@@ -62,6 +65,8 @@ public:
   int getNCandidates() { return nCandidates; }
 
   bool getTreeType() { return treeType; }
+
+  std::vector<Ballot> getObservedBallots() { return observedBallots; }
 
   std::mt19937 *getEnginePtr() { return &engine; }
 
