@@ -94,7 +94,7 @@ public: // Methods to be exposed to R
     return IntegerVector(results, results + nCandidates);
   }
 
-  int rcpp_evaluateElection(DataFrame df) {
+  int evaluateElection(DataFrame df) {
     election e = dfToElection(df);
     return evaluateElection(e);
   }
@@ -105,6 +105,7 @@ RCPP_MODULE(RcppDirichletTreeIRV) {
       .constructor<int, float, std::string, std::string>()
       .method("reset", &RcppDirichletTreeIRV::reset)
       .method("update", &RcppDirichletTreeIRV::update)
+      .method("evaluateElection", &RcppDirichletTreeIRV::evaluateElection)
       .method("sample", &RcppDirichletTreeIRV::sample)
       .method("samplePosterior", &RcppDirichletTreeIRV::samplePosterior);
 };
