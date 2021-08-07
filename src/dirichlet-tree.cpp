@@ -193,6 +193,10 @@ void DirichletTreeIRV::update(Ballot b) {
     permutationArray[i] = i + 1;
   }
 
+  // Update observed ballots.
+  observedBallots.push_back(b);
+
+  // Update the alpha parameters by traversing the tree.
   root->update(b.ballotPermutation, permutationArray);
 
   delete[] permutationArray;
@@ -223,28 +227,39 @@ election *DirichletTreeIRV::sample(
   return out;
 }
 
-/* Sample elections and tabulate election winners in an integer array.
+/* Sample elections with nBallots ballots in total, and tabulate election
+ * winners in an integer array.
  */
-int *DirichletTreeIRV::samplePosterior(int nElections, int nBallotsRemaining,
+int *DirichletTreeIRV::samplePosterior(int nElections, int nBallots,
                                        bool useObserved) {
   int *candidateWins = new int[nCandidates]{0};
-  int winner;
+  int winner, size;
   election *e;
+  election incomplete{};
 
-  // A copy of the incomplete election
-  election incompleteCopy{};
-  incompleteCopy.insert(incompleteCopy.end(), observedBallots.begin(),
-                        observedBallots.end());
+  if (useObserved) {
+    // Insert a copy of the incomplete election
+    incomplete.insert(incomplete.end(), observedBallots.begin(),
+                      observedBallots.end());
+    size = observedBallots.size();
+    nBallots = nBallots - size;
+  } else {
+    size = 0;
+  }
 
-  e = sample(nElections, nBallotsRemaining);
+  if (nBallots < 0) {
+    return candidateWins;
+  }
+
+  e = sample(nElections, nBallots);
 
   for (int i = 0; i < nElections; ++i) {
-    incompleteCopy.erase(incompleteCopy.begin() + observedBallots.size(),
-                         incompleteCopy.end());
-    incompleteCopy.insert(incompleteCopy.begin() + observedBallots.size(),
-                          e[i].begin(), e[i].end());
+    // Clear old sampled ballots and copy next sample in place.
+    incomplete.erase(incomplete.begin() + size, incomplete.end());
+    incomplete.insert(incomplete.begin() + size, e[i].begin(), e[i].end());
 
-    winner = evaluateElection(incompleteCopy);
+    // Evaluate completed election
+    winner = evaluateElection(incomplete);
 
     ++candidateWins[winner - 1];
   }

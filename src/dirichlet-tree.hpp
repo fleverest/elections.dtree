@@ -66,8 +66,6 @@ public:
 
   bool getTreeType() { return treeType; }
 
-  std::vector<Ballot> getObservedBallots() { return observedBallots; }
-
   std::mt19937 *getEnginePtr() { return &engine; }
 
   int *getFactorials() { return factorials; }
