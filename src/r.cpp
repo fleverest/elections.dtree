@@ -96,6 +96,8 @@ public: // Methods to be exposed to R
     election e = dfToElection(df);
     return evaluateElection(e);
   }
+
+  float getScale() { return dtree.getScale(); }
 };
 
 RCPP_MODULE(RcppDirichletTreeIRV) {
@@ -105,5 +107,6 @@ RCPP_MODULE(RcppDirichletTreeIRV) {
       .method("update", &RcppDirichletTreeIRV::update)
       .method("evaluate", &RcppDirichletTreeIRV::evaluate)
       .method("sample", &RcppDirichletTreeIRV::sample)
-      .method("samplePosterior", &RcppDirichletTreeIRV::samplePosterior);
+      .method("samplePosterior", &RcppDirichletTreeIRV::samplePosterior)
+      .method("getScale", &RcppDirichletTreeIRV::getScale);
 };

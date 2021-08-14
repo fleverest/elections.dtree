@@ -273,4 +273,5 @@ int *DirichletTreeIRV::samplePosterior(int nElections, int nBallots,
 void DirichletTreeIRV::reset() {
   delete root;
   root = new Node(nCandidates, this);
+  observedBallots = {};
 }

@@ -4,3 +4,4 @@ bin
 *.swp
 *.o
 *.so
+compile_commands.json
