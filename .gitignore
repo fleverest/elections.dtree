@@ -1,5 +1,6 @@
 simulations
 mcresults
+results
 bin
 *.swp
 *.o
