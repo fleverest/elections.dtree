@@ -1,11 +1,15 @@
 // Rexports.cpp
+//
+// [[Rcpp::depends(RcppThread)]]
 
 #include "ballot.hpp"
 #include "dirichlet-tree.hpp"
 #include "distributions.hpp"
 
 #include <Rcpp.h>
+#include <RcppThread.h>
 #include <string.h>
+#include <thread>
 
 using namespace Rcpp;
 
@@ -85,11 +89,36 @@ public: // Methods to be exposed to R
     return electionToDF(e, nCandidates);
   }
 
-  IntegerVector samplePosterior(int nElections, int nBallots,
-                                bool useObserved) {
-    int *results = dtree.samplePosterior(nElections, nBallots, useObserved);
+  IntegerVector samplePosterior(int nElections, int nBallots, bool useObserved,
+                                int nBatches = 1) {
+    int output[nCandidates]{0};
+    int **results = new int *[nBatches];
+    int electionBatchSize = nElections / nBatches;
+    int electionBatchRemainder = nElections % nBatches;
 
-    return IntegerVector(results, results + nCandidates);
+    // Use RcppThreads to compute the posterior in batches.
+    RcppThread::ThreadPool pool(std::thread::hardware_concurrency());
+
+    auto getBatchResult = [&](size_t i) -> void {
+      RcppThread::checkUserInterrupt();
+      results[i] = dtree.samplePosterior(
+          electionBatchSize +
+              (i == 1) * electionBatchRemainder, // include remainder for i= 1
+          nBallots, useObserved);
+    };
+
+    pool.parallelFor(0, nBatches, getBatchResult, nBatches);
+    pool.join();
+
+    for (int i = 0; i < nBatches; ++i) {
+      for (int j = 0; j < nCandidates; ++j) {
+        output[j] += results[i][j];
+      }
+      delete[] results[i];
+    }
+    delete[] results;
+
+    return IntegerVector(output, output + nCandidates);
   }
 
   int evaluate(DataFrame df) {
