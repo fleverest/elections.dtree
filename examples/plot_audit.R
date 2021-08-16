@@ -2,13 +2,13 @@ require('dirtree.elections')
 require('ggplot2')
 
 seed         = "seed12345"
-name         = "5cand_inaccurate"
+name         = "10c_10kb_medium_accurate"
 eScale       = 5.
 
-nCandidates  = 5
-nElections   = 25
+nCandidates  = 10
+nElections   = 500
 nBallots     = 1000
-scales       = c(0.1, 1., 10., 100.)
+scales       = c(0.01, 0.1, 1., 10., 100.)
 
 nRepetitions = 2
 nSteps       = 100
@@ -109,10 +109,11 @@ for (i in 1:nRepetitions) {
             counted
           ),
           as.list(
-              distr$samplePosterior(
+            distr$samplePosterior(
               nElections,
               nBallots,
-              F
+              F,
+              64
             )
           )
         )
@@ -131,7 +132,8 @@ for (i in 1:nRepetitions) {
             distr$samplePosterior(
               nElections,
               nBallots,
-              T
+              T,
+              64
             )
           )
         )
@@ -156,7 +158,8 @@ for (i in 1:nRepetitions) {
             distr$samplePosterior(
               nElections,
               nBallots,
-              F
+              F,
+              64
             )
           )
         )
@@ -175,7 +178,8 @@ for (i in 1:nRepetitions) {
             distr$samplePosterior(
               nElections,
               nBallots,
-              T
+              T,
+              64
             )
           )
         )

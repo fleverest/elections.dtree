@@ -13,7 +13,8 @@ SystemRequirements: C++11
 License: GPL-3
 LazyData: TRUE
 RoxygenNote: 7.1.1
-LinkingTo: 
-    Rcpp
-Imports: 
+LinkingTo:
+    Rcpp,
+    RcppThread
+Imports:
     Rcpp
