@@ -35,7 +35,9 @@ private:
                                 // arbitrary dirichlet tree.
   std::vector<Ballot>
       observedBallots; // Ballots which have been observed so far.
-  std::mt19937 engine;
+  std::mt19937 engine; // a default PRNG engine
+  std::string seed;    // Seed to be used in PRNG
+  long int nGenerated; // number of PRNG generations used
 
 public:
   // Custom constructor to calculate factorials, initialize a root node and RNG
@@ -52,12 +54,13 @@ public:
   // For updating prior to obtain a posterior.
   void update(Ballot b);
 
-  // For sampling ballots from the posterior.
-  election *sample(int nElections, int nBallots);
+  // For sampling ballots from the posterior using a specific PRNG.
+  election *sample(int nElections, int nBallots, std::mt19937 *engine = NULL);
 
   // For determining posterior probabilities of each candidate winning, given a
-  // starting election.
-  int *samplePosterior(int nElections, int nBallots, bool useObserved);
+  // starting election, using a specific PRNG.
+  int *samplePosterior(int nElections, int nBallots, bool useObserved,
+                       std::mt19937 *engine = NULL);
 
   // Getters.
   float getScale() { return scale; }
@@ -67,6 +70,14 @@ public:
   bool getTreeType() { return treeType; }
 
   std::mt19937 *getEnginePtr() { return &engine; }
+
+  std::string getSeed() {
+    // Increment seed.
+    seed = seed + "x";
+    return seed;
+  }
+
+  long int getNGenerated() { return nGenerated; }
 
   int *getFactorials() { return factorials; }
 };
@@ -106,7 +117,7 @@ public:
    * Append sampled ballots to the output vector.
    */
   void sample(int *nBallots, int nElections, int *permutationArray, int nChosen,
-              election *out);
+              election *out, std::mt19937 *engine);
 };
 
 #endif
