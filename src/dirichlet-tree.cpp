@@ -69,16 +69,19 @@ void Node::update(int *ballotPermutation, int *permutationArray) {
  * Append sampled ballots to the output vector.
  */
 void Node::sample(int *nBallots, int nElections, int *permutationArray,
-                  int nChosen, election *out) {
+                  int nChosen, election *out, std::mt19937 *engine) {
   Ballot *b;
   int *nextNBallots;
   bool atLeastOne;
+  if (engine == nullptr) {
+    engine = baseTree->getEnginePtr();
+  }
   int **countsForChildren = rDirichletMultinomial(
       nElections, nBallots, alphas, nChildren,
-      baseTree->getEnginePtr()); // nElections arrays of length nCandidates,
-                                 // each containing an array of counts which
-                                 // correspond to the number of ballots which
-                                 // choose child i as the next preference.
+      engine); // nElections arrays of length nCandidates,
+               // each containing an array of counts which
+               // correspond to the number of ballots which
+               // choose child i as the next preference.
 
   // If nCandidates is 2, we stop recursing and return the array of elections.
   // TODO: STV elections
@@ -131,11 +134,11 @@ void Node::sample(int *nBallots, int nElections, int *permutationArray,
     if (children[i] == nullptr) { // Sample random ballots indices.
       rElections(baseTree->getScale(), nextNBallots, nElections,
                  baseTree->getNCandidates(), permutationArray, nChosen + 1,
-                 baseTree->getEnginePtr(), baseTree->getTreeType(),
-                 baseTree->getFactorials(), out);
+                 engine, baseTree->getTreeType(), baseTree->getFactorials(),
+                 out);
     } else {
       children[i]->sample(nextNBallots, nElections, permutationArray,
-                          nChosen + 1, out);
+                          nChosen + 1, out, engine);
       // Concat the results for each election.
     }
     std::swap(permutationArray[nChosen + i], permutationArray[nChosen]);
@@ -162,9 +165,7 @@ DirichletTreeIRV::DirichletTreeIRV(int nCandidates, float scale, bool treeType,
 
   std::seed_seq s(seed.begin(), seed.end());
   std::mt19937 e(s);
-  for (int i = 0; i < 100; ++i) {
-    e(); // Warming up prng
-  }
+  e.discard(e.state_size * 100);
   engine = e;
 
   if (treeType == TREE_TYPE_VANILLA_DIRICHLET) {
@@ -205,8 +206,9 @@ void DirichletTreeIRV::update(Ballot b) {
 /* Sample elections (i.e. distinct sets of ballots) from the Dirichlet Tree.
  */
 election *DirichletTreeIRV::sample(
-    int nElections, // Number of elections to sample.
-    int nBallots    // Number of ballots to sample per election.
+    int nElections,      // Number of elections to sample.
+    int nBallots,        // Number of ballots to sample per election.
+    std::mt19937 *engine // (optional) custom PRNG to use.
 ) {
   election *out = new election[nElections];
   int *permutationArray = new int[nCandidates];
@@ -219,7 +221,7 @@ election *DirichletTreeIRV::sample(
     ballots[i] = nBallots;
   }
 
-  root->sample(ballots, nElections, permutationArray, nChosen, out);
+  root->sample(ballots, nElections, permutationArray, nChosen, out, engine);
 
   delete[] permutationArray;
   delete[] ballots;
@@ -231,7 +233,7 @@ election *DirichletTreeIRV::sample(
  * winners in an integer array.
  */
 int *DirichletTreeIRV::samplePosterior(int nElections, int nBallots,
-                                       bool useObserved) {
+                                       bool useObserved, std::mt19937 *engine) {
   int *candidateWins = new int[nCandidates]{0};
   int winner, size;
   election *e;
@@ -251,7 +253,7 @@ int *DirichletTreeIRV::samplePosterior(int nElections, int nBallots,
     return candidateWins;
   }
 
-  e = sample(nElections, nBallots);
+  e = sample(nElections, nBallots, engine);
 
   for (int i = 0; i < nElections; ++i) {
     // Clear old sampled ballots and copy next sample in place.

@@ -8,6 +8,7 @@
 
 #include <Rcpp.h>
 #include <RcppThread.h>
+#include <random>
 #include <string.h>
 #include <thread>
 
@@ -101,10 +102,17 @@ public: // Methods to be exposed to R
 
     auto getBatchResult = [&](size_t i) -> void {
       RcppThread::checkUserInterrupt();
+      // New PRNG
+      std::string seed = dtree.getSeed();
+      std::seed_seq s(seed.begin(), seed.end());
+      std::mt19937 e(s);
+      // Warm up PRNG
+      e.discard(e.state_size * 100);
+      // Sample posterior
       results[i] = dtree.samplePosterior(
           electionBatchSize +
               (i == 1) * electionBatchRemainder, // include remainder for i= 1
-          nBallots, useObserved);
+          nBallots, useObserved, &e);
     };
 
     pool.parallelFor(0, nBatches, getBatchResult, nBatches);

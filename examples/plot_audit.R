@@ -8,10 +8,10 @@ eScale       = 5.
 nCandidates  = 10
 nElections   = 500
 nBallots     = 1000
-scales       = c(0.01, 0.1, 1., 10., 100.)
+scales       = c(0.01, 0.1, 1., 10.)
 
 nRepetitions = 2
-nSteps       = 100
+nSteps       = 10
 stepSize     = nBallots/nSteps
 
 # Simulate an election from a dirichlet tree with scale `eScale` to audit.
