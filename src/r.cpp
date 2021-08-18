@@ -64,7 +64,7 @@ DataFrame electionToDF(election e, int nCandidates) {
 class RcppDirichletTreeIRV {
 private:
   DirichletTreeIRV dtree; // The internal Dirichlet Tree to interface with.
-  int nCandidates;
+  int nCandidates = 1;
 
 public: // Methods to be exposed to R
   // Constructor
@@ -92,7 +92,10 @@ public: // Methods to be exposed to R
 
   IntegerVector samplePosterior(int nElections, int nBallots, bool useObserved,
                                 int nBatches = 1) {
-    int output[nCandidates]{0};
+    int *output = new int[nCandidates];
+    for (int i = 0; i < nCandidates; ++i) {
+      output[i] = 0;
+    }
     int **results = new int *[nBatches];
     int electionBatchSize = nElections / nBatches;
     int electionBatchRemainder = nElections % nBatches;
