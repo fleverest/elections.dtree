@@ -6,12 +6,12 @@ name         = "10c_10kb_medium_accurate"
 eScale       = 5.
 
 nCandidates  = 10
-nElections   = 500
+nElections   = 1000
 nBallots     = 1000
 scales       = c(0.01, 0.1, 1., 10.)
 
 nRepetitions = 2
-nSteps       = 10
+nSteps       = 100
 stepSize     = nBallots/nSteps
 
 # Simulate an election from a dirichlet tree with scale `eScale` to audit.
