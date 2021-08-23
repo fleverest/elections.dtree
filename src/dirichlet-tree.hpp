@@ -36,8 +36,6 @@ private:
   std::vector<Ballot>
       observedBallots; // Ballots which have been observed so far.
   std::mt19937 engine; // a default PRNG engine
-  std::string seed;    // Seed to be used in PRNG
-  long int nGenerated; // number of PRNG generations used
 
 public:
   // Custom constructor to calculate factorials, initialize a root node and RNG
@@ -70,14 +68,6 @@ public:
   bool getTreeType() { return treeType; }
 
   std::mt19937 *getEnginePtr() { return &engine; }
-
-  std::string getSeed() {
-    // Increment seed.
-    seed = seed + "x";
-    return seed;
-  }
-
-  long int getNGenerated() { return nGenerated; }
 
   int *getFactorials() { return factorials; }
 };

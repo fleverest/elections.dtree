@@ -2,17 +2,24 @@ require('dirtree.elections')
 require('ggplot2')
 
 seed         = "seed12345"
-name         = "10c_10kb_medium_accurate"
+
 eScale       = 5.
 
-nCandidates  = 10
+nCandidates  = 4
 nElections   = 1000
 nBallots     = 1000
-scales       = c(0.01, 0.1, 1., 10.)
+scales       = c(0.01, 0.1, 1., 10., 100)
 
-nRepetitions = 2
+nRepetitions = 4
 nSteps       = 100
 stepSize     = nBallots/nSteps
+
+name         = paste(
+  paste("nCandidates",nCandidates,"/", sep=""),
+  paste("eScale", eScale, "/", sep=""),
+  paste("nBallots", nBallots, sep=""),
+  sep = ""
+)
 
 # Simulate an election from a dirichlet tree with scale `eScale` to audit.
 electionTree <- new(
@@ -54,12 +61,12 @@ for (s in scales) {
 
 # Prepare output dataframe columns
 outdf = data.frame(
-                 repno=integer(),
-                 usingObserved=logical(),
-                 treeType=character(),
-                 scale=numeric(),
-                 counted=numeric(),
-                 stringsAsFactors=F
+  repno=integer(),
+  usingObserved=logical(),
+  treeType=character(),
+  scale=numeric(),
+  counted=numeric(),
+  stringsAsFactors=F
 )
 for (i in 1:nCandidates) {
   colname = paste("wincount",as.character(i),sep='.')
@@ -83,7 +90,8 @@ for (i in 1:nRepetitions) {
   for (p in dtrees) {p$reset()}
   for (p in dirichlets) {p$reset()}
 
-  # Determine a ballot ordering
+  # Determine a ballot ordering, here we're sampling with replacement from
+  # the set of possible ballet orderings.
   election.i <- election.full[sample(1:nBallots,nBallots),]
 
   # Proceeding in steps, determine the posterior after updating with next batch and add to df.
@@ -189,6 +197,7 @@ for (i in 1:nRepetitions) {
 }
 
 write.csv(outdf, paste(name,'csv',sep='.'))
+outdf$scale <- as.factor(outdf$scale)
 png(paste(name,'png',sep='.'), width=1920, height=1080)
 
 ggplot(
@@ -196,13 +205,13 @@ ggplot(
   aes(
     x=jitter(counted),
     y=outdf[[paste("wincount",as.character(winner),sep='.')]],
-    color=treeType,
-    group=interaction(usingObserved,treeType,repno)
+    color=scale,
+    group=interaction(usingObserved,scale,repno)
   )
 ) +
   geom_point(aes(shape=usingObserved)) +
   geom_line(aes(linetype=usingObserved)) +
-  facet_wrap(~scale)
+  facet_wrap(~treeType)
 
 dev.off()
 

@@ -1,6 +1,7 @@
 // dirichlet-tree.cpp
 
 #include "dirichlet-tree.hpp"
+#include <random>
 
 /* Node class constructor.
  *
@@ -166,7 +167,7 @@ DirichletTreeIRV::DirichletTreeIRV(int nCandidates, float scale, bool treeType,
   std::seed_seq s(seed.begin(), seed.end());
   std::mt19937 e(s);
   e.discard(e.state_size * 100);
-  engine = e;
+  this->engine = e;
 
   if (treeType == TREE_TYPE_VANILLA_DIRICHLET) {
     // Initialize factorials for initial alpha calculations on each node.

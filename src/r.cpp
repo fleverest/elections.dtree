@@ -96,32 +96,37 @@ public: // Methods to be exposed to R
     for (int i = 0; i < nCandidates; ++i) {
       output[i] = 0;
     }
-    int **results = new int *[nBatches];
+    int **results = new int *[nBatches + 1];
     int electionBatchSize = nElections / nBatches;
     int electionBatchRemainder = nElections % nBatches;
+    // Seed one RNG for each thread.
+    std::mt19937 treeGen = *dtree.getEnginePtr();
+    unsigned seed[nBatches];
+    for (int i = 0; i < nBatches; ++i) {
+      seed[i] = treeGen();
+    }
 
     // Use RcppThreads to compute the posterior in batches.
     RcppThread::ThreadPool pool(std::thread::hardware_concurrency());
 
     auto getBatchResult = [&](size_t i) -> void {
       RcppThread::checkUserInterrupt();
-      // New PRNG
-      std::string seed = dtree.getSeed();
-      std::seed_seq s(seed.begin(), seed.end());
-      std::mt19937 e(s);
-      // Warm up PRNG
+      // Seed a new PRNG, and warm it up.
+      std::mt19937 e(seed[i]);
       e.discard(e.state_size * 100);
       // Sample posterior
-      results[i] = dtree.samplePosterior(
-          electionBatchSize +
-              (i == 1) * electionBatchRemainder, // include remainder for i= 1
-          nBallots, useObserved, &e);
+      results[i] =
+          dtree.samplePosterior(electionBatchSize, nBallots, useObserved, &e);
     };
 
     pool.parallelFor(0, nBatches, getBatchResult, nBatches);
     pool.join();
 
-    for (int i = 0; i < nBatches; ++i) {
+    for (int i = 0; i <= nBatches; ++i) {
+      // Sample remainder for the remainder.
+      if (i == nBatches) {
+        getBatchResult(i);
+      }
       for (int j = 0; j < nCandidates; ++j) {
         output[j] += results[i][j];
       }
