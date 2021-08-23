@@ -102,7 +102,7 @@ public: // Methods to be exposed to R
     // Seed one RNG for each thread.
     std::mt19937 treeGen = *dtree.getEnginePtr();
     unsigned seed[nBatches];
-    for (int i = 0; i < nBatches; ++i) {
+    for (int i = 0; i <= nBatches; ++i) {
       seed[i] = treeGen();
     }
 
@@ -125,7 +125,10 @@ public: // Methods to be exposed to R
     for (int i = 0; i <= nBatches; ++i) {
       // Sample remainder for the remainder.
       if (i == nBatches) {
-        getBatchResult(i);
+        std::mt19937 e(seed[i]);
+        e.discard(e.state_size * 100);
+        results[i] = dtree.samplePosterior(electionBatchRemainder, nBallots,
+                                           useObserved, &e);
       }
       for (int j = 0; j < nCandidates; ++j) {
         output[j] += results[i][j];
