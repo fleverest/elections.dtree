@@ -32,9 +32,7 @@ Node::Node(int nChildren_, DirichletTreeIRV *baseTree_)
  */
 Node::~Node() {
   for (int i = 0; i < nChildren; ++i) {
-    if (children[i] != nullptr) {
-      delete children[i]; // If child is initialized, call its' destructor.
-    }
+    delete children[i]; // delete children recursively
   }
   delete[] children;
   delete[] alphas;
@@ -276,5 +274,5 @@ int *DirichletTreeIRV::samplePosterior(int nElections, int nBallots,
 void DirichletTreeIRV::reset() {
   delete root;
   root = new Node(nCandidates, this);
-  observedBallots = {};
+  std::vector<Ballot>().swap(observedBallots);
 }

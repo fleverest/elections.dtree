@@ -75,7 +75,6 @@ int **rDirichletMultinomial(int n,        // Number of repetitions.
 void rElections(float scale, int *nBallots, int nElections, int nCandidates,
                 int *permutationArray, int nChosen, std::mt19937 *engine,
                 bool isVanilla, int *factorials, election *out) {
-  Ballot *b;
   bool atLeastOne;
   int *nextNBallots;
   int **countsForChildren;
@@ -86,12 +85,12 @@ void rElections(float scale, int *nBallots, int nElections, int nCandidates,
       if (nBallots[i] == 0)
         continue;
       // TODO: STV elections
-      b = new Ballot(nChosen + 1);
+      Ballot b(nChosen + 1);
       for (int j = 0; j < nChosen + 1; ++j) {
-        b->ballotPermutation[j] = permutationArray[j];
+        b.ballotPermutation[j] = permutationArray[j];
       }
       for (int j = 0; j < nBallots[i]; ++j) {
-        out[i].push_back(*b);
+        out[i].push_back(b);
       }
     }
     return;

@@ -5,13 +5,13 @@ seed         = "seed12345"
 
 eScale       = 5.
 
-nCandidates  = 4
-nElections   = 1000
+nCandidates  = 10
+nElections   = 500
 nBallots     = 1000
 scales       = c(0.01, 0.1, 1., 10., 100)
 
-nRepetitions = 4
-nSteps       = 100
+nRepetitions = 10
+nSteps       = 10
 stepSize     = nBallots/nSteps
 
 name         = paste(
@@ -31,54 +31,26 @@ electionTree <- new(
 )
 election.full <- electionTree$sample(nBallots=nBallots)
 winner <- electionTree$evaluate(election.full)
-
-
-# Prepare the prior distributions.
-dtrees <- c()
-dirichlets <- c()
-for (s in scales) {
-  dtrees <- c(
-    dtrees,
-    new(
-      RcppDirichletTreeIRV,
-      nCandidates=nCandidates,
-      scale=s,
-      treeType="dirichlettree",
-      seed=seed
-    )
-  )
-  dirichlets <- c(
-    dirichlets,
-    new(
-      RcppDirichletTreeIRV,
-      nCandidates=nCandidates,
-      scale=s,
-      treeType="dirichlet",
-      seed=seed
-    )
-  )
-}
+rm(electionTree)
+gc()
 
 # Prepare output dataframe columns
-outdf = data.frame(
+df.results = data.frame(
   repno=integer(),
   usingObserved=logical(),
   treeType=character(),
   scale=numeric(),
   counted=numeric(),
+  numWins=integer(),
   stringsAsFactors=F
 )
-for (i in 1:nCandidates) {
-  colname = paste("wincount",as.character(i),sep='.')
-  outdf[[colname]] <- integer()
-}
 
-addRow <- function(outdf, newvals) {
+addRow <- function(df.results, newvals) {
   rbind(
-    outdf,
+    df.results,
     setNames(
       data.frame(newvals),
-      colnames(outdf)
+      colnames(df.results)
     )
   )
 }
@@ -86,9 +58,35 @@ addRow <- function(outdf, newvals) {
 # Conduct `nRepetitions` audits for each of the priors.
 for (i in 1:nRepetitions) {
   print(paste("Repetition",i,sep=" "))
+
   # Reset the prior distributions to their original form.
-  for (p in dtrees) {p$reset()}
-  for (p in dirichlets) {p$reset()}
+  rm(dtrees)
+  rm(dirichlets)
+  gc()
+  dtrees <- c()
+  dirichlets <- c()
+  for (s in scales) {
+    dtrees <- c(
+      dtrees,
+      new(
+        RcppDirichletTreeIRV,
+        nCandidates=nCandidates,
+        scale=s,
+        treeType="dirichlettree",
+        seed=seed
+      )
+    )
+    dirichlets <- c(
+      dirichlets,
+      new(
+        RcppDirichletTreeIRV,
+        nCandidates=nCandidates,
+        scale=s,
+        treeType="dirichlet",
+        seed=seed
+      )
+    )
+  }
 
   # Determine a ballot ordering, here we're sampling with replacement from
   # the set of possible ballet orderings.
@@ -106,44 +104,36 @@ for (i in 1:nRepetitions) {
       distr$update(election.batch)
       type <- "dtree"
       s <- distr$getScale()
-      outdf <- addRow(
-        outdf,
-        append(
-          list(
-            i,
+      df.results <- addRow(
+        df.results,
+        list(
+          i,
+          F,
+          type,
+          s,
+          counted,
+          distr$samplePosterior(
+            nElections,
+            nBallots,
             F,
-            type,
-            s,
-            counted
-          ),
-          as.list(
-            distr$samplePosterior(
-              nElections,
-              nBallots,
-              F,
-              64
-            )
-          )
+            64
+          )[winner]
         )
       )
-      outdf <- addRow(
-        outdf,
-        append(
-          list(
-            i,
-            T,
-            type,
-            s,
-            counted
-          ),
-          as.list(
-            distr$samplePosterior(
-              nElections,
-              nBallots,
-              T,
-              64
-            )
-          )
+      df.results <- addRow(
+        df.results,
+        list(
+          i,
+          T,
+          type,
+          s,
+          counted,
+          distr$samplePosterior(
+            nElections,
+            nBallots,
+            F,
+            64
+          )[winner]
         )
       )
     }
@@ -152,66 +142,90 @@ for (i in 1:nRepetitions) {
       distr$update(election.batch)
       type <- "dirichlet"
       s <- distr$getScale()
-      outdf <- addRow(
-        outdf,
-        append(
-          list(
-            i,
+      df.results <- addRow(
+      df.results,
+        list(
+          i,
+          F,
+          type,
+          s,
+          counted,
+          distr$samplePosterior(
+            nElections,
+            nBallots,
             F,
-            type,
-            s,
-            counted
-          ),
-          as.list(
-            distr$samplePosterior(
-              nElections,
-              nBallots,
-              F,
-              64
-            )
-          )
+            64
+          )[winner]
         )
       )
-      outdf <- addRow(
-        outdf,
-        append(
-          list(
-            i,
-            T,
-            type,
-            s,
-            counted
-          ),
-          as.list(
-            distr$samplePosterior(
-              nElections,
-              nBallots,
-              T,
-              64
-            )
-          )
+      df.results <- addRow(
+        df.results,
+        list(
+          i,
+          T,
+          type,
+          s,
+          counted,
+          distr$samplePosterior(
+            nElections,
+            nBallots,
+            F,
+            64
+          )[winner]
         )
       )
     }
   }
 }
 
-write.csv(outdf, paste(name,'csv',sep='.'))
-outdf$scale <- as.factor(outdf$scale)
+# construct a new skeleton dataframe with the summary statistics for
+# each distribution / audit count step.
+df.out <- unique(df.results[,2:5])
+nrows <- dim(df.out)[1]
+df.out$mean <- rep(0,nrows)
+df.out$pi.lower <- rep(0,nrows)
+df.out$pi.upper <- rep(1,nrows)
+
+# The negative log-likelihood of the beta-binomial distribution
+negll.betabin <- function(par, k, n) {
+  return(
+    sum(
+      lbeta(par[1],par[2]) - lbeta(k+par[1],n-k+par[2])
+    )
+  )
+}
+
+comb.res <- interaction(df.results[,2:5])
+comb.out <- interaction(df.out[,1:4])
+for (i in 1:nrows) {
+  # We want the results which correspond to the same step of the
+  # same distribution for each repetition.
+  df.rows <- df.results[comb.res == comb.out[i],]
+  # the beta-binomial samples
+  ks <- df.rows$numWins
+  par <- optim(c(10,10),negll.betabin, k = ks, n = nElections, lower = 0.01, method = "L-BFGS-B")$par
+  # Calculate mean, 0.05 and 0.95 quantiles for beta probability with these parameters.
+  df.out$mean[i] <- par[1]/sum(par)
+  df.out$pi.lower[i] <- qbeta(0.05,par[1],par[2])
+  df.out$pi.upper[i] <- qbeta(0.95,par[1],par[2])
+}
+
+write.csv(df.results, paste(name,'raw.csv',sep='.'))
+write.csv(df.out, paste(name,'csv',sep='.'))
 png(paste(name,'png',sep='.'), width=1920, height=1080)
 
 ggplot(
-  outdf,
+  df.out,
   aes(
     x=jitter(counted),
-    y=outdf[[paste("wincount",as.character(winner),sep='.')]],
-    color=scale,
-    group=interaction(usingObserved,scale,repno)
+    y=mean,
+    color=as.factor(scale),
+    group=as.factor(scale)
   )
 ) +
-  geom_point(aes(shape=usingObserved)) +
-  geom_line(aes(linetype=usingObserved)) +
-  facet_wrap(~treeType)
+  geom_line() +
+  geom_ribbon(aes(y=mean, ymin=pi.lower, ymax=pi.upper), alpha=0.1) +
+  facet_wrap(~interaction(treeType,usingObserved))
 
 dev.off()
 

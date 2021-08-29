@@ -86,8 +86,10 @@ public: // Methods to be exposed to R
 
   DataFrame sample(int nBallots) {
     DataFrame out = DataFrame::create();
-    election e = dtree.sample(1, nBallots)[0];
-    return electionToDF(e, nCandidates);
+    election *e = dtree.sample(1, nBallots);
+    out = electionToDF(e[0], nCandidates);
+    delete[] e;
+    return out;
   }
 
   IntegerVector samplePosterior(int nElections, int nBallots, bool useObserved,
@@ -137,7 +139,9 @@ public: // Methods to be exposed to R
     }
     delete[] results;
 
-    return IntegerVector(output, output + nCandidates);
+    Rcpp::IntegerVector out(output, output + nCandidates);
+    delete[] output;
+    return out;
   }
 
   int evaluate(DataFrame df) {
