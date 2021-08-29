@@ -12,9 +12,9 @@
 #include <vector>
 
 struct Ballot {
-  int *ballotPermutation; // Ballot represented as a permutation.
   int nPreferences; // The number of preferences selected. In IRV elections this
                     // must be equal to the number of candidates.
+  int *ballotPermutation; // Ballot represented as a permutation.
   // Default constructor
   Ballot(int nPreferences);
   // Copy Constructor
