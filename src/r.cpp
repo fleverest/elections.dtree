@@ -1,5 +1,6 @@
 // Rexports.cpp
 //
+// [[Rcpp::plugins("cpp17")
 // [[Rcpp::depends(RcppThread)]]
 
 #include "ballot.hpp"
@@ -71,14 +72,37 @@ public: // Methods to be exposed to R
   RcppDirichletTreeIRV(int nCandidates, float scale, std::string treeType,
                        std::string seed)
       : nCandidates(nCandidates),
-        dtree(*new DirichletTreeIRV(nCandidates, scale, treeType == "dirichlet",
-                                    seed)) {}
+        dtree(nCandidates, 1., TREE_TYPE_DIRICHLET_TREE, seed) {
+    setTreeType(treeType);
+    setScale(scale);
+  }
 
   void reset() { dtree.reset(); }
 
+  void setTreeType(std::string treeType) {
+    bool tt;
+    if (treeType == "dirichlet") {
+      tt = TREE_TYPE_VANILLA_DIRICHLET;
+    } else if (treeType == "dirichlettree") {
+      tt = TREE_TYPE_DIRICHLET_TREE;
+    } else {
+      dtree.setTreeType(TREE_TYPE_DIRICHLET_TREE);
+      Rcpp::stop("`treeType` must be either 'dirichlet' or 'dirichlettree'. "
+                 "Defaulted to 'dirichlettree'");
+    }
+    dtree.setTreeType(tt);
+  }
+
+  void setScale(float scale) {
+    if (scale <= 0) {
+      dtree.setScale(1.);
+      Rcpp::stop("`scale` must be >=0. Defaulted to 1.");
+    }
+    dtree.setScale(scale);
+  }
+
   void update(DataFrame ballotCounts) {
     election e = dfToElection(ballotCounts);
-
     for (auto b : e) {
       dtree.update(b);
     }
