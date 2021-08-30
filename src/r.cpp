@@ -61,128 +61,94 @@ DataFrame electionToDF(election e, int nCandidates) {
   return out;
 }
 
-// R Interface for the DirichletTreeIRV class.
-class RcppDirichletTreeIRV {
-private:
-  DirichletTreeIRV dtree; // The internal Dirichlet Tree to interface with.
-  int nCandidates = 1;
+// Rcpp interface to evaluate an election outcome.
+// [[Rcpp::export]]
+int evaluateElection(DataFrame df) {
+  election e = dfToElection(df);
+  return evaluateElection(e);
+}
 
-public: // Methods to be exposed to R
-  // Constructor
-  RcppDirichletTreeIRV(int nCandidates, float scale, std::string treeType,
-                       std::string seed)
-      : nCandidates(nCandidates),
-        dtree(nCandidates, 1., TREE_TYPE_DIRICHLET_TREE, seed) {
-    setTreeType(treeType);
-    setScale(scale);
+// Rcpp interface to update must convert from DataFrame to election.
+void update(DirichletTreeIRV *dtree, DataFrame ballots) {
+  election bs = dfToElection(ballots);
+  for (auto b : bs) {
+    dtree->update(b);
+  }
+}
+
+// R interface to sample will sample one election from the distribution.
+DataFrame sampleBallots(DirichletTreeIRV *dtree, int nBallots) {
+  DataFrame out = DataFrame::create();
+  election *e = dtree->sample(1, nBallots);
+  out = electionToDF(e[0], dtree->getNCandidates());
+  delete[] e;
+  return out;
+}
+
+// Rcpp interface to samplePosterior.
+IntegerVector samplePosterior(DirichletTreeIRV *dtree, int nElections,
+                              int nBallots, bool useObserved, int nBatches) {
+  int nCandidates = dtree->getNCandidates();
+  int *output = new int[nCandidates];
+  for (int i = 0; i < nCandidates; ++i) {
+    output[i] = 0;
+  }
+  int **results = new int *[nBatches + 1];
+  int electionBatchSize = nElections / nBatches;
+  int electionBatchRemainder = nElections % nBatches;
+  // Seed one RNG for each thread.
+  std::mt19937 treeGen = *dtree->getEnginePtr();
+  unsigned seed[nBatches];
+  for (int i = 0; i <= nBatches; ++i) {
+    seed[i] = treeGen();
   }
 
-  void reset() { dtree.reset(); }
+  // Use RcppThreads to compute the posterior in batches.
+  RcppThread::ThreadPool pool(std::thread::hardware_concurrency());
 
-  void setTreeType(std::string treeType) {
-    bool tt;
-    if (treeType == "dirichlet") {
-      tt = TREE_TYPE_VANILLA_DIRICHLET;
-    } else if (treeType == "dirichlettree") {
-      tt = TREE_TYPE_DIRICHLET_TREE;
-    } else {
-      dtree.setTreeType(TREE_TYPE_DIRICHLET_TREE);
-      Rcpp::stop("`treeType` must be either 'dirichlet' or 'dirichlettree'. "
-                 "Defaulted to 'dirichlettree'");
-    }
-    dtree.setTreeType(tt);
-  }
+  auto getBatchResult = [&](size_t i) -> void {
+    RcppThread::checkUserInterrupt();
+    // Seed a new PRNG, and warm it up.
+    std::mt19937 e(seed[i]);
+    e.discard(e.state_size * 100);
+    // Sample posterior
+    results[i] =
+        dtree->samplePosterior(electionBatchSize, nBallots, useObserved, &e);
+  };
 
-  void setScale(float scale) {
-    if (scale <= 0) {
-      dtree.setScale(1.);
-      Rcpp::stop("`scale` must be >=0. Defaulted to 1.");
-    }
-    dtree.setScale(scale);
-  }
+  pool.parallelFor(0, nBatches, getBatchResult, nBatches);
+  pool.join();
 
-  void update(DataFrame ballotCounts) {
-    election e = dfToElection(ballotCounts);
-    for (auto b : e) {
-      dtree.update(b);
-    }
-  }
-
-  DataFrame sample(int nBallots) {
-    DataFrame out = DataFrame::create();
-    election *e = dtree.sample(1, nBallots);
-    out = electionToDF(e[0], nCandidates);
-    delete[] e;
-    return out;
-  }
-
-  IntegerVector samplePosterior(int nElections, int nBallots, bool useObserved,
-                                int nBatches = 1) {
-    int *output = new int[nCandidates];
-    for (int i = 0; i < nCandidates; ++i) {
-      output[i] = 0;
-    }
-    int **results = new int *[nBatches + 1];
-    int electionBatchSize = nElections / nBatches;
-    int electionBatchRemainder = nElections % nBatches;
-    // Seed one RNG for each thread.
-    std::mt19937 treeGen = *dtree.getEnginePtr();
-    unsigned seed[nBatches];
-    for (int i = 0; i <= nBatches; ++i) {
-      seed[i] = treeGen();
-    }
-
-    // Use RcppThreads to compute the posterior in batches.
-    RcppThread::ThreadPool pool(std::thread::hardware_concurrency());
-
-    auto getBatchResult = [&](size_t i) -> void {
-      RcppThread::checkUserInterrupt();
-      // Seed a new PRNG, and warm it up.
+  for (int i = 0; i <= nBatches; ++i) {
+    // Sample remainder for the remainder.
+    if (i == nBatches) {
       std::mt19937 e(seed[i]);
       e.discard(e.state_size * 100);
-      // Sample posterior
-      results[i] =
-          dtree.samplePosterior(electionBatchSize, nBallots, useObserved, &e);
-    };
-
-    pool.parallelFor(0, nBatches, getBatchResult, nBatches);
-    pool.join();
-
-    for (int i = 0; i <= nBatches; ++i) {
-      // Sample remainder for the remainder.
-      if (i == nBatches) {
-        std::mt19937 e(seed[i]);
-        e.discard(e.state_size * 100);
-        results[i] = dtree.samplePosterior(electionBatchRemainder, nBallots,
-                                           useObserved, &e);
-      }
-      for (int j = 0; j < nCandidates; ++j) {
-        output[j] += results[i][j];
-      }
-      delete[] results[i];
+      results[i] = dtree->samplePosterior(electionBatchRemainder, nBallots,
+                                          useObserved, &e);
     }
-    delete[] results;
-
-    Rcpp::IntegerVector out(output, output + nCandidates);
-    delete[] output;
-    return out;
+    for (int j = 0; j < nCandidates; ++j) {
+      output[j] += results[i][j];
+    }
+    delete[] results[i];
   }
+  delete[] results;
 
-  int evaluate(DataFrame df) {
-    election e = dfToElection(df);
-    return evaluateElection(e);
-  }
+  Rcpp::IntegerVector out(output, output + nCandidates);
+  delete[] output;
+  return out;
+}
 
-  float getScale() { return dtree.getScale(); }
-};
-
-RCPP_MODULE(RcppDirichletTreeIRV) {
-  class_<RcppDirichletTreeIRV>("RcppDirichletTreeIRV")
-      .constructor<int, float, std::string, std::string>()
-      .method("reset", &RcppDirichletTreeIRV::reset)
-      .method("update", &RcppDirichletTreeIRV::update)
-      .method("evaluate", &RcppDirichletTreeIRV::evaluate)
-      .method("sample", &RcppDirichletTreeIRV::sample)
-      .method("samplePosterior", &RcppDirichletTreeIRV::samplePosterior)
-      .method("getScale", &RcppDirichletTreeIRV::getScale);
+RCPP_MODULE(dirichlet_tree_irv_module) {
+  class_<DirichletTreeIRV>("DirichletTreeIRV")
+      .constructor<int, float, bool, std::string>()
+      .property("nCandidates", &DirichletTreeIRV::getNCandidates)
+      .property("scale", &DirichletTreeIRV::getScale,
+                &DirichletTreeIRV::setScale)
+      .property("treeType", &DirichletTreeIRV::getTreeType,
+                &DirichletTreeIRV::setTreeType)
+      .method("clear", &DirichletTreeIRV::clear)
+      .method("update", &update)
+      .method("sampleBallots", &sampleBallots)
+      .method("samplePosterior", &samplePosterior);
 };

@@ -22,15 +22,9 @@ name         = paste(
 )
 
 # Simulate an election from a dirichlet tree with scale `eScale` to audit.
-electionTree <- new(
-  RcppDirichletTreeIRV,
-  nCandidates=nCandidates,
-  scale=eScale,
-  treeType="dirichlettree",
-  seed=seed
-)
-election.full <- electionTree$sample(nBallots=nBallots)
-winner <- electionTree$evaluate(election.full)
+dtree <- dirtree.irv(10)
+election.full <- sample(dtree, nBallots)
+winner <- evaluateElection(election.full)
 rm(electionTree)
 gc()
 

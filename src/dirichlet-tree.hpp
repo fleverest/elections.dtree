@@ -220,11 +220,14 @@ public:
     }
   }
 
+  // No copying
+  DirichletTreeIRV(const DirichletTreeIRV &dtree) = delete;
+
   // Destructor must delete factorials array.
   ~DirichletTreeIRV() { delete factorials; }
 
   // Reset the prior to original state before observing any data.
-  void reset() {
+  void clear() {
     delete root;
     root = new node(nCandidates);
   }
