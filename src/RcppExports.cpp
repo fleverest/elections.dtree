@@ -10,11 +10,23 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// evaluateElection
+int evaluateElection(DataFrame df);
+RcppExport SEXP _dirtree_elections_evaluateElection(SEXP dfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< DataFrame >::type df(dfSEXP);
+    rcpp_result_gen = Rcpp::wrap(evaluateElection(df));
+    return rcpp_result_gen;
+END_RCPP
+}
 
-RcppExport SEXP _rcpp_module_boot_RcppDirichletTreeIRV();
+RcppExport SEXP _rcpp_module_boot_dirichlet_tree_irv_module();
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_rcpp_module_boot_RcppDirichletTreeIRV", (DL_FUNC) &_rcpp_module_boot_RcppDirichletTreeIRV, 0},
+    {"_dirtree_elections_evaluateElection", (DL_FUNC) &_dirtree_elections_evaluateElection, 1},
+    {"_rcpp_module_boot_dirichlet_tree_irv_module", (DL_FUNC) &_rcpp_module_boot_dirichlet_tree_irv_module, 0},
     {NULL, NULL, 0}
 };
 
