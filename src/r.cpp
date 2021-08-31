@@ -93,12 +93,12 @@ IntegerVector samplePosterior(DirichletTreeIRV *dtree, int nElections,
   for (int i = 0; i < nCandidates; ++i) {
     output[i] = 0;
   }
-  int **results = new int *[nBatches + 1];
+  int *results[nBatches + 1];
   int electionBatchSize = nElections / nBatches;
   int electionBatchRemainder = nElections % nBatches;
   // Seed one RNG for each thread.
   std::mt19937 *treeGen = dtree->getEnginePtr();
-  unsigned seed[nBatches];
+  unsigned seed[nBatches + 1];
   for (int i = 0; i <= nBatches; ++i) {
     seed[i] = (*treeGen)();
   }
@@ -123,6 +123,8 @@ IntegerVector samplePosterior(DirichletTreeIRV *dtree, int nElections,
   for (int i = 0; i <= nBatches; ++i) {
     // Sample remainder for the remainder.
     if (i == nBatches) {
+      if (electionBatchRemainder == 0)
+        continue;
       std::mt19937 e(seed[i]);
       e.discard(e.state_size * 100);
       results[i] = dtree->samplePosterior(electionBatchRemainder, nBallots,
@@ -133,7 +135,6 @@ IntegerVector samplePosterior(DirichletTreeIRV *dtree, int nElections,
     }
     delete[] results[i];
   }
-  delete[] results;
 
   Rcpp::IntegerVector out(output, output + nCandidates);
   delete[] output;

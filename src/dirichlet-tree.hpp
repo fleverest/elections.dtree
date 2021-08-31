@@ -48,11 +48,12 @@ private:
     // children.
     ~node() {
       // Destroy alphas.
-      delete alphas;
+      delete[] alphas;
       // Destroy children
       for (auto i = 0; i < nChildren; ++i) {
         delete children[i];
       }
+      delete[] children;
     }
 
     // An update method to observe ballots. Must update alpha parameters and add
@@ -139,6 +140,7 @@ private:
             for (int k = 0; k < countsForChildren[i][j]; ++k) {
               out[i].push_back(*b);
             }
+            delete b;
           }
           std::swap(permutationArray[nChosen + j], permutationArray[nChosen]);
         }
@@ -229,7 +231,7 @@ public:
   void clear() {
     delete root;
     root = new node(nCandidates);
-    observedBallots = {};
+    observedBallots.clear();
   }
 
   // Core methods for inference implemented in `dirichlet-tree.cpp`.

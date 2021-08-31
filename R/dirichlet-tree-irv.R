@@ -94,7 +94,7 @@ update.Rcpp_DirichletTreeIRV <- function(dtree, ballots){
 #'        be split into for tuning multithreading performance.
 #' @return A dataframe with rows corresponding to the drawn ballots.
 #' @export
-samplePosterior <- function(dtree, nElections, nBallots, useObserved = T, nBatches = 64) {
+samplePosterior <- function(dtree, nElections, nBallots, useObserved = T, nBatches = nElections/2) {
   stopifnot(class(dtree) %in% .dtree_classes)
   # Ensure nElections is > 0
   if (nElections <= 0){
