@@ -54,7 +54,7 @@ if (is.null(opt$nRepetitions)) {
 if (is.null(opt$nElections)) {
   nElections <- 100
 } else {
-  nelections <- opt$nElections
+  nElections <- opt$nElections
 }
 stepSize     = nBallots/nSteps
 
@@ -68,13 +68,13 @@ name = paste(
 )
 
 # Simulate an election from a dirichlet tree with scale `eScale` to audit.
-dtree <- dirtree.irv(10, scale=eScale)
+dtree <- dirtree.irv(nCandidates, scale=eScale)
 election.full <- draw(dtree, nBallots)
-print("Election simulated.")
+cat("Election simulated.\n")
 winner <- evaluate.election(election.full)
-print("First preferences:")
+cat("First preferences:")
 print(table(election.full[,1]))
-print(paste(winner, "wins the election."))
+cat(paste(winner, "wins the election.\n"))
 
 # Prepare output dataframe columns
 df.results = data.frame(
@@ -98,7 +98,7 @@ addRow <- function(df.results, newvals) {
 
 # Conduct `nRepetitions` audits for each of the priors.
 for (i in 1:nRepetitions) {
-  print(paste("Repetition",i,sep=" "))
+  cat(paste("\nRepetition",i,"\n",sep=" "))
 
   # Reset the dtree to the initial prior.
   clear(dtree)
@@ -109,8 +109,9 @@ for (i in 1:nRepetitions) {
 
   # Proceeding in steps, determine the posterior after updating with next batch and add to df.
   counted = 0.
+  pb <- txtProgressBar(min = 1, max = nSteps, style = 3)
   for (stepNum in 1:nSteps) {
-    print(paste("Step",stepNum,sep=" "))
+    setTxtProgressBar(pb, stepNum)
     election.batch <- election.i[(stepSize*(stepNum-1)+1):(stepSize*stepNum),]
     counted = counted + stepSize
     update(dtree, election.batch)
