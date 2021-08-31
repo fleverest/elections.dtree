@@ -112,7 +112,7 @@ private:
         if (treeType == TREE_TYPE_DIRICHLET_TREE) {
           effectiveAlphas[i] = alphas[i] + scale;
         } else { // treeType == TREE_TYPE_VANILLA_DIRICHLET
-          effectiveAlphas[i] = alphas[i] + scale * (float)factorials[nChildren];
+          effectiveAlphas[i] = alphas[i] + scale * factorials[nChildren];
         }
       }
       // Get Dirichlet-multinomial counts for next-preference selections below
@@ -282,8 +282,7 @@ public:
   int *samplePosterior(int nElections, int nBallots, bool useObserved,
                        std::mt19937 *engine = nullptr) {
     int *candidateWins = new int[nCandidates]{0};
-    int winner;
-    int numObserved = observedBallots.size();
+    int winner, numObserved;
     election *e;
     election incomplete{};
 
@@ -291,9 +290,12 @@ public:
       // Insert a copy of the incomplete election
       incomplete.insert(incomplete.end(), observedBallots.begin(),
                         observedBallots.end());
+      numObserved = observedBallots.size();
+    } else {
+      numObserved = 0;
     }
 
-    if (nBallots < 0) {
+    if (nBallots - numObserved < 0) {
       return candidateWins;
     }
 
