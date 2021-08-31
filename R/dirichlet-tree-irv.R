@@ -108,5 +108,24 @@ samplePosterior <- function(dtree, nElections, nBallots, useObserved = T, nBatch
   if (!is.logical(useObserved)){
     stop("useObserved must be a logical")
   }
-  return(dtree$samplePosterior(as.integer(nElections),as.integer(nBallots),useObserved,as.integer(nBatches)))
+  # Ensure nBatches < nElections.
+  if (nBatches > nElections) {
+    print(paste("Warning: nBatches (", nBatches,") > nElections (", nElections, "). Setting nBatches to ",nElections/2, ".", sep=""))
+    nBatches <- nElections/2
+  }
+  result <- dtree$samplePosterior(as.integer(nElections),as.integer(nBallots),useObserved,as.integer(nBatches))
+  return(result)
+}
+
+# evaluateElection
+
+#' @name evaluate.election
+#' @title Evaluates the outcome of an election
+#' @description Given a DataFrame input representing the ballots of an
+#'              election, outputs the winner.
+#' @param ballots a DataFrame representing the complete set of election ballots>
+#' @return an integer representing the index of the victorious candidate.
+#' @export
+evaluate.election <- function(ballots) {
+  return(evaluateElection(ballots))
 }

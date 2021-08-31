@@ -1,36 +1,83 @@
-require('dirtree.elections')
-require('ggplot2')
+#!/usr/bin/Rscript
 
-seed         = "seed12345"
+# Command line arguments
+library('getopt')
 
-eScale       = 5.
+spec <- matrix(c(
+  'nCandidates', 'n', 1, "integer", "The number of candidates in the election (required)" ,
+  'nBallots', 'm', 1, "integer", "The number of ballots cast in the election (required)",
+  'scales', 's', 1, "character", "The prior scales to consider (required)",
+  'eScale', 'k', 1, "numeric", "The scale of the initial election, determines the margin (required)",
+  'nElections', 'e', 1, "integer", "The number of elections to draw during sampling (optional, default 100)",
+  'nRepetitions', 'r', 1, "integer", "The number of repetitions of the experiment (optional, default 10)",
+  'nSteps', 'p', 1, "integer", "The number of points to evaluate the posterior at (optional, default 10)",
+  'seed', 'c', 1, "character", "The seed for the experiment (optional, default \"seed\")",
+  'help', 'h', 0, "logical", "Display this help menu"
+  ), ncol=5, byrow=T)
 
-nCandidates  = 10
-nElections   = 500
-nBallots     = 1000
-scales       = c(0.01, 0.1, 1., 10., 100)
+opt = getopt(spec)
+if (!is.null(opt$help)) {
+    cat(paste(getopt(spec, usage=T),"\n"))
+    q()
+}
 
-nRepetitions = 10
-nSteps       = 10
+# Ensure required parameters are passed.
+if (any(mapply(is.null,
+  list(opt$nCandidates, opt$nBallots, opt$scales, opt$eScale)
+))) {
+  cat("Error. Missing required parameters.\n")
+  cat(paste(getopt(spec, usage=T), "\n"))
+  q()
+} else {
+  nCandidates <- opt$nCandidates
+  nBallots <- opt$nBallots
+  eScale <- opt$eScale
+  scales <- as.vector(mapply(as.numeric,strsplit(opt$scales,',')[[1]]))
+}
+
+# Set defaults for missing parameters.
+if (is.null(opt$seed)) {
+  seed <- "seed"
+} else {
+  seed <- opt$seed
+}
+if (is.null(opt$nSteps)) {
+  nSteps <- 10
+} else {
+  nSteps <- opt$nSteps
+}
+if (is.null(opt$nRepetitions)) {
+  nRepetitions <- 10
+} else {
+  nRepetitions <- opt$nRepetitions
+}
+if (is.null(opt$nElections)) {
+  nElections <- 100
+} else {
+  nelections <- opt$nElections
+}
 stepSize     = nBallots/nSteps
 
-name         = paste(
-  paste("nCandidates",nCandidates,"/", sep=""),
-  paste("eScale", eScale, "/", sep=""),
+require('dirtree.elections')
+require('ggplot2')
+dir  = paste("nCandidates",nCandidates,"/","eScale",eScale,"/",sep="")
+name = paste(
+  dir,
   paste("nBallots", nBallots, sep=""),
   sep = ""
 )
 
 # Simulate an election from a dirichlet tree with scale `eScale` to audit.
-dtree <- dirtree.irv(10)
-election.full <- sample(dtree, nBallots)
-winner <- evaluateElection(election.full)
-rm(electionTree)
-gc()
+dtree <- dirtree.irv(10, scale=eScale)
+election.full <- draw(dtree, nBallots)
+print("Election simulated.")
+winner <- evaluate.election(election.full)
+print("First preferences:")
+print(table(election.full[,1]))
+print(paste(winner, "wins the election."))
 
 # Prepare output dataframe columns
 df.results = data.frame(
-  repno=integer(),
   usingObserved=logical(),
   treeType=character(),
   scale=numeric(),
@@ -53,34 +100,8 @@ addRow <- function(df.results, newvals) {
 for (i in 1:nRepetitions) {
   print(paste("Repetition",i,sep=" "))
 
-  # Reset the prior distributions to their original form.
-  rm(dtrees)
-  rm(dirichlets)
-  gc()
-  dtrees <- c()
-  dirichlets <- c()
-  for (s in scales) {
-    dtrees <- c(
-      dtrees,
-      new(
-        RcppDirichletTreeIRV,
-        nCandidates=nCandidates,
-        scale=s,
-        treeType="dirichlettree",
-        seed=seed
-      )
-    )
-    dirichlets <- c(
-      dirichlets,
-      new(
-        RcppDirichletTreeIRV,
-        nCandidates=nCandidates,
-        scale=s,
-        treeType="dirichlet",
-        seed=seed
-      )
-    )
-  }
+  # Reset the dtree to the initial prior.
+  clear(dtree)
 
   # Determine a ballot ordering, here we're sampling with replacement from
   # the set of possible ballet orderings.
@@ -92,79 +113,75 @@ for (i in 1:nRepetitions) {
     print(paste("Step",stepNum,sep=" "))
     election.batch <- election.i[(stepSize*(stepNum-1)+1):(stepSize*stepNum),]
     counted = counted + stepSize
+    update(dtree, election.batch)
 
     # Dirichlet Trees
-    for (distr in dtrees) {
-      distr$update(election.batch)
-      type <- "dtree"
-      s <- distr$getScale()
+    dtree$isDirichlet <- F
+    for (s in scales) {
+      dtree$scale <- s
+      type <- "tree"
       df.results <- addRow(
         df.results,
         list(
-          i,
           F,
           type,
           s,
           counted,
-          distr$samplePosterior(
+          samplePosterior(
+            dtree,
             nElections,
             nBallots,
-            F,
-            64
+            F
           )[winner]
         )
       )
       df.results <- addRow(
         df.results,
         list(
-          i,
           T,
           type,
           s,
           counted,
-          distr$samplePosterior(
+          samplePosterior(
+            dtree,
             nElections,
             nBallots,
-            F,
-            64
+            T
           )[winner]
         )
       )
     }
     # Dirichlets
-    for (distr in dirichlets) {
-      distr$update(election.batch)
+    dtree$isDirichlet <- T
+    for (s in scales) {
       type <- "dirichlet"
-      s <- distr$getScale()
       df.results <- addRow(
       df.results,
         list(
-          i,
           F,
           type,
           s,
           counted,
-          distr$samplePosterior(
+          samplePosterior(
+            dtree,
             nElections,
             nBallots,
-            F,
-            64
+            F
           )[winner]
         )
       )
       df.results <- addRow(
         df.results,
         list(
-          i,
           T,
           type,
           s,
           counted,
-          distr$samplePosterior(
+          samplePosterior(
+            dtree,
             nElections,
             nBallots,
-            F,
-            64
+            T
           )[winner]
         )
       )
@@ -174,7 +191,7 @@ for (i in 1:nRepetitions) {
 
 # construct a new skeleton dataframe with the summary statistics for
 # each distribution / audit count step.
-df.out <- unique(df.results[,2:5])
+df.out <- unique(df.results[,1:4])
 nrows <- dim(df.out)[1]
 df.out$mean <- rep(0,nrows)
 df.out$pi.lower <- rep(0,nrows)
@@ -189,7 +206,7 @@ negll.betabin <- function(par, k, n) {
   )
 }
 
-comb.res <- interaction(df.results[,2:5])
+comb.res <- interaction(df.results[,1:4])
 comb.out <- interaction(df.out[,1:4])
 for (i in 1:nrows) {
   # We want the results which correspond to the same step of the
@@ -203,6 +220,8 @@ for (i in 1:nrows) {
   df.out$pi.lower[i] <- qbeta(0.05,par[1],par[2])
   df.out$pi.upper[i] <- qbeta(0.95,par[1],par[2])
 }
+
+dir.create(dir, recursive=T)
 
 write.csv(df.results, paste(name,'raw.csv',sep='.'))
 write.csv(df.out, paste(name,'csv',sep='.'))

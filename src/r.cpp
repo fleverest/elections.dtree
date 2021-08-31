@@ -97,11 +97,12 @@ IntegerVector samplePosterior(DirichletTreeIRV *dtree, int nElections,
   int electionBatchSize = nElections / nBatches;
   int electionBatchRemainder = nElections % nBatches;
   // Seed one RNG for each thread.
-  std::mt19937 treeGen = *dtree->getEnginePtr();
+  std::mt19937 *treeGen = dtree->getEnginePtr();
   unsigned seed[nBatches];
   for (int i = 0; i <= nBatches; ++i) {
-    seed[i] = treeGen();
+    seed[i] = (*treeGen)();
   }
+  treeGen->discard(treeGen->state_size * 100);
 
   // Use RcppThreads to compute the posterior in batches.
   RcppThread::ThreadPool pool(std::thread::hardware_concurrency());
@@ -116,7 +117,7 @@ IntegerVector samplePosterior(DirichletTreeIRV *dtree, int nElections,
         dtree->samplePosterior(electionBatchSize, nBallots, useObserved, &e);
   };
 
-  pool.parallelFor(0, nBatches, getBatchResult, nBatches);
+  pool.parallelFor(0, nBatches, getBatchResult);
   pool.join();
 
   for (int i = 0; i <= nBatches; ++i) {
@@ -145,7 +146,7 @@ RCPP_MODULE(dirichlet_tree_irv_module) {
       .property("nCandidates", &DirichletTreeIRV::getNCandidates)
       .property("scale", &DirichletTreeIRV::getScale,
                 &DirichletTreeIRV::setScale)
-      .property("treeType", &DirichletTreeIRV::getTreeType,
+      .property("isDirichlet", &DirichletTreeIRV::getTreeType,
                 &DirichletTreeIRV::setTreeType)
       .method("clear", &DirichletTreeIRV::clear)
       .method("update", &update)
