@@ -13,8 +13,6 @@
 #include <string>
 #include <vector>
 
-#include <iostream>
-
 const bool TREE_TYPE_VANILLA_DIRICHLET = 1;
 const bool TREE_TYPE_DIRICHLET_TREE = 0;
 
@@ -114,7 +112,7 @@ private:
         if (treeType == TREE_TYPE_DIRICHLET_TREE) {
           effectiveAlphas[i] = alphas[i] + scale;
         } else { // treeType == TREE_TYPE_VANILLA_DIRICHLET
-          effectiveAlphas[i] = alphas[i] + scale * factorials[nChildren];
+          effectiveAlphas[i] = alphas[i] + scale * (float)factorials[nChildren];
         }
       }
       // Get Dirichlet-multinomial counts for next-preference selections below
@@ -214,7 +212,8 @@ public:
       : nCandidates(nCandidates_), scale(scale_), treeType(treeType_),
         root(new node(nCandidates_)) {
     // Initialize factorials.
-    factorials = new int[nCandidates + 1]{1};
+    factorials = new int[nCandidates + 1];
+    factorials[0] = 1;
     for (auto i = 1; i <= nCandidates; ++i) {
       factorials[i] = factorials[i - 1] * i;
     }
@@ -230,6 +229,7 @@ public:
   void clear() {
     delete root;
     root = new node(nCandidates);
+    observedBallots = {};
   }
 
   // Core methods for inference implemented in `dirichlet-tree.cpp`.
@@ -282,7 +282,8 @@ public:
   int *samplePosterior(int nElections, int nBallots, bool useObserved,
                        std::mt19937 *engine = nullptr) {
     int *candidateWins = new int[nCandidates]{0};
-    int winner, size;
+    int winner;
+    int numObserved = observedBallots.size();
     election *e;
     election incomplete{};
 
@@ -290,27 +291,21 @@ public:
       // Insert a copy of the incomplete election
       incomplete.insert(incomplete.end(), observedBallots.begin(),
                         observedBallots.end());
-      size = observedBallots.size();
-      nBallots = nBallots - size;
-    } else {
-      size = 0;
     }
 
     if (nBallots < 0) {
       return candidateWins;
     }
 
-    e = sample(nElections, nBallots, engine);
+    e = sample(nElections, nBallots - numObserved, engine);
 
     for (int i = 0; i < nElections; ++i) {
       // Clear old sampled ballots and copy next sample in place.
-      incomplete.erase(incomplete.begin() + size, incomplete.end());
-      incomplete.insert(incomplete.begin() + size, e[i].begin(), e[i].end());
+      incomplete.erase(incomplete.begin() + numObserved, incomplete.end());
+      incomplete.insert(incomplete.begin() + numObserved, e[i].begin(),
+                        e[i].end());
 
-      // Evaluate completed election
-      winner = evaluateElection(incomplete);
-
-      ++candidateWins[winner - 1];
+      ++candidateWins[evaluateElection(incomplete) - 1];
     }
 
     delete[] e;
@@ -330,9 +325,9 @@ public:
   std::mt19937 *getEnginePtr() { return &engine; }
 
   // Setters
-  void setScale(float scale) { scale = scale; }
+  void setScale(float scale_) { scale = scale_; }
 
-  void setTreeType(bool treeType) { treeType = treeType; }
+  void setTreeType(bool treeType_) { treeType = treeType_; }
 };
 
 #endif
