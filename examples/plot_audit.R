@@ -231,7 +231,7 @@ png(paste(name,'png',sep='.'), width=1920, height=1080)
 ggplot(
   df.out,
   aes(
-    x=jitter(counted),
+    x=counted,
     y=mean,
     color=as.factor(scale),
     group=as.factor(scale)
