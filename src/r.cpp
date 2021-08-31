@@ -148,6 +148,7 @@ RCPP_MODULE(dirichlet_tree_irv_module) {
                 &DirichletTreeIRV::setScale)
       .property("isDirichlet", &DirichletTreeIRV::getTreeType,
                 &DirichletTreeIRV::setTreeType)
+      .property("topLevelAlphas", &DirichletTreeIRV::getTopLevelAlphas)
       .method("clear", &DirichletTreeIRV::clear)
       .method("update", &update)
       .method("sampleBallots", &sampleBallots)

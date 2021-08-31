@@ -326,6 +326,20 @@ public:
 
   std::mt19937 *getEnginePtr() { return &engine; }
 
+  // A diagnostic tool to inspect the alpha parameters at the top level.
+  std::vector<float> getTopLevelAlphas() {
+    std::vector<float> out{};
+    float *alphas = root->alphas;
+    for (auto i = 0; i < root->nChildren; ++i) {
+      if (treeType == TREE_TYPE_VANILLA_DIRICHLET) {
+        out.push_back(alphas[i] + scale * factorials[root->nChildren]);
+      } else {
+        out.push_back(alphas[i] + scale);
+      }
+    }
+    return out;
+  }
+
   // Setters
   void setScale(float scale_) { scale = scale_; }
 
