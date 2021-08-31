@@ -11,13 +11,30 @@ In this repository, I have implemented the IRV Dirichlet-Tree structure in a laz
 
 ## WIP: Usage
 
-Eventually this will have a complete S4 interface, along with several methods for tasks such as evaluating election outcomes.
-
 
 ```R
-dtree <- new(RcppDirichletTreeIRV, nCandidates=5, scale=1, treeType="dirichlettree", seed="seed1234")
-s10 <- dtree$sample(nBallots=10)
-dtree$update(s10)
-dtree$samplePosterior(100,100,s10)
+# Initialize a new Dirichlet Tree prior.
+dtree <- dirtree.irv(nCandidates = 10, scale = 5., dirichlet = F, seed="seed")
+
+# Sample 1000 ballots from the prior.
+ballots <- draw(dtree, 1000)
+
+# Observe the 1000 ballots to obtain a posterior.
+update(dtree, ballots)
+
+# Evaluate 100 random elections (2000 ballots each) from the prior without using the initial ballots.
+samplePosterior(dtree, nElections = 100, nBallots = 2000, useObserved = F)
+
+# Evaluate again but starting with the initial ballots.
+samplePosterior(dtree, nElections = 100, nBallots = 2000, useObserved = T)
+
+# Change the prior scale.
+dtree$scale <- 1.
+
+# Switch to a Dirichlet Prior.
+dtree$isDirichlet <- T
+
+# Reset to the prior, removing observed data.
+clear(dtree)
 ```
 
