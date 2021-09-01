@@ -155,6 +155,7 @@ for (i in 1:nRepetitions) {
     # Dirichlets
     dtree$isDirichlet <- T
     for (s in scales) {
+      dtree$scale <- s
       type <- "dirichlet"
       df.results <- addRow(
       df.results,
