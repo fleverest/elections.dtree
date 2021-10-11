@@ -29,4 +29,8 @@ void rElections(float scale, int *nBallots, int nElections, int nCandidates,
                 int *permutationArray, int nChosen, std::mt19937 *engine,
                 bool isVanilla, int *factorials, election *out);
 
+/* Beta distribution for sampling a marginal branch probability.
+ */
+float rBeta(float alpha, float beta, std::mt19937 *engine);
+
 #endif

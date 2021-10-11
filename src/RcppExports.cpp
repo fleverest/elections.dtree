@@ -11,12 +11,12 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // evaluateElection
-int evaluateElection(DataFrame df);
+int evaluateElection(Rcpp::DataFrame df);
 RcppExport SEXP _dirtree_elections_evaluateElection(SEXP dfSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< DataFrame >::type df(dfSEXP);
+    Rcpp::traits::input_parameter< Rcpp::DataFrame >::type df(dfSEXP);
     rcpp_result_gen = Rcpp::wrap(evaluateElection(df));
     return rcpp_result_gen;
 END_RCPP

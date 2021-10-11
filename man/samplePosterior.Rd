@@ -4,7 +4,13 @@
 \alias{samplePosterior}
 \title{Sample from the posterior distribution on candidate victory outcomes.}
 \usage{
-samplePosterior(dtree, nElections, nBallots, useObserved = T, nBatches = 64)
+samplePosterior(
+  dtree,
+  nElections,
+  nBallots,
+  useObserved = T,
+  nBatches = nElections/2
+)
 }
 \arguments{
 \item{dtree}{a Dirichlet Tree object.}
