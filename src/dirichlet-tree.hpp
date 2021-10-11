@@ -81,6 +81,70 @@ private:
       children[i]->update(ballotPermutation + 1, permutationArray + 1);
     }
 
+    /* A method to sample the leaf probability for a single ballot from the
+     * marginal distribution which has no closed form
+     */
+    float leafProbs(int *ballotPermutation, int *permutationArray, float scale,
+                    bool treeType, int *factorials, std::mt19937 *engine) {
+      bool isDirichlet = (treeType == TREE_TYPE_VANILLA_DIRICHLET);
+      float alpha, beta, branchProb;
+
+      // Find the index of the next candidate.
+      int nextCandidate = ballotPermutation[0];
+      int i = 0;
+      while (permutationArray[i] != nextCandidate) {
+        ++i;
+      }
+
+      // Evaluate the alpha and beta parameters and sample the next branch
+      // probability.
+      if (isDirichlet) { // For Dirichlet:
+        alpha = alphas[i] + scale * factorials[nChildren];
+        beta = 0.;
+        for (int j = 0; j < nChildren; ++j) {
+          if (j != i)
+            beta += alphas[j] + scale * factorials[nChildren];
+        }
+        branchProb = rBeta(alpha, beta, engine);
+      } else { // For Dirichlet-Tree
+        alpha = alphas[i] + scale;
+        beta = 0.;
+        for (int j = 0; j < nChildren; ++j) {
+          if (j != i)
+            beta += alphas[j] + scale;
+        }
+      }
+
+      // Stop if the number of children is 2, since we don't need to access the
+      // leaves when the last permutation choice is fixed.
+      if (nChildren == 2)
+        return branchProb;
+
+      // If the next node is uninitialized, sample beta distributions lazily.
+      if (children[i] == nullptr) {
+        // We sample from beta(1, n), beta(1, n-1), ... and multiply
+        for (int j = nChildren - 1; j > 1; --j) {
+          if (isDirichlet) {
+            branchProb =
+                branchProb * rBeta(scale * factorials[j],           // Alpha
+                                   scale * (j - 1) * factorials[j], // Beta
+                                   engine);
+          } else {
+            branchProb = branchProb * rBeta(scale,           // Alpha
+                                            scale * (j - 1), // Beta
+                                            engine);
+          }
+        }
+        return branchProb;
+      }
+      // Recursively evaluate branch probabilities until we reach a leaf
+      // and the ballot permutation starting from the next index.
+      std::swap(permutationArray[0], permutationArray[i]);
+      return branchProb * children[i]->leafProbs(ballotPermutation + 1,
+                                                 permutationArray + 1, scale,
+                                                 treeType, factorials, engine);
+    }
+
     /** A sampling method to sample ballots from below this node.
      *
      * Parameters:
@@ -249,6 +313,26 @@ public:
     root->update(b.ballotPermutation, permutationArray);
 
     delete[] permutationArray;
+  }
+
+  // Sample leaf probabilities.
+  float sampleLeafProbability(Ballot b, std::mt19937 *engine = nullptr) {
+
+    // Apply default engine if not provided.
+    if (engine == nullptr) {
+      engine = &this->engine;
+    }
+
+    int *permutationArray = new int[nCandidates];
+    for (int i = 0; i < nCandidates; ++i) {
+      permutationArray[i] = i + 1;
+    }
+
+    float out = root->leafProbs(b.ballotPermutation, permutationArray, scale,
+                                treeType, factorials, engine);
+
+    delete[] permutationArray;
+    return out;
   }
 
   // Sample an election from the posterior.

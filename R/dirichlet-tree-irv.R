@@ -129,3 +129,26 @@ samplePosterior <- function(dtree, nElections, nBallots, useObserved = T, nBatch
 evaluate.election <- function(ballots) {
   return(evaluateElection(ballots))
 }
+
+# sampleLeafProbability
+
+#' @name sampleLeafProbability
+#' @title Sample a single leaf probability from the distribution, given the specifying ballot.
+#' @description Samples the leaf probability for a single ballot, given the ballot which is represented by the leaf node.
+#' @param dtree a Dirichlet Tree object.
+#' @param ballot the ballot which specifies the leaf.
+#' @return A probability.
+#' @export
+sampleLeafProbability <- function(dtree, ballot) {
+  stopifnot(class(dtree) %in% .dtree_classes)
+  # Ensure ballot is of integer type
+  intballot <- as.integer(ballot)
+  stopifnot(
+    all(
+      intballot == ballot
+    )
+  )
+  # Ensure ballot specifies a leaf.
+  stopifnot(length(ballot) == dtree$nCandidates)
+  return(dtree$sampleLeafProbability(intballot))
+}

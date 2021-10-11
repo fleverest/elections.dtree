@@ -3,6 +3,7 @@
 // [[Rcpp::plugins("cpp17")
 // [[Rcpp::depends(RcppThread)]]
 
+#include "Rcpp/algo.h"
 #include "ballot.hpp"
 #include "dirichlet-tree.hpp"
 #include "distributions.hpp"
@@ -13,19 +14,17 @@
 #include <string.h>
 #include <thread>
 
-using namespace Rcpp;
-
 // Converts an R DataFrame representation to an election.
-election dfToElection(DataFrame df) {
+election dfToElection(Rcpp::DataFrame df) {
   election e = {};
   int nCandidates = df.length();
-  IntegerVector col;
+  Rcpp::IntegerVector col;
 
   if (df.length() < nCandidates) {
-    Rcout << "Insufficient columns (" << df.length()
-          << ") to represent ballots cast in an "
-             "election with "
-          << nCandidates << " candidates." << std::endl;
+    Rcpp::Rcout << "Insufficient columns (" << df.length()
+                << ") to represent ballots cast in an "
+                   "election with "
+                << nCandidates << " candidates." << std::endl;
   }
 
   for (auto i = 0; i < nCandidates; ++i) {
@@ -40,13 +39,13 @@ election dfToElection(DataFrame df) {
   return e;
 }
 
-DataFrame electionToDF(election e, int nCandidates) {
-  DataFrame out = DataFrame::create();
-  IntegerVector col;
+Rcpp::DataFrame electionToDF(election e, int nCandidates) {
+  Rcpp::DataFrame out = Rcpp::DataFrame::create();
+  Rcpp::IntegerVector col;
   int nBallots = e.size();
 
   for (int i = 0; i < nCandidates; ++i) {
-    col = IntegerVector::create();
+    col = Rcpp::IntegerVector::create();
     for (int j = 0; j < nBallots; ++j) {
       if (e[j].nPreferences < i) {
         col.push_back(NA_INTEGER);
@@ -63,22 +62,33 @@ DataFrame electionToDF(election e, int nCandidates) {
 
 // Rcpp interface to evaluate an election outcome.
 // [[Rcpp::export]]
-int evaluateElection(DataFrame df) {
+int evaluateElection(Rcpp::DataFrame df) {
   election e = dfToElection(df);
   return evaluateElection(e);
 }
 
 // Rcpp interface to update must convert from DataFrame to election.
-void update(DirichletTreeIRV *dtree, DataFrame ballots) {
+void update(DirichletTreeIRV *dtree, Rcpp::DataFrame ballots) {
   election bs = dfToElection(ballots);
   for (auto b : bs) {
     dtree->update(b);
   }
 }
 
+// Rcpp interface to sample leaf probabilities for a single ballot.
+float sampleLeafProbability(DirichletTreeIRV *dtree,
+                            Rcpp::IntegerVector ballot) {
+  Ballot b(ballot.size());
+  for (int i = 0; i < b.nPreferences; ++i) {
+    b.ballotPermutation[i] = ballot.at(i);
+  }
+  float p = dtree->sampleLeafProbability(b);
+  return p;
+}
+
 // R interface to sample will sample one election from the distribution.
-DataFrame sampleBallots(DirichletTreeIRV *dtree, int nBallots) {
-  DataFrame out = DataFrame::create();
+Rcpp::DataFrame sampleBallots(DirichletTreeIRV *dtree, int nBallots) {
+  Rcpp::DataFrame out = Rcpp::DataFrame::create();
   election *e = dtree->sample(1, nBallots);
   out = electionToDF(e[0], dtree->getNCandidates());
   delete[] e;
@@ -86,8 +96,9 @@ DataFrame sampleBallots(DirichletTreeIRV *dtree, int nBallots) {
 }
 
 // Rcpp interface to samplePosterior.
-IntegerVector samplePosterior(DirichletTreeIRV *dtree, int nElections,
-                              int nBallots, bool useObserved, int nBatches) {
+Rcpp::IntegerVector samplePosterior(DirichletTreeIRV *dtree, int nElections,
+                                    int nBallots, bool useObserved,
+                                    int nBatches) {
   int nCandidates = dtree->getNCandidates();
   int *output = new int[nCandidates];
   for (int i = 0; i < nCandidates; ++i) {
@@ -142,7 +153,7 @@ IntegerVector samplePosterior(DirichletTreeIRV *dtree, int nElections,
 }
 
 RCPP_MODULE(dirichlet_tree_irv_module) {
-  class_<DirichletTreeIRV>("DirichletTreeIRV")
+  Rcpp::class_<DirichletTreeIRV>("DirichletTreeIRV")
       .constructor<int, float, bool, std::string>()
       .property("nCandidates", &DirichletTreeIRV::getNCandidates)
       .property("scale", &DirichletTreeIRV::getScale,
@@ -152,6 +163,7 @@ RCPP_MODULE(dirichlet_tree_irv_module) {
       .property("topLevelAlphas", &DirichletTreeIRV::getTopLevelAlphas)
       .method("clear", &DirichletTreeIRV::clear)
       .method("update", &update)
+      .method("sampleLeafProbability", &sampleLeafProbability)
       .method("sampleBallots", &sampleBallots)
       .method("samplePosterior", &samplePosterior);
 };

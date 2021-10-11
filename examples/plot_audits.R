@@ -67,6 +67,22 @@ name = paste(
   sep = ""
 )
 
+# Calculate dirichlet scales based on Dirichlet-Tree scale
+getDirScale <- function(s, n){
+  n.fac <- factorial(n)
+  # Calculate f(s.dt,n)
+  f <- 1
+  for (l in 2:n) {
+    f <- f * (1+s)/(1+l*s)
+  }
+  s.dir <- (1 - f)/(f * n.fac - 1)
+  return(s.dir)
+}
+dirscales <- c()
+for (s in scales) {
+  dirscales <- c(dirscales, getDirScale(s,nCandidates))
+}
+
 # Simulate an election from a dirichlet tree with scale `eScale` to audit.
 dtree <- dirtree.irv(nCandidates, scale=eScale)
 election.full <- draw(dtree, nBallots)
@@ -118,15 +134,16 @@ for (i in 1:nRepetitions) {
 
     # Dirichlet Trees
     dtree$isDirichlet <- F
+    scale.index <- 1
     for (s in scales) {
       dtree$scale <- s
-      type <- "tree"
+      type <- "Dirichlet Tree"
       df.results <- addRow(
         df.results,
         list(
           F,
           type,
-          s,
+          scale.index,
           counted,
           samplePosterior(
             dtree,
@@ -141,7 +158,7 @@ for (i in 1:nRepetitions) {
         list(
           T,
           type,
-          s,
+          scale.index,
           counted,
           samplePosterior(
             dtree,
@@ -151,18 +168,20 @@ for (i in 1:nRepetitions) {
           )[winner]
         )
       )
+      scale.index <- scale.index + 1
     }
     # Dirichlets
     dtree$isDirichlet <- T
-    for (s in scales) {
+    scale.index <- 1
+    for (s in dirscales) {
       dtree$scale <- s
-      type <- "dirichlet"
+      type <- "Dirichlet"
       df.results <- addRow(
       df.results,
         list(
           F,
           type,
-          s,
+          scale.index,
           counted,
           samplePosterior(
             dtree,
@@ -177,7 +196,7 @@ for (i in 1:nRepetitions) {
         list(
           T,
           type,
-          s,
+          scale.index,
           counted,
           samplePosterior(
             dtree,
@@ -187,6 +206,7 @@ for (i in 1:nRepetitions) {
           )[winner]
         )
       )
+      scale.index <- scale.index + 1
     }
   }
 }
@@ -223,24 +243,36 @@ for (i in 1:nrows) {
   df.out$pi.upper[i] <- qbeta(0.95,par[1],par[2])
 }
 
+# change scale factors from index to dirichlet-tree scale.
+df.out$scale <- as.factor(df.out$scale)
+i <- 0
+for (s in scales) {
+  i <- i + 1
+  levels(df.out$scale)[levels(df.out$scale)==as.character(i)] <- as.character(s)
+}
+
 dir.create(dir, recursive=T)
 
 write.csv(df.results, paste(name,'raw.csv',sep='.'))
 write.csv(df.out, paste(name,'csv',sep='.'))
 png(paste(name,'png',sep='.'), width=1920, height=1080)
 
+df.out$usingObserved[df.out$usingObserved==TRUE] <- "Keeping Observations"
+df.out$usingObserved[df.out$usingObserved==FALSE] <- "Replacing Observations"
+
 ggplot(
   df.out,
   aes(
     x=counted,
     y=mean,
-    color=as.factor(scale),
-    group=as.factor(scale)
+    color=scale,
+    group=scale
   )
 ) +
   geom_line() +
   geom_ribbon(aes(y=mean, ymin=pi.lower, ymax=pi.upper), alpha=0.1) +
-  facet_wrap(~interaction(treeType,usingObserved))
+  facet_wrap(~interaction(treeType,usingObserved)) +
+  theme(text = element_text(size = 30))
 
 dev.off()
 
