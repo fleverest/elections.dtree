@@ -105,7 +105,6 @@ private:
           if (j != i)
             beta += alphas[j] + scale * factorials[nChildren];
         }
-        branchProb = rBeta(alpha, beta, engine);
       } else { // For Dirichlet-Tree
         alpha = alphas[i] + scale;
         beta = 0.;
@@ -114,6 +113,7 @@ private:
             beta += alphas[j] + scale;
         }
       }
+      branchProb = rBeta(alpha, beta, engine);
 
       // Stop if the number of children is 2, since we don't need to access the
       // leaves when the last permutation choice is fixed.
