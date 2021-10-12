@@ -1,6 +1,7 @@
 // distributions.cpp
 
 #include "distributions.hpp"
+#include <limits>
 #include <random>
 
 /* Draws random Dirichlet Multinomial samples as specified by alpha.
@@ -140,10 +141,13 @@ void rElections(float scale, int *nBallots, int nElections, int nCandidates,
 
 /* Beta distribution for sampling branch probabilities.
  */
+#include "Rcpp.h"
+#include <iostream>
 float rBeta(float alpha, float beta, std::mt19937 *engine) {
   std::gamma_distribution<float> gx(alpha);
   std::gamma_distribution<float> gy(beta);
-  float x = gx(*engine);
-  float y = gy(*engine);
+  float x = gx(*engine) + std::numeric_limits<float>::epsilon();
+  // Avoid zero denominator
+  float y = gy(*engine) + std::numeric_limits<float>::epsilon();
   return x / (x + y);
 }
