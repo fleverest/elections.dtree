@@ -216,6 +216,7 @@ for (i in 1:nRepetitions) {
 df.out <- unique(df.results[,1:4])
 nrows <- dim(df.out)[1]
 df.out$mean <- rep(0,nrows)
+df.out$median <- rep(0,nrows)
 df.out$pi.lower <- rep(0,nrows)
 df.out$pi.upper <- rep(1,nrows)
 
@@ -236,9 +237,10 @@ for (i in 1:nrows) {
   df.rows <- df.results[comb.res == comb.out[i],]
   # the beta-binomial samples
   ks <- df.rows$numWins
-  par <- optim(c(10,10),negll.betabin, k = ks, n = nElections, lower = 0.01, method = "L-BFGS-B")$par
+  par <- optim(c(10,10),negll.betabin, k = ks, n = nElections, lower = 0.1, method = "L-BFGS-B")$par
   # Calculate mean, 0.05 and 0.95 quantiles for beta probability with these parameters.
   df.out$mean[i] <- par[1]/sum(par)
+  df.out$median[i] <- qbeta(0.5,par[1],par[2])
   df.out$pi.lower[i] <- qbeta(0.05,par[1],par[2])
   df.out$pi.upper[i] <- qbeta(0.95,par[1],par[2])
 }
@@ -272,6 +274,7 @@ ggplot(
       )
     ) +
       geom_line() +
+      geom_line(aes(y=median), type="dotted") +
       geom_ribbon(
           aes(ymin=pi.lower, ymax=pi.upper, fill=scale),
           color=NA,
