@@ -255,24 +255,34 @@ dir.create(dir, recursive=T)
 
 write.csv(df.results, paste(name,'raw.csv',sep='.'))
 write.csv(df.out, paste(name,'csv',sep='.'))
-png(paste(name,'png',sep='.'), width=1920, height=1080)
 
 df.out$usingObserved[df.out$usingObserved==TRUE] <- "Keeping Observations"
 df.out$usingObserved[df.out$usingObserved==FALSE] <- "Replacing Observations"
+df.out$scale <- as.factor(df.out$scale)
+
+png(paste(name,'png',sep='.'), width=1920, height=1080)
 
 ggplot(
-  df.out,
-  aes(
-    x=counted,
-    y=mean,
-    color=scale,
-    group=scale
-  )
-) +
-  geom_line() +
-  geom_ribbon(aes(y=mean, ymin=pi.lower, ymax=pi.upper), alpha=0.1) +
-  facet_wrap(~interaction(treeType,usingObserved)) +
-  theme(text = element_text(size = 30))
+      df.out,
+      aes(
+        x=counted,
+        y=mean,
+        group=scale,
+        color=scale
+      )
+    ) +
+      geom_line() +
+      geom_ribbon(
+          aes(ymin=pi.lower, ymax=pi.upper, fill=scale),
+          color=NA,
+          alpha=0.2,
+          show.legend=F
+      ) +
+      facet_wrap(~interaction(treeType,usingObserved)) +
+      annotate("line", y=0.95, x=seq(0,nBallots), linetype="longdash") +
+      scale_x_continuous(name = "# of ballots counted", limits = c(0,nBallots), expand = c(0,0), breaks = seq(0.2*nBallots,nBallots,0.2*nBallots)) +
+      scale_y_continuous(name = "Posterior Probability", limit = c(0,1), expand = c(0,0)) +
+      theme(text = element_text(size = 15)) +
+      labs(color = "Initial α")
 
 dev.off()
-

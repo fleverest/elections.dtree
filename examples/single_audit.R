@@ -165,12 +165,8 @@ for (stepNum in 1:nSteps) {
 # Reshaped data for plotting.
 df.long <- melt(df.results, id.vars=c("treeType","counted"))
 
-probnames <- c()
-for (i in 1:nCandidates) {
-  probnames <- c(probnames, paste("P(Candidate ",i," wins)", sep=""))
-}
-
-levels(df.long$variable) <- probnames
+levels(df.long$variable) <- 1:nCandidates
+df.long$Candidate <- df.long$variable
 
 dir.create(dir, recursive=T)
 
@@ -183,12 +179,15 @@ ggplot(
   aes(
     x=counted,
     y=value,
-    color=variable,
-    group=variable
+    color=Candidate,
+    group=Candidate
   )
 ) +
   geom_line() +
-  facet_wrap(~treeType, nrow=2)
+  facet_wrap(~treeType, nrow=2) +
+  labs(x="# of ballots counted") +
+  labs(y="Posterior P(Candidate wins)") +
+  theme(text = element_text(size = 30))
 
 dev.off()
 
