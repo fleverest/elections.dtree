@@ -63,18 +63,16 @@ name = paste(
   sep = ""
 )
 
-# Calculate dirichlet scale based on Dirichlet-Tree scale
-getDirScale <- function(s, n){
-  n.fac <- factorial(n)
-  # Calculate f(s.dt,n)
-  f <- 1
-  for (l in 2:n) {
-    f <- f * (1+s)/(1+l*s)
+# Find the equivalent dirichlet prior parameter
+dir.equivparam <- function(a, n) {
+  A <- 1
+  for (k in 2:n) {
+    A <- A * (1+a)/(1+k*a)
   }
-  s.dir <- (1 - f)/(f * n.fac - 1)
-  return(s.dir)
+  alpha.dir <- (A-1)/(1-A*factorial(n))
+  return(alpha.dir)
 }
-dirScale <- getDirScale(scale,nCandidates)
+dirScale <- dir.equivparam(scale,nCandidates)
 
 # Simulate an election from a dirichlet tree with scale `eScale` to audit.
 dtree <- dirtree.irv(nCandidates, scale=eScale)

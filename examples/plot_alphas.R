@@ -2,16 +2,14 @@
 
 require(ggplot2)
 
-# Dirichlet scale parameter with equivalent variance
-getDirScale <- function(s, n){
-  n.fac <- factorial(n)
-  # Calculate f(s.dt, 1, n)
-  f <- 1
-  for (l in 2:n) {
-    f <- f * (1+s)/(1+l*s)
+# Find the equivalent dirichlet prior parameter
+dir.equivparam <- function(a, n) {
+  A <- 1
+  for (k in 2:n) {
+    A <- A * (1+a)/(1+k*a)
   }
-  s.dir <- (1 - f)/(f * n.fac - 1)
-  return(s.dir)
+  alpha.dir <- (A-1)/(1-A*factorial(n))
+  return(alpha.dir)
 }
 
 out.dtree.alpha <- c()
@@ -25,7 +23,7 @@ for (n in ns) {
   for (a in dtree.alpha) {
     out.dtree.alpha <- c(out.dtree.alpha, a)
     out.ns <- c(out.ns, n)
-    out.dir.alpha <- c(out.dir.alpha, getDirScale(a, n))
+    out.dir.alpha <- c(out.dir.alpha, dir.equivparam(a, n))
   }
 }
 

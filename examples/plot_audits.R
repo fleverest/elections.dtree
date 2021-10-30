@@ -67,20 +67,18 @@ name = paste(
   sep = ""
 )
 
-# Calculate dirichlet scales based on Dirichlet-Tree scale
-getDirScale <- function(s, n){
-  n.fac <- factorial(n)
-  # Calculate f(s.dt,n)
-  f <- 1
-  for (l in 2:n) {
-    f <- f * (1+s)/(1+l*s)
+# Find the equivalent dirichlet prior parameter
+dir.equivparam <- function(a, n) {
+  A <- 1
+  for (k in 2:n) {
+    A <- A * (1+a)/(1+k*a)
   }
-  s.dir <- (1 - f)/(f * n.fac - 1)
-  return(s.dir)
+  alpha.dir <- (A-1)/(1-A*factorial(n))
+  return(alpha.dir)
 }
 dirscales <- c()
 for (s in scales) {
-  dirscales <- c(dirscales, getDirScale(s,nCandidates))
+  dirscales <- c(dirscales, dir.equivparam(s,nCandidates))
 }
 
 # Simulate an election from a dirichlet tree with scale `eScale` to audit.
@@ -268,13 +266,12 @@ ggplot(
       df.out,
       aes(
         x=counted,
-        y=mean,
+        y=median,
         group=scale,
         color=scale
       )
     ) +
       geom_line() +
-      geom_line(aes(y=median), type="dotted") +
       geom_ribbon(
           aes(ymin=pi.lower, ymax=pi.upper, fill=scale),
           color=NA,

@@ -2,22 +2,20 @@
 require(dirtree.elections)
 require(ggplot2)
 
-# Dirichlet scale parameter with equivalent variance
-getDirScale <- function(s, n){
-  n.fac <- factorial(n)
-  # Calculate f(s.dt,n)
-  f <- 1
-  for (l in 2:n) {
-    f <- f * (1+s)/(1+l*s)
+# Find the equivalent dirichlet prior parameter
+dir.equivparam <- function(a, n) {
+  A <- 1
+  for (k in 2:n) {
+    A <- A * (1+a)/(1+k*a)
   }
-  s.dir <- (1 - f)/(f * n.fac - 1)
-  return(s.dir)
+  alpha.dir <- (A-1)/(1-A*factorial(n))
+  return(alpha.dir)
 }
 
 ballot <- c(1,2,3,4)
 n <- 4
 s <- 10.
-reps <- 100000
+reps <- 10000
 
 # Dirichlet Tree prior
 dtree <- dirtree.irv(nCandidates = n, scale = s)
@@ -30,7 +28,7 @@ for (i in 1:reps) {
 # Equivalent Dirichlet prior
 
 dtree$isDirichlet <- T
-dtree$scale <- getDirScale(s, n)
+dtree$scale <- dir.equivparam(s, n)
 
 ps.dir <- c()
 for (i in 1:reps) {
@@ -52,8 +50,11 @@ dataf <- data.frame(
   )
 )
 
-summary(ps.dtree)
-summary(ps.dir)
+mean(ps.dtree)
+var(ps.dtree)
+
+mean(ps.dir)
+var(ps.dir)
 
 png("log_p_prior_densities.png", width=1920, height=1080)
 ggplot(dataf, aes(x=log(prob), grouping=prior, color=prior)) +

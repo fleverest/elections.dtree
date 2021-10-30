@@ -99,11 +99,11 @@ private:
       // Evaluate the alpha and beta parameters and sample the next branch
       // probability.
       if (isDirichlet) { // For Dirichlet:
-        alpha = alphas[i] + scale * factorials[nChildren];
+        alpha = alphas[i] + scale * factorials[nChildren - 1];
         beta = 0.;
         for (int j = 0; j < nChildren; ++j) {
           if (j != i)
-            beta += alphas[j] + scale * factorials[nChildren];
+            beta += alphas[j] + scale * factorials[nChildren - 1];
         }
       } else { // For Dirichlet-Tree
         alpha = alphas[i] + scale;
@@ -126,8 +126,8 @@ private:
         for (int j = nChildren - 1; j > 1; --j) {
           if (isDirichlet) {
             branchProb =
-                branchProb * rBeta(scale * factorials[j],           // Alpha
-                                   scale * (j - 1) * factorials[j], // Beta
+                branchProb * rBeta(scale * factorials[j - 1],           // Alpha
+                                   scale * (j - 1) * factorials[j - 1], // Beta
                                    engine);
           } else {
             branchProb = branchProb * rBeta(scale,           // Alpha
@@ -177,7 +177,7 @@ private:
         if (treeType == TREE_TYPE_DIRICHLET_TREE) {
           effectiveAlphas[i] = alphas[i] + scale;
         } else { // treeType == TREE_TYPE_VANILLA_DIRICHLET
-          effectiveAlphas[i] = alphas[i] + scale * factorials[nChildren];
+          effectiveAlphas[i] = alphas[i] + scale * factorials[nChildren - 1];
         }
       }
       // Get Dirichlet-multinomial counts for next-preference selections below
@@ -418,7 +418,7 @@ public:
     float *alphas = root->alphas;
     for (auto i = 0; i < root->nChildren; ++i) {
       if (treeType == TREE_TYPE_VANILLA_DIRICHLET) {
-        out.push_back(alphas[i] + scale * factorials[root->nChildren]);
+        out.push_back(alphas[i] + scale * factorials[root->nChildren - 1]);
       } else {
         out.push_back(alphas[i] + scale);
       }

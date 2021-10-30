@@ -3,16 +3,14 @@
 require(reshape2)
 require(ggplot2)
 
-# Dirichlet scale parameter with equivalent variance
-getDirScale <- function(s, n){
-  n.fac <- factorial(n)
-  # Calculate f(s.dt,n)
-  f <- 1
-  for (l in 2:n) {
-    f <- f * (1+s)/(1+l*s)
+# Find the equivalent dirichlet prior parameter
+dir.equivparam <- function(a, n) {
+  A <- 1
+  for (k in 2:n) {
+    A <- A * (1+a)/(1+k*a)
   }
-  s.dir <- (1 - f)/(f * n.fac - 1)
-  return(s.dir)
+  alpha.dir <- (A-1)/(1-A*factorial(n))
+  return(alpha.dir)
 }
 
 # Moment functions
@@ -71,7 +69,7 @@ dtree.postprob.moment2 <- function(s,k,n) {
 # Plotting
 n <- 10
 s <- 1 # Dtree prior parameter
-s.dir <- getDirScale(s, n) # Equivalent (by variance) dirichlet parameter
+s.dir <- dir.equivparam(s, n) # Equivalent (by variance) dirichlet parameter
 ks <- 0:(n-1)
 p.dir.moment1 <- c()
 p.dtree.moment1 <- c()
