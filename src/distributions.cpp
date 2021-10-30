@@ -105,7 +105,7 @@ void rElections(float scale, int *nBallots, int nElections, int nCandidates,
   for (int i = 0; i < nCandidates - nChosen; ++i) {
     alpha[i] = scale;
     if (isVanilla) {
-      alpha[i] = alpha[i] * factorials[nCandidates - nChosen];
+      alpha[i] = alpha[i] * factorials[nCandidates - nChosen - 1];
     }
   }
   countsForChildren = rDirichletMultinomial(nElections, nBallots, alpha,
