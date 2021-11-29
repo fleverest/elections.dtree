@@ -12,13 +12,17 @@ dir.equivparam <- function(a, n) {
   return(alpha.dir)
 }
 
-ballot <- c(1,2,3,4)
-n <- 4
-s <- 10.
-reps <- 10000
+# Plotting parameters
+n <- 3
+a.dtree <- 10.
+reps <- 100000
+
+
+ballot <- 1:n
+a.dir <- dir.equivparam(a.dtree, n)
 
 # Dirichlet Tree prior
-dtree <- dirtree.irv(nCandidates = n, scale = s)
+dtree <- dirtree.irv(nCandidates = n, scale = a.dtree)
 
 ps.dtree <- c()
 for (i in 1:reps) {
@@ -26,23 +30,18 @@ for (i in 1:reps) {
 }
 
 # Equivalent Dirichlet prior
-
 dtree$isDirichlet <- T
-dtree$scale <- dir.equivparam(s, n)
+dtree$scale <- a.dir
 
 ps.dir <- c()
 for (i in 1:reps) {
   ps.dir <- c(ps.dir, sampleLeafProbability(dtree, ballot))
 }
 
-# Filter zeros
-ps.dtree <- ps.dtree[ps.dtree>0]
-ps.dir <- ps.dir[ps.dir>0]
-
 dataf <- data.frame(
   prior=c(
     rep("Dirichlet-Tree",length(ps.dtree)),
-    rep("Dirichlet",length(ps.dir))
+    rep("Equivalent Dirichlet",length(ps.dir))
   ),
   prob=c(
     ps.dtree,
@@ -59,5 +58,8 @@ var(ps.dir)
 png("log_p_prior_densities.png", width=1920, height=1080)
 ggplot(dataf, aes(x=log(prob), grouping=prior, color=prior)) +
   geom_density() +
-  geom_vline(xintercept=log(1/factorial(n)))
+  geom_vline(xintercept=log(1/factorial(n))) +
+  labs(x = "log p_b", y = "Density", color="Prior") +
+  theme(text = element_text(size = 25))
 dev.off()
+
