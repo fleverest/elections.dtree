@@ -2,6 +2,7 @@
 
 #ifndef DIRICHLET_TREE_HPP
 #define DIRICHLET_TREE_HPP
+#include <Rcpp.h>
 
 #include "ballot.hpp"
 #include "distributions.hpp"
@@ -283,6 +284,9 @@ public:
     for (auto i = 1; i <= nCandidates; ++i) {
       factorials[i] = factorials[i - 1] * i;
     }
+    // Seed PRNG
+    engine = std::mt19937();
+    setSeed(seed);
   }
 
   // No copying
@@ -428,6 +432,14 @@ public:
 
   // Setters
   void setScale(float scale_) { scale = scale_; }
+
+  void setSeed(std::string seed) {
+    std::seed_seq ss(seed.begin(), seed.end());
+    engine.seed(ss);
+    // Warmup
+    for (auto i = 1000; i; --i)
+      engine();
+  }
 
   void setTreeType(bool treeType_) { treeType = treeType_; }
 };

@@ -6,18 +6,13 @@
 #' @param scale the prior scale of the distribution.
 #' @param dirichlet a boolean indicating whether or not the prior is to be
 #'        a regular Dirichlet distribution as opposed to a Dirichlet Tree.
-#' @param seed a string seeding the initial random state of the distribution.
 #' @docType class
 #'
 #' @author Floyd Everest
 #' @import methods
 #' @return A Dirichlet Tree representing IRV ballots, as an Rcpp module of class `DirichletTreeIRV`.
 #' @export
-dirtree.irv <- function(nCandidates, scale = 1., dirichlet = F, seed = NULL) {
-  # If seed is null, seed from R's internal random state:
-  if (is.null(seed)) {
-    seed <- "default_seed"
-  }
+dirtree.irv <- function(nCandidates, scale = 1., dirichlet = F) {
   # Ensure nCandidates > 1
   if (nCandidates <= 1) {
     stop("nCandidates must be >1.")
@@ -32,7 +27,7 @@ dirtree.irv <- function(nCandidates, scale = 1., dirichlet = F, seed = NULL) {
     nCandidates = nCandidates,
     scale = scale,
     treeType = dirichlet,
-    seed = seed
+    seed = gseed()
   ))
 }
 
@@ -63,7 +58,7 @@ draw <- function(dtree, nBallots) {
   if (nBallots <=0) {
     stop("nBallots must be an integer > 0")
   }
-  return(dtree$sampleBallots(as.integer(nBallots)))
+  return(dtree$sampleBallots(as.integer(nBallots), gseed()))
 }
 
 # update
@@ -113,7 +108,7 @@ samplePosterior <- function(dtree, nElections, nBallots, useObserved = T, nBatch
     print(paste("Warning: nBatches (", nBatches,") > nElections (", nElections, "). Setting nBatches to ",nElections/2, ".", sep=""))
     nBatches <- nElections/2
   }
-  result <- dtree$samplePosterior(as.integer(nElections),as.integer(nBallots),useObserved,as.integer(nBatches))
+  result <- dtree$samplePosterior(as.integer(nElections),as.integer(nBallots),useObserved,as.integer(nBatches), gseed())
   return(result)
 }
 
@@ -150,5 +145,13 @@ sampleLeafProbability <- function(dtree, ballot) {
   )
   # Ensure ballot specifies a leaf.
   stopifnot(length(ballot) == dtree$nCandidates)
-  return(dtree$sampleLeafProbability(intballot))
+  return(dtree$sampleLeafProbability(intballot, gseed()))
+}
+
+
+
+
+# Helper function to get a random seed string to pass to CPP methods
+gseed <- function() {
+  return( paste(sample(LETTERS, 10), collapse="") )
 }

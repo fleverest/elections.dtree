@@ -76,8 +76,9 @@ void update(DirichletTreeIRV *dtree, Rcpp::DataFrame ballots) {
 }
 
 // Rcpp interface to sample leaf probabilities for a single ballot.
-float sampleLeafProbability(DirichletTreeIRV *dtree,
-                            Rcpp::IntegerVector ballot) {
+float sampleLeafProbability(DirichletTreeIRV *dtree, Rcpp::IntegerVector ballot,
+                            std::string new_seed) {
+  dtree->setSeed(new_seed);
   Ballot b(ballot.size());
   for (int i = 0; i < b.nPreferences; ++i) {
     b.ballotPermutation[i] = ballot.at(i);
@@ -87,7 +88,9 @@ float sampleLeafProbability(DirichletTreeIRV *dtree,
 }
 
 // R interface to sample will sample one election from the distribution.
-Rcpp::DataFrame sampleBallots(DirichletTreeIRV *dtree, int nBallots) {
+Rcpp::DataFrame sampleBallots(DirichletTreeIRV *dtree, int nBallots,
+                              std::string new_seed) {
+  dtree->setSeed(new_seed);
   Rcpp::DataFrame out = Rcpp::DataFrame::create();
   election *e = dtree->sample(1, nBallots);
   out = electionToDF(e[0], dtree->getNCandidates());
@@ -95,10 +98,17 @@ Rcpp::DataFrame sampleBallots(DirichletTreeIRV *dtree, int nBallots) {
   return out;
 }
 
+void samplemt(DirichletTreeIRV *dtree) {
+  std::mt19937 e = *(dtree->getEnginePtr());
+  for (auto i = 100; i; --i) {
+    Rcpp::Rcout << e() << std::endl;
+  }
+}
+
 // Rcpp interface to samplePosterior.
 Rcpp::IntegerVector samplePosterior(DirichletTreeIRV *dtree, int nElections,
                                     int nBallots, bool useObserved,
-                                    int nBatches) {
+                                    int nBatches, std::string new_seed) {
   int nCandidates = dtree->getNCandidates();
   int *output = new int[nCandidates];
   for (int i = 0; i < nCandidates; ++i) {
@@ -108,6 +118,7 @@ Rcpp::IntegerVector samplePosterior(DirichletTreeIRV *dtree, int nElections,
   int electionBatchSize = nElections / nBatches;
   int electionBatchRemainder = nElections % nBatches;
   // Seed one RNG for each thread.
+  dtree->setSeed(new_seed);
   std::mt19937 *treeGen = dtree->getEnginePtr();
   unsigned seed[nBatches + 1];
   for (int i = 0; i <= nBatches; ++i) {
@@ -165,5 +176,6 @@ RCPP_MODULE(dirichlet_tree_irv_module) {
       .method("update", &update)
       .method("sampleLeafProbability", &sampleLeafProbability)
       .method("sampleBallots", &sampleBallots)
+      .method("samplemt", &samplemt)
       .method("samplePosterior", &samplePosterior);
 };

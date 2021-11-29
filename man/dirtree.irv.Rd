@@ -6,7 +6,7 @@
 \alias{DirichletTreeIRV}
 \title{Dirichlet Tree for IRV}
 \usage{
-dirtree.irv(nCandidates, scale = 1, dirichlet = F, seed = NULL)
+dirtree.irv(nCandidates, scale = 1, dirichlet = F)
 }
 \arguments{
 \item{nCandidates}{the number of candidates in the IRV election.}
@@ -15,8 +15,6 @@ dirtree.irv(nCandidates, scale = 1, dirichlet = F, seed = NULL)
 
 \item{dirichlet}{a boolean indicating whether or not the prior is to be
 a regular Dirichlet distribution as opposed to a Dirichlet Tree.}
-
-\item{seed}{a string seeding the initial random state of the distribution.}
 }
 \value{
 A Dirichlet Tree representing IRV ballots, as an Rcpp module of class `DirichletTreeIRV`.
