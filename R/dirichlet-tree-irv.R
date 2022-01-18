@@ -18,8 +18,8 @@ dirtree.irv <- function(nCandidates, scale = 1., dirichlet = F) {
     stop("nCandidates must be >1.")
   }
   # Ensure scale > 0
-  if (scale <=0) {
-    stop ("scale must be >0")
+  if (scale < 0) {
+    stop ("scale must be >=0")
   }
   # Return Dirichlet Tree
   return(new(
