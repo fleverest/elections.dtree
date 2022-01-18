@@ -48,7 +48,11 @@ int **rDirichletMultinomial(int n,        // Number of repetitions.
     // We calculate a multinomial sample by obtaining binomial samples at each
     // border
     for (int i = 0; i < d - 1; ++i) {
-      p = gammas[i][j] / gamma_sums[j];
+      if (gamma_sums[j] == 0) {
+        p = 1.;
+      } else {
+        p = gammas[i][j] / gamma_sums[j];
+      }
       std::binomial_distribution<int> b(remaining, p / sum_ps);
       count = b(*engine);
       remaining -= count;
