@@ -6,10 +6,10 @@ library('getopt')
 spec <- matrix(c(
   'alpha0', 'a', 1, "numeric", "The prior parameter to consider (required)",
   'repetitions', 'r', 1, "numeric", "The number of elections to audit (optional, default 50)",
-  'nCandidates', 'c', 1, "integer", "The number of candidates in the election (optional, default 4)" ,
+  'n.candidates', 'c', 1, "integer", "The number of candidates in the election (optional, default 4)" ,
   'nBallots', 'n', 1, "integer", "The number of ballots cast in the election (optional, default 1000)",
   'nElections', 'e', 1, "integer", "The number of monte carlo election samples to draw for posterior calculation (optional, default 250)",
-  'nAudits', 'k', 1, "integer", "The number of audits per election (optional, default 100)",
+  'n.audits', 'k', 1, "integer", "The number of audits per election (optional, default 100)",
   'm', 'm', 1, "integer", "Maximum number of ballots observed before proceeding to full recount (optional, default 100)",
   'seed', 's', 1, "integer", "The seed for the experiment (optional, default 12345)",
   'help', 'h', 0, "logical", "Display this help menu"
@@ -38,12 +38,12 @@ require(dirtree.elections)
 
 set.seed(12345)
 
-if (is.null(opt$nCandidates)) {
-  nCandidates = 5    # Number of candidates participating
+if (is.null(opt$n.candidates)) {
+  n.candidates = 5    # Number of candidates participating
 } else {
-  nCandidates = opt$nCandidates
+  n.candidates = opt$n.candidates
 }
-nc = nCandidates
+nc = n.candidates
 
 if (is.null(opt$nBallots)) {
   nBallots = 1000
@@ -65,10 +65,10 @@ if (is.null(opt$m)) {
   little.m = opt$m
 }
 
-if (is.null(opt$nAudits)) {
+if (is.null(opt$n.audits)) {
   n.audits = 100
 } else {
-  n.audits = opt$nAudits
+  n.audits = opt$n.audits
 }
 
 if (is.null(opt$halt.thresh)) {
@@ -78,20 +78,22 @@ if (is.null(opt$halt.thresh)) {
 }
 
 if (is.null(opt$repetitions)) {
-  nRepetitions = 100
+  n.repetitions = 100
 } else {
-  nRepetitions = opt$repetitions
+  n.repetitions = opt$repetitions
 }
 
-election.tree <- dirtree.irv(nCandidates=nc, 1.)
+election.tree <- dirtree.irv(n.candidates=nc, 1.)
 
-dtree <- dirtree.irv(nCandidates=nc, alpha0)
+dtree <- dirtree.irv(n.candidates=nc, alpha0)
 
 cert.rates <- c()
 margins <- c()
 mean.sample.sizes <- c()
+margin.v.samplesize <- matrix(ncol=2, nrow=0)
+colnames(margin.v.samplesize) <- c("margin", "sample.size")
 
-for (k in 1:nRepetitions) {
+for (k in 1:n.repetitions) {
   # Sample an election
   full.election <- draw(election.tree, nBallots=nb)
 
@@ -104,10 +106,10 @@ for (k in 1:nRepetitions) {
   print(ordered.first.prefs)
   margin.approx <- ceiling((ordered.first.prefs[1] - ordered.first.prefs[2])/2)
 
-  c.margins <- rep(0, nCandidates)
+  c.margins <- rep(0, n.candidates)
   # Calculate the "margin" for each candidate.
   # This is an estimate for the number of ballots required to make each candidate win.
-  for (i in 1:nCandidates) {
+  for (i in 1:n.candidates) {
     if (i == true.winner) {
       c.margins[i] <- margin.approx
     }
@@ -119,8 +121,11 @@ for (k in 1:nRepetitions) {
   cat("Approximate margins: ", c.margins, "\n")
   cat("True winner: ", true.winner, "\n")
 
-  cert.rate <- rep(0, nCandidates)
-  mean.sample.size <- rep(0, nCandidates)
+  cert.rate <- rep(0, n.candidates)
+  mean.sample.size <- rep(0, n.candidates)
+
+  sample.sizes <- matrix(0, ncol=2, nrow=n.audits*n.candidates)
+  sample.sizes[,1] <- rep(c.margins, n.audits) # Add candidate margins
 
   for (i in 1:n.audits) {
 
@@ -130,9 +135,9 @@ for (k in 1:nRepetitions) {
     full.election <- full.election[sample(1:nb,nb),]
 
     # Conduct an audit for all candidates
-    certified = rep(FALSE, nCandidates)
-    sample.size = rep(little.m, nCandidates) # number of ballots counted before certification (m by default)
-    post.probs <- rep(0, nCandidates)
+    certified = rep(FALSE, n.candidates)
+    sample.size = rep(little.m, n.candidates) # number of ballots counted before certification (m by default)
+    post.probs <- rep(0, n.candidates)
     for (j in 1:little.m) {
 
       if (all(certified)) next # Stop auditing if all are certified
@@ -140,17 +145,19 @@ for (k in 1:nRepetitions) {
       update(dtree, full.election[j,]) # Update with next ballot
       # Eval posterior probs
       post.probs <- samplePosterior(dtree, nElections=ne, nBallots=nb)/ne
-      for (n in 1:nc) {
+      for (n in 1:n.candidates) {
         if (certified[n]) next # Skip if already certified
 
         if (post.probs[n] > halt.thresh) { # certify candidate
           certified[n] <- TRUE
           sample.size[n] <- j
+          sample.sizes[(i-1)*n.candidates+j, 2] <- j
         }
       }
     }
 
     mean.sample.size <- mean.sample.size + sample.size/n.audits
+    margin.v.samplesize <- rbind(margin.v.samplesize, sample.sizes)
     cert.rate <- cert.rate + certified/n.audits
 
     clear(dtree)
@@ -177,7 +184,21 @@ write.csv(
     "_a", alpha0,
     "_c", nc,
     "_n", nb,
-    "_r", nRepetitions,
+    "_r", n.repetitions,
     "_k", n.audits,
-    ".csv", sep="")
+    ".csv", sep=""
+  )
+)
+
+write.csv(
+  margin.v.samplesize,
+  paste(
+    "samplesizes",
+    "_a", alpha0,
+    "_c", nc,
+    "_n", nb,
+    "_r", n.repetitions,
+    "_k", n.audits,
+    ".csv", sep=""
+  )
 )
