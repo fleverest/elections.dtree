@@ -83,9 +83,9 @@ if (is.null(opt$repetitions)) {
   n.repetitions = opt$repetitions
 }
 
-election.tree <- dirtree.irv(n.candidates=nc, 1.)
+election.tree <- dirtree.irv(nCandidates=nc, 1.)
 
-dtree <- dirtree.irv(n.candidates=nc, alpha0)
+dtree <- dirtree.irv(nCandidates=nc, alpha0)
 
 cert.rates <- c()
 margins <- c()
