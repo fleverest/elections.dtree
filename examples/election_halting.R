@@ -151,7 +151,7 @@ for (k in 1:n.repetitions) {
         if (post.probs[n] > halt.thresh) { # certify candidate
           certified[n] <- TRUE
           sample.size[n] <- j
-          sample.sizes[(i-1)*n.candidates+j, 2] <- j
+          sample.sizes[(i-1)*n.candidates+n, 2] <- j
         }
       }
     }
