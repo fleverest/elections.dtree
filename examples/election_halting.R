@@ -11,6 +11,7 @@ spec <- matrix(c(
   'nElections', 'e', 1, "integer", "The number of monte carlo election samples to draw for posterior calculation (optional, default 250)",
   'n.audits', 'k', 1, "integer", "The number of audits per election (optional, default 100)",
   'm', 'm', 1, "integer", "Maximum number of ballots observed before proceeding to full recount (optional, default 100)",
+  'halt.thresh', 't', 1, "numeric", "The halting probability threshold for audits (optional, default 0.9).",
   'seed', 's', 1, "integer", "The seed for the experiment (optional, default 12345)",
   'help', 'h', 0, "logical", "Display this help menu"
   ), ncol=5, byrow=T)
@@ -124,12 +125,13 @@ for (k in 1:n.repetitions) {
   cert.rate <- rep(0, n.candidates)
   mean.sample.size <- rep(0, n.candidates)
 
-  sample.sizes <- matrix(0, ncol=2, nrow=n.audits*n.candidates)
-  sample.sizes[,1] <- rep(c.margins, n.audits) # Add candidate margins
-
   for (i in 1:n.audits) {
 
     cat(i, " ")
+
+    sample.sizes <- matrix(0, ncol=2, nrow=n.candidates)
+    sample.sizes[,1] <- c.margins # Add candidate margins
+    sample.sizes[,2] <- rep(little.m, n.candidates) # Default to little.m
 
     # Shuffle election
     full.election <- full.election[sample(1:nb,nb),]
@@ -151,7 +153,7 @@ for (k in 1:n.repetitions) {
         if (post.probs[n] > halt.thresh) { # certify candidate
           certified[n] <- TRUE
           sample.size[n] <- j
-          sample.sizes[(i-1)*n.candidates+n, 2] <- j
+          sample.sizes[n, 2] <- j
         }
       }
     }
