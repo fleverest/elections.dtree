@@ -2,7 +2,6 @@
 
 #ifndef DIRICHLET_TREE_HPP
 #define DIRICHLET_TREE_HPP
-#include <Rcpp.h>
 
 #include "ballot.hpp"
 #include "distributions.hpp"
