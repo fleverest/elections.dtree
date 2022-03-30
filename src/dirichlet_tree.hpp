@@ -24,7 +24,7 @@ template <typename NodeType, typename Outcome, class Parameters>
 class DirichletTree {
 private:
   // The interior root node for the Dirichlet Tree.
-  NodeType root;
+  NodeType *root;
 
   // The tree parameters. This object defines both the structure and sampling
   // parameters for the Dirichlet Tree. Some parameters will be immutable, for
@@ -32,7 +32,7 @@ private:
   // parameter scheme at each level might be possible to alter dynamically. The
   // parameters might also indicate some outcome filtering which can often be
   // changed dynamically.
-  Parameters parameters;
+  Parameters *parameters;
 
   // A vector of observations determining the posterior.
   std::list<Outcome> observed;
@@ -52,10 +52,12 @@ public:
    *
    * \return A DirichletTree object with the corresponding attributes.
    */
-  DirichletTree(Parameters parameters_, std::string seed = "12345");
+  DirichletTree(Parameters *parameters_, std::string seed = "12345");
 
   // No copy constructor
   DirichletTree(const DirichletTree &dirichletTree) = delete;
+
+  ~DirichletTree();
 
   /*! \brief Resets the distribution to its' prior.
    *
@@ -148,7 +150,7 @@ public:
    *
    * \return Returns a pointer to the Dirichlet Tree parameters.
    */
-  Parameters *getParameters() { return &parameters; }
+  Parameters *getParameters() { return parameters; }
 
   // Setters
 
@@ -167,5 +169,98 @@ public:
       engine();
   }
 };
+
+template <typename NodeType, typename Outcome, typename Parameters>
+DirichletTree<NodeType, Outcome, Parameters>::DirichletTree(
+    Parameters *parameters_, std::string seed) {
+  // Set the parameters.
+  parameters = parameters_;
+
+  // Initialize the root node of the tree.
+  root = new NodeType(0, parameters);
+
+  // Initialize a default PRNG, seed it and warm it up.
+  std::mt19937 engine{};
+  setSeed(seed);
+}
+
+template <typename NodeType, typename Outcome, typename Parameters>
+void DirichletTree<NodeType, Outcome, Parameters>::reset() {
+  // Replace the root node, calling the destructor of the old root after call.
+  delete root;
+  root = new NodeType(0, parameters);
+}
+
+template <typename NodeType, typename Outcome, typename Parameters>
+void DirichletTree<NodeType, Outcome, Parameters>::update(Outcome o,
+                                                          int count) {
+  observed.push_back(o);
+  std::vector<int> path = parameters->defaultPath();
+  root->update(o, path, count);
+}
+
+template <typename NodeType, typename Outcome, typename Parameters>
+float DirichletTree<NodeType, Outcome, Parameters>::marginalProbability(
+    Outcome o, std::mt19937 *engine_) {
+
+  // Use the default engine unless one is passed to the method.
+  if (engine_ == nullptr) {
+    engine_ = &engine;
+  }
+
+  // Pass straight to the root node.
+  std::vector<int> path = parameters->defaultPath();
+  return root->marginalProbability(o, path, engine_);
+}
+
+template <typename NodeType, typename Outcome, typename Parameters>
+std::list<Outcome>
+DirichletTree<NodeType, Outcome, Parameters>::sample(int n,
+                                                     std::mt19937 *engine_) {
+  // Use the default engine unless one is passed to the method.
+  if (engine_ == nullptr) {
+    engine_ = &engine;
+  }
+
+  // Initialize output
+  std::vector<int> path = parameters->defaultPath();
+  std::list<Outcome> out = root->sample(n, path, engine_);
+
+  return out;
+}
+
+template <typename NodeType, typename Outcome, typename Parameters>
+DirichletTree<NodeType, Outcome, Parameters>::~DirichletTree() {
+  delete root;
+}
+
+template <typename NodeType, typename Outcome, typename Parameters>
+std::list<std::list<Outcome>>
+DirichletTree<NodeType, Outcome, Parameters>::posteriorSets(
+    int nSets, int N, std::mt19937 *engine) {
+  // Initialize list of outcomes.
+  std::list<std::list<Outcome>> out;
+  std::list<Outcome> old_outcomes, new_outcomes;
+
+  // The number of observed outcomes.
+  int n = observed.size();
+
+  for (auto i = 0; i < N; ++i) {
+    // Add a new list to the list, first by copying the observed outcomes.
+    out.push_back({});
+
+    // Copy the observed outcomes
+    old_outcomes = observed;
+
+    // Then sample new outcomes.
+    new_outcomes = sample(N - n, engine);
+
+    // Combine the two, by appending to the new list.
+    out.back().splice(out.back().end(), old_outcomes);
+    out.back().splice(out.back().end(), new_outcomes);
+  }
+
+  return out;
+}
 
 #endif /* DIRICHLET_TREE_H */

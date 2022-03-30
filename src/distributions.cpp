@@ -8,7 +8,6 @@
  *****************************************************************************/
 
 #include "distributions.hpp"
-#include <random>
 
 int *rDirichletMultinomial(int count, float *alpha, int d,
                            std::mt19937 *engine) {

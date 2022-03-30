@@ -33,6 +33,14 @@ public:
   IRVParameters(int nCandidates_, int minDepth_, float alpha0_ = 1.)
       : nCandidates(nCandidates_), minDepth(minDepth_), alpha0(alpha0_) {}
 
+  // Copy constructor
+  IRVParameters(const IRVParameters &params)
+      : nCandidates(params.nCandidates), minDepth(params.minDepth),
+        alpha0(params.alpha0) {}
+
+  // Copy assignment
+  IRVParameters &operator=(const IRVParameters &) = default;
+
   // Getters
 
   /*! \brief Returns the default path for traversing an IRV tree.
@@ -42,9 +50,9 @@ public:
    * \return A vector representing the default path.
    */
   std::vector<int> defaultPath() {
-    std::vector<int> out(nCandidates);
-    for (auto i = 0; i < nCandidates; ++i)
-      out[i] = i + 1;
+    std::vector<int> out{};
+    for (auto i = 1; i <= nCandidates; ++i)
+      out.push_back(i);
     return out;
   };
 
