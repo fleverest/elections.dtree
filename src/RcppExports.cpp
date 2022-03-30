@@ -11,23 +11,23 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// evaluateElection
-int evaluateElection(Rcpp::DataFrame df);
-RcppExport SEXP _dirtree_elections_evaluateElection(SEXP dfSEXP) {
+// RSocialChoiceIRV
+Rcpp::CharacterVector RSocialChoiceIRV(Rcpp::List bs);
+RcppExport SEXP _dirtree_elections_RSocialChoiceIRV(SEXP bsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::DataFrame >::type df(dfSEXP);
-    rcpp_result_gen = Rcpp::wrap(evaluateElection(df));
+    Rcpp::traits::input_parameter< Rcpp::List >::type bs(bsSEXP);
+    rcpp_result_gen = Rcpp::wrap(RSocialChoiceIRV(bs));
     return rcpp_result_gen;
 END_RCPP
 }
 
-RcppExport SEXP _rcpp_module_boot_dirichlet_tree_irv_module();
+RcppExport SEXP _rcpp_module_boot_pirv_dirichlet_tree_module();
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_dirtree_elections_evaluateElection", (DL_FUNC) &_dirtree_elections_evaluateElection, 1},
-    {"_rcpp_module_boot_dirichlet_tree_irv_module", (DL_FUNC) &_rcpp_module_boot_dirichlet_tree_irv_module, 0},
+    {"_dirtree_elections_RSocialChoiceIRV", (DL_FUNC) &_dirtree_elections_RSocialChoiceIRV, 1},
+    {"_rcpp_module_boot_pirv_dirichlet_tree_module", (DL_FUNC) &_rcpp_module_boot_pirv_dirichlet_tree_module, 0},
     {NULL, NULL, 0}
 };
 
