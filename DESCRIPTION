@@ -1,13 +1,13 @@
 Package: dirtree.elections
 Title: Bayesian IRV Election Audits with Dirichlet Trees
-Description: A package for performing bayesian audits on IRV Elections using the Dirichlet Tree distribution as the conjugate prior.
+Description: A package for performing bayesian audits on IRV Elections (with or without partially ordered ballots) using the Dirichlet Tree distribution as the conjugate prior.
 Authors@R: c(
                 person("Floyd", "Everest", email = "me@floydeverest.com",
                     role = c("cre", "trl")),
                 person("Damjan", "Vukcevic", email = "damjan@vukcevic.net",
                     role = c("aut"))
             )
-Version: 0.1
+Version: 0.2
 Depends: R (>= 3.3.1)
 SystemRequirements: C++11
 License: GPL-3

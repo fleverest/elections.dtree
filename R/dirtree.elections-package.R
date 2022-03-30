@@ -3,9 +3,9 @@
 ## usethis namespace: start
 #' @import Rcpp RcppThread
 #' @useDynLib dirtree.elections, .registration = TRUE
-#' @export DirichletTreeIRV
+#' @export PIRVDirichletTree
 ## usethis namespace: end
 
-Rcpp::loadModule(module = "dirichlet_tree_irv_module", TRUE)
+Rcpp::loadModule(module = "pirv_dirichlet_tree_module", TRUE)
 
-.dtree_classes <- c("Rcpp_DirichletTreeIRV")
+.dtree_classes <- c("Rcpp_PIRVDirichletTree")
