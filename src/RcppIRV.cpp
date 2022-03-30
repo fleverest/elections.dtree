@@ -127,7 +127,7 @@ public:
   PIRVDirichletTree(int nCandidates_, int minDepth_, float alpha0_,
                     std::string seed_) {
     IRVParameters params(nCandidates_, minDepth_, alpha0_);
-    tree = new DirichletTree<IRVNode, IRVBallot, IRVParameters>(params, seed_);
+    tree = new DirichletTree<IRVNode, IRVBallot, IRVParameters>(&params, seed_);
   }
   ~PIRVDirichletTree() {
     delete tree->getParameters();
