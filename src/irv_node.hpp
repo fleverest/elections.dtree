@@ -34,12 +34,12 @@ public:
       : nCandidates(nCandidates_), minDepth(minDepth_), alpha0(alpha0_) {}
 
   // Copy constructor
-  IRVParameters(const IRVParameters &params)
-      : nCandidates(params.nCandidates), minDepth(params.minDepth),
-        alpha0(params.alpha0) {}
+  IRVParameters(IRVParameters &params)
+      : nCandidates(params.getNCandidates()), minDepth(params.getMinDepth()),
+        alpha0(params.getAlpha0()) {}
 
   // Copy assignment
-  IRVParameters &operator=(const IRVParameters &) = default;
+  // IRVParameters &operator=(const IRVParameters &) = default;
 
   // Getters
 
@@ -52,7 +52,7 @@ public:
   std::vector<int> defaultPath() {
     std::vector<int> out{};
     for (auto i = 1; i <= nCandidates; ++i)
-      out.push_back(i);
+      out.emplace_back(i);
     return out;
   };
 

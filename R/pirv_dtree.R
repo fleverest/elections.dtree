@@ -17,7 +17,7 @@ dirtree.pirv <- function(nCandidates, minDepth, alpha0 = 1.) {
     stop("nCandidates must be >1.")
   }
   # Ensure 0 <= minDepth <= nCandidates.
-  if (minDepth > nCandidates || mindepth < 0) {
+  if (minDepth > nCandidates || minDepth < 0) {
     stop("minDepth must be >=0 and <=nCandidates.")
   }
   # Ensure alpha0 >= 0
@@ -29,7 +29,8 @@ dirtree.pirv <- function(nCandidates, minDepth, alpha0 = 1.) {
     PIRVDirichletTree,
     nCandidates = nCandidates,
     minDepth = minDepth,
-    alpha0 = alpha0
+    alpha0 = alpha0,
+    seed = gseed()
   ))
 }
 
@@ -44,8 +45,8 @@ reset.Rcpp_PIRVDirichletTree <- function(dtree) {
 }
 
 #' @name samplePredictive
-#' @title Draw PIRV ballots from a posterior predictive distribution.
-#' @description Draws ballots from one realization of the posterior Dirichlet Tree.
+#' @title Draw PIRV ballots from the posterior predictive distribution.
+#' @description Draws ballots from a single realization of the Dirichlet Tree posterior.
 #' @param dtree a Dirichlet Tree object.
 #' @param nBallots an integer representing the number of ballots to draw.
 #' @return A list with each element corresponding to a drawn ballot.
@@ -69,4 +70,9 @@ update.PIRVDirichletTree <- function(dtree, ballots){
   stopifnot(class(dtree) %in% .dtree_classes)
   stopifnot(class(ballots) == 'data.frame')
   dtree$update(ballots)
+}
+
+# Helper function to get a random seed string to pass to CPP methods
+gseed <- function() {
+  return( paste(sample(LETTERS, 10), collapse="") )
 }
