@@ -11,6 +11,7 @@
 std::list<IRVBallot> lazyIRVBallots(IRVParameters *params, int count,
                                     std::vector<int> path, int depth,
                                     std::mt19937 *engine) {
+
   // Get parameters
   int nCandidates = params->getNCandidates();
   float alpha0 = params->getAlpha0();
@@ -98,6 +99,7 @@ IRVNode::~IRVNode() {
 
 std::list<IRVBallot> IRVNode::sample(int count, std::vector<int> path,
                                      std::mt19937 *engine) {
+
   std::list<IRVBallot> temp = {};
   std::list<IRVBallot> out = {};
 
@@ -157,6 +159,7 @@ std::list<IRVBallot> IRVNode::sample(int count, std::vector<int> path,
 
     // Sample from the next subtree.
     std::swap(path[depth], path[depth + i]);
+
     if (children[i] == nullptr) {
       temp = lazyIRVBallots(parameters, mnomCounts[i], path, depth + 1, engine);
     } else {

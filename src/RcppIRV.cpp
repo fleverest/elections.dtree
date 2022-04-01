@@ -127,23 +127,20 @@ public:
   PIRVDirichletTree(int nCandidates_, int minDepth_, float alpha0_,
                     std::string seed_) {
     IRVParameters params(nCandidates_, minDepth_, alpha0_);
-    tree = new DirichletTree<IRVNode, IRVBallot, IRVParameters>(&params, seed_);
+    tree = new DirichletTree<IRVNode, IRVBallot, IRVParameters>(params, seed_);
   }
-  ~PIRVDirichletTree() {
-    delete tree->getParameters();
-    delete tree;
-  }
+  ~PIRVDirichletTree() { delete tree; }
 
   // Getters
-  int getNCandidates() { return tree->getParameters()->getNCandidates(); }
-  int getMinDepth() { return tree->getParameters()->getMinDepth(); }
-  float getAlpha0() { return tree->getParameters()->getAlpha0(); }
+  int getNCandidates() { return tree->getParameters().getNCandidates(); }
+  int getMinDepth() { return tree->getParameters().getMinDepth(); }
+  float getAlpha0() { return tree->getParameters().getAlpha0(); }
 
   // Setters
   void setMinDepth(int minDepth_) {
-    tree->getParameters()->setMinDepth(minDepth_);
+    tree->getParameters().setMinDepth(minDepth_);
   }
-  void setAlpha0(float alpha0_) { tree->getParameters()->setAlpha0(alpha0_); }
+  void setAlpha0(float alpha0_) { tree->getParameters().setAlpha0(alpha0_); }
   void setSeed(std::string seed_) { tree->setSeed(seed_); }
 
   // Other methods
