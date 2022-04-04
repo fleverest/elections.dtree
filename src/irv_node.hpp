@@ -51,7 +51,7 @@ public:
    */
   std::vector<int> defaultPath() {
     std::vector<int> out{};
-    for (auto i = 1; i <= nCandidates; ++i)
+    for (auto i = 0; i < nCandidates; ++i)
       out.emplace_back(i);
     return out;
   };

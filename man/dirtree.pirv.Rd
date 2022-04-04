@@ -6,10 +6,10 @@
 \alias{PIRVDirichletTree}
 \title{Dirichlet Tree for Partial IRV ballots}
 \usage{
-dirtree.pirv(nCandidates, minDepth, alpha0 = 1)
+dirtree.pirv(candidates, minDepth, alpha0 = 1)
 }
 \arguments{
-\item{nCandidates}{the number of candidates in the IRV election.}
+\item{candidates}{A character vector, with each element (must be unique) representing a single candidate.}
 
 \item{minDepth}{the minimum number of candidates to be specified for a valid ballot.}
 
