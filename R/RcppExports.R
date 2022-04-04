@@ -2,6 +2,6 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 RSocialChoiceIRV <- function(bs) {
-    .Call(`_dirtree_elections_RSocialChoiceIRV`, bs)
+    .Call('_dirtree_elections_RSocialChoiceIRV', PACKAGE = 'dirtree.elections', bs)
 }
 

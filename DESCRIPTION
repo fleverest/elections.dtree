@@ -7,7 +7,7 @@ Authors@R: c(
                 person("Damjan", "Vukcevic", email = "damjan@vukcevic.net",
                     role = c("aut"))
             )
-Version: 0.2
+Version: 0.3
 Depends: R (>= 3.3.1)
 SystemRequirements: C++11
 License: GPL-3

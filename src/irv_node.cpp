@@ -109,9 +109,9 @@ std::list<IRVBallot> IRVNode::sample(int count, std::vector<int> path,
   int nOutcomes = nChildren + (depth >= minDepth);
 
   float *alphasPost = new float[nOutcomes];
-  for (auto i = 0; i < nOutcomes; ++i) {
+  for (auto i = 0; i < nOutcomes; ++i)
     alphasPost[i] = alphas[i] + alpha0;
-  }
+
   // Get Dirichlet-multinomial counts for next-preference selections below
   // current node.
   int *mnomCounts = rDirichletMultinomial(count, alphasPost, nOutcomes, engine);
@@ -129,16 +129,16 @@ std::list<IRVBallot> IRVNode::sample(int count, std::vector<int> path,
   // If nChildren is 2, stop recursing and add the completely specified ballots
   // to the output.
   if (nChildren == 2) {
-    for (auto i = 0; i < nChildren; ++i) {
+    for (auto i = 0; i < 2; ++i) {
       // Skip if there the sampled count for the ballot is zero.
-      if (mnomCounts[i] == 0)
-        continue;
+      // if (mnomCounts[i] == 0)
+      //  continue;
 
       std::swap(path[depth], path[depth + i]);
 
-      IRVBallot b(std::vector<int>(path.begin(), path.begin() + depth));
+      IRVBallot b(std::vector<int>(path.begin(), path.begin() + depth + 1));
 
-      for (auto j = 0; j < mnomCounts[j]; ++j)
+      for (auto j = 0; j < mnomCounts[i]; ++j)
         out.push_back(b);
 
       std::swap(path[depth], path[depth + i]);

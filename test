@@ -1,0 +1,7 @@
+A, C, B
+INDA, INDC, INDB
+-+-+-
+(A) : 1
+(A, C) : 4
+(C) : 3
+(C, B) : 2

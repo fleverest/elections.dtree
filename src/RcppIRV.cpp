@@ -104,15 +104,10 @@ private:
 
         // Find index for the candidate. Add it to our set if it doesn't exist.
         if (candidateMap.count(cName) == 0) {
-          cIndex = candidateVector.size();
-          candidateVector.push_back(cName);
+          Rcpp::stop("Unknown candidate encountered in ballot!");
         } else {
           cIndex = candidateMap[cName];
         }
-
-        // If we exceeded the number of candidates in our tree, stop.
-        if (cIndex == nCandidates)
-          Rcpp::stop("Too many unique candidate names!");
 
         indexPrefs.push_back(cIndex);
       }
@@ -124,9 +119,19 @@ private:
 
 public:
   // Constructor/destructor
-  PIRVDirichletTree(int nCandidates_, int minDepth_, float alpha0_,
-                    std::string seed_) {
-    IRVParameters params(nCandidates_, minDepth_, alpha0_);
+  PIRVDirichletTree(Rcpp::CharacterVector candidates, int minDepth_,
+                    float alpha0_, std::string seed_) {
+    // Parse the candidate strings.
+    std::string cName;
+    int cIndex = 0;
+    for (auto i = 0; i < candidates.size(); ++i) {
+      cName = candidates[i];
+      candidateVector.push_back(cName);
+      candidateMap[cName] = cIndex;
+      ++cIndex;
+    }
+    // Initialize tree.
+    IRVParameters params(candidates.size(), minDepth_, alpha0_);
     tree = new DirichletTree<IRVNode, IRVBallot, IRVParameters>(params, seed_);
   }
   ~PIRVDirichletTree() { delete tree; }
@@ -144,11 +149,7 @@ public:
   void setSeed(std::string seed_) { tree->setSeed(seed_); }
 
   // Other methods
-  void reset() {
-    tree->reset();
-    candidateVector.clear();
-    candidateMap.clear();
-  }
+  void reset() { tree->reset(); }
 
   void update(Rcpp::List ballots) {
     std::list<IRVBallot> bs = parseBallotList(ballots);
@@ -157,6 +158,7 @@ public:
   }
 
   Rcpp::List samplePredictive(int nSamples, std::string seed) {
+
     tree->setSeed(seed);
 
     Rcpp::List out;
@@ -224,7 +226,7 @@ public:
 RCPP_MODULE(pirv_dirichlet_tree_module) {
   Rcpp::class_<PIRVDirichletTree>("PIRVDirichletTree")
       // Constructor needs nCandidates, minDepth, alpha0 and seed.
-      .constructor<int, int, float, std::string>()
+      .constructor<Rcpp::CharacterVector, int, float, std::string>()
       // Getter/Setter interface
       .property("nCandidates", &PIRVDirichletTree::getNCandidates)
       .property("alpha0", &PIRVDirichletTree::getAlpha0,

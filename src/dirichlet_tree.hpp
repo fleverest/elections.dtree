@@ -198,8 +198,6 @@ void DirichletTree<NodeType, Outcome, Parameters>::update(Outcome o,
   root->update(o, path, count);
 }
 
-#include <Rcpp.h>
-
 template <typename NodeType, typename Outcome, typename Parameters>
 float DirichletTree<NodeType, Outcome, Parameters>::marginalProbability(
     Outcome o, std::mt19937 *engine_) {

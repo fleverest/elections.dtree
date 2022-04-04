@@ -2,13 +2,13 @@
 % Please edit documentation in R/pirv_dtree.R
 \name{update}
 \alias{update}
-\alias{update.PIRVDirichletTree}
+\alias{update.Rcpp_PIRVDirichletTree}
 \title{Update a Dirichlet Tree with PIRV ballot data.}
 \usage{
-\method{update}{PIRVDirichletTree}(dtree, ballots)
+\method{update}{Rcpp_PIRVDirichletTree}(dtree, ballots)
 }
 \arguments{
-\item{dtree}{a Dirichlet Tree object.}
+\item{dtree}{a PIRV Dirichlet Tree object.}
 
 \item{ballots}{a list of PIRV ballots.}
 }
