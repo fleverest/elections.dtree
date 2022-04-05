@@ -12,13 +12,14 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // RSocialChoiceIRV
-Rcpp::CharacterVector RSocialChoiceIRV(Rcpp::List bs);
-RcppExport SEXP _dirtree_elections_RSocialChoiceIRV(SEXP bsSEXP) {
+Rcpp::List RSocialChoiceIRV(Rcpp::List bs, int nWinners);
+RcppExport SEXP _dirtree_elections_RSocialChoiceIRV(SEXP bsSEXP, SEXP nWinnersSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type bs(bsSEXP);
-    rcpp_result_gen = Rcpp::wrap(RSocialChoiceIRV(bs));
+    Rcpp::traits::input_parameter< int >::type nWinners(nWinnersSEXP);
+    rcpp_result_gen = Rcpp::wrap(RSocialChoiceIRV(bs, nWinners));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -26,7 +27,7 @@ END_RCPP
 RcppExport SEXP _rcpp_module_boot_pirv_dirichlet_tree_module();
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_dirtree_elections_RSocialChoiceIRV", (DL_FUNC) &_dirtree_elections_RSocialChoiceIRV, 1},
+    {"_dirtree_elections_RSocialChoiceIRV", (DL_FUNC) &_dirtree_elections_RSocialChoiceIRV, 2},
     {"_rcpp_module_boot_pirv_dirichlet_tree_module", (DL_FUNC) &_rcpp_module_boot_pirv_dirichlet_tree_module, 0},
     {NULL, NULL, 0}
 };

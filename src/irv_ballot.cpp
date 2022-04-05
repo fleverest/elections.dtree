@@ -21,11 +21,11 @@ bool IRVBallot::eliminate(int candidate) {
   if (it != preferences.end()) {
     preferences.erase(it);
   }
-  // Return whether or not the ballot remains valid.
+  // Return whether or not the ballot is empty.
   if (nPreferences() == 0) {
-    return false;
-  } else {
     return true;
+  } else {
+    return false;
   }
 }
 
@@ -42,12 +42,15 @@ bool IRVBallot::operator==(const IRVBallot &b) {
   return equal;
 }
 
-int socialChoiceIRV(std::list<IRVBallot> ballots, int nCandidates) {
+std::vector<int> socialChoiceIRV(std::list<IRVBallot> ballots,
+                                 int nCandidates) {
+
+  std::vector<int> out{};
 
   // A copy of the ballots which will be altered during eliminations.
   std::list<IRVBallot> altered_ballots = ballots;
 
-  bool valid = true;
+  bool empty;
 
   int nEliminations = 0;
 
@@ -70,7 +73,7 @@ int socialChoiceIRV(std::list<IRVBallot> ballots, int nCandidates) {
   std::vector<int> tally;
 
   // While more than one candidate stands.
-  while (nEliminations < nCandidates - 2) {
+  while (nEliminations < nCandidates) {
 
     // Reset the tally.
     tally = std::vector<int>(nCandidates, 0);
@@ -92,35 +95,13 @@ int socialChoiceIRV(std::list<IRVBallot> ballots, int nCandidates) {
 
     // Eliminate the standing candidate with the minimum tally.
     eliminated[elim] = true;
-    altered_ballots.erase(std::remove_if(altered_ballots.begin(),
-                                         altered_ballots.end(),
-                                         [valid, elim](IRVBallot b) mutable {
-                                           valid = b.eliminate(elim);
-                                           return !valid;
-                                         }));
+    out.push_back(elim);
+
+    altered_ballots.remove_if(
+        [empty, elim](IRVBallot b) mutable { return b.eliminate(elim); });
 
     ++nEliminations;
   }
 
-  // Find which candidate has won.
-
-  // Reset the tally one last time.
-  tally = std::vector<int>(nCandidates, 0);
-
-  // Tally the first preferences of each ballot.
-  for (auto b : altered_ballots) {
-    tally[b.firstPreference()] += 1;
-  }
-
-  // Determine the winner.
-  victor = 0;
-  max_tally = 0;
-  for (auto i = 0; i < nCandidates; ++i) {
-    if (max_tally < tally[i]) {
-      victor = i;
-      max_tally = tally[i];
-    }
-  }
-
-  return victor;
+  return out;
 }
