@@ -51,7 +51,7 @@ samplePredictive <- function(dtree, nBallots) {
     stop("nBallots must be an integer > 0")
   }
   ballots = dtree$samplePredictive(as.integer(nBallots), gseed())
-  class(ballots) <- "IRVBallots"
+  class(ballots) <- "PIRVBallots"
   return(ballots)
 }
 
@@ -63,7 +63,7 @@ samplePredictive <- function(dtree, nBallots) {
 #' @export
 update.Rcpp_PIRVDirichletTree <- function(dtree, ballots) {
   stopifnot(class(dtree) %in% .dtree_classes)
-  stopifnot(class(ballots) == 'IRVBallots')
+  stopifnot(class(ballots) == 'PIRVBallots')
   dtree$update(ballots)
 }
 
