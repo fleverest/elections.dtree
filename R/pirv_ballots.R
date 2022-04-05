@@ -7,7 +7,7 @@
 #' @export
 write.ballots <- function(filename, ballots, candidates=NULL) {
 
-  stopifnot(class(ballots)=="IRVBallots")
+  stopifnot(class(ballots)=="PIRVBallots")
 
   f <- file(filename)
   lines <- c()
@@ -92,4 +92,14 @@ read.ballots <- function(filename) {
 
   class(ballots) <- "PIRVBallots"
   return(list(candidates=candidates, ballots=ballots))
+}
+
+#' @name social.choice
+#' @title Computes the outcome of the appropriate social choice function.
+#' @description Reads a set of ballots, and computes the outcome of the election. The outcome is described by a vector of winning candidates, along with the elimination order of the losing candidates.
+#' @param ballots The set of ballots for which to compute the outcome of the social choice function.
+#' @param nWinners The number of candidates to elect.
+#' @export
+social.choice.PIRVBallots <- function(ballots, nWinners=1) {
+  return(RSocialChoiceIRV(ballots, nWinners))
 }
