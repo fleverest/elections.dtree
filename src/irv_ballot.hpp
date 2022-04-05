@@ -65,10 +65,9 @@ public:
    *
    *  For example, if preferences is {1, 2, 3, 4} and we call
    * `ballot.eliminate(2)`, then the resulting preferences will be {1, 3, 4}.
-   * This method returns a boolean representing whether or not after elimination
-   * of the candidate, the ballot remains valid. For example, if preferences is
-   * {4} and we call `ballot.eliminate(4)`, then the resulting preferences is an
-   * empty vector which cannot possibly represent a valid ballot.
+   * This method returns a boolean representing whether or not the ballot is
+   * empty after elimination of the candidate. For example, if preferences is
+   * {4} and we call `ballot.eliminate(4)`.
    */
   bool eliminate(int candidate);
 
@@ -83,15 +82,16 @@ public:
   bool operator==(const IRVBallot &b);
 };
 
-/*! \brief Evaluates the outcome of an election.
+/*! \brief Evaluates the outcome of an IRV election.
  *
  *  Given a set of ballots, this applies the social choice function to determine
- * the victorious candidate.
+ * the elimination order.
  *
  * \param election A set of ballots to conduct the social choice function with.
  *
- * \return The index of the victorious candidate.
+ * \return A vector of candidate indices in order of elimination.
  */
-int socialChoiceIRV(std::list<IRVBallot> election, int nCandidates);
+std::vector<int> socialChoiceIRV(std::list<IRVBallot> election,
+                                 int nCandidates);
 
 #endif /* IRV_BALLOT_H */

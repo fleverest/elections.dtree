@@ -26,10 +26,15 @@
  *
  * \param  bs An Rcpp::List of ballots in CharacterVector representation.
  *
+ * \param nWinners An integer indicating the number of winners to elect.
+ *
  * \return The winning candidate.
  */
 // [[Rcpp::export]]
-Rcpp::CharacterVector RSocialChoiceIRV(Rcpp::List bs) {
+Rcpp::List RSocialChoiceIRV(Rcpp::List bs, int nWinners) {
+
+  Rcpp::List out{};
+
   std::list<IRVBallot> scInput{};
 
   std::unordered_map<std::string, size_t> c2Index{};
@@ -54,7 +59,27 @@ Rcpp::CharacterVector RSocialChoiceIRV(Rcpp::List bs) {
     scInput.emplace_back(bIndices);
   }
 
-  return cNames[socialChoiceIRV(scInput, cNames.size())];
+  if (nWinners < 1 || nWinners >= cNames.size()) {
+    Rcpp::stop("`nWinners` must be >= 1 and <= the number of candidates.");
+  }
+
+  std::vector<int> elimination_order_idx =
+      socialChoiceIRV(scInput, cNames.size());
+
+  Rcpp::CharacterVector elimination_order{};
+  Rcpp::CharacterVector winners{};
+
+  for (auto i = 0; i < cNames.size() - nWinners; ++i) {
+    elimination_order.push_back(cNames[elimination_order_idx[i]]);
+  }
+  for (auto i = cNames.size() - nWinners; i < cNames.size(); ++i) {
+    winners.push_back(cNames[elimination_order_idx[i]]);
+  }
+
+  out("elimination_order") = elimination_order;
+  out("winners") = winners;
+
+  return out;
 }
 
 /*! \brief An Rcpp object which implements the `dtree` R object interface.
@@ -190,7 +215,7 @@ public:
         tree->posteriorSets(nElections, nBallots);
 
     for (auto e : elections) {
-      winner = socialChoiceIRV(e, nCandidates);
+      winner = socialChoiceIRV(e, nCandidates).back();
       out[winner] = out[winner] + 1;
     }
 
