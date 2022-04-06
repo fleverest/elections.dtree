@@ -1,40 +1,51 @@
 # Bayesian IRV Election Auditing with the Dirichlet-Tree Prior.
 
+## About the project.
+
+#### Why?
+
 The work so far in Bayesian auditing literature has employed the Dirichlet prior to the multinomial ballot types. In the case of Ranked-choice voting systems, the ballot-space can grow factorially; in the case of the IRV election, which is used for the House of Representatives in Australia, the number of possible ballots is `n!`, with `n` candidates.
 
-Though the Dirichlet distribution is a simple and effective choice for fewer Ballot types, when this grows it is incredibly difficult to choose appropriate prior parameters. As `n` grows, you would need to select an initial `alpha` parameter at the `1/n!` scale, which is at best significantly limited numerically by floating-point precision.
+Though the Dirichlet distribution is a simple and effective choice for fewer Ballot types, when this grows it is incredibly difficult to choose appropriate prior parameters. As `n` grows, you would need to select an initial `alpha0` parameter at the `1/n!` scale, which is _at best_ significantly limited numerically by floating-point precision and _on average_ an incredibly over-informative prior distribution.
 
-The Dirichlet-Tree prior distribution introduces a hierarchical Dirichlet structure, consisting of nested Dirichlet distributions over the conditional probabilities on the next-preferences given the prior candidate selections. This improves the prior such that initial parameters need only be chosen at the scale of `1/n`.
+The Dirichlet-Tree prior distribution introduces a hierarchical Dirichlet structure, consisting of nested Dirichlet distributions over the conditional probabilities on the next-preferences given the prior candidate selections. This improves the prior such that initial parameters need only be chosen at the scale of `1/n` in order to perform well.
 
-In this repository, I have implemented the IRV Dirichlet-Tree structure in a lazy way such that the memory-complexity is bound by `O(n*m)`, where `m` is the number of ballots observed in the audit process, and `n` is the number of participating candidates.
+#### How?
+
+In this repository, I have implemented the IRV Tree structure in a lazy way such that the memory-complexity is bounded by `O(n*m)`, where `m` is the number of ballots observed in the audit process, and `n` is the number of participating candidates.
+
+To avoid loading all tree nodes into memory for sampling, I chose to implement a recursive sampling strategy which can generate Dirichlet-Tree samples starting from any uninitialized point in the tree. This works well for IRV ballot structures, since the tree structure is easily navigated given a ballot. In order to support different tree structures or other elections, this will need to be reimplemented - and anyone designing a new tree structure for this should consider it carefully - this way of sampling is what makes the method computationally feasible for elections with more candidates.
 
 
-## WIP: Usage
+## Usage
 
 
 ```R
-# Initialize a new Dirichlet Tree prior.
-dtree <- dirtree.irv(nCandidates = 10, scale = 5., dirichlet = F, seed="seed")
+# Initialize a new Dirichlet Tree for IRV elections with
+# 10 candidates (named A through J), requiring all candidates to be
+# specified for a valid ballot, and using a prior parameter of 5.
+dtree <- dirtree.irv(
+  candidates = c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J"),
+  minDepth = 9,
+  alpha0 = 5.
+)
 
 # Sample 1000 ballots from the prior.
-ballots <- draw(dtree, 1000)
+ballots <- samplePredictive(dtree, 1000)
 
-# Observe the 1000 ballots to obtain a posterior.
+# Observe the 1000 ballots to obtain a posterior Dirichlet Tree.
 update(dtree, ballots)
 
-# Evaluate 100 random elections (2000 ballots each) from the prior without using the initial ballots.
-samplePosterior(dtree, nElections = 100, nBallots = 2000, useObserved = F)
+# Evaluate 100 random election outcomes by:
+#  1. sampling 1000 ballots from the posterior predictive distribution, and
+#  2. evaluating the outcome of the 1000 sampled ballots, plus the 1000 observed.
+samplePosterior(dtree, nElections = 100, nBallots = 2000)
 
-# Evaluate again but starting with the initial ballots.
-samplePosterior(dtree, nElections = 100, nBallots = 2000, useObserved = T)
+# Change the prior parameter.
+dtree$alpha0 <- 1.
 
-# Change the prior scale.
-dtree$scale <- 1.
-
-# Switch to a Dirichlet Prior.
-dtree$isDirichlet <- T
-
-# Reset to the prior, removing observed data.
-clear(dtree)
+# Reset to the prior, removing observed data. This is equivalent to re-running
+# the first command.
+reset(dtree)
 ```
 
