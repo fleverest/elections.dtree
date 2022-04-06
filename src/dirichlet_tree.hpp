@@ -150,7 +150,7 @@ public:
    *
    * \return Returns a pointer to the Dirichlet Tree parameters.
    */
-  Parameters getParameters() { return parameters; }
+  Parameters *getParameters() { return &parameters; }
 
   // Setters
 
@@ -165,7 +165,8 @@ public:
   void setSeed(std::string seed) {
     std::seed_seq ss(seed.begin(), seed.end());
     engine.seed(ss);
-    for (auto i = 1000; i; --i) // warmup
+    // warmup. TODO: treeGen->discard(treeGen->state_size * 100);
+    for (auto i = 1000; i; --i)
       engine();
   }
 };
@@ -244,7 +245,7 @@ DirichletTree<NodeType, Outcome, Parameters>::posteriorSets(
   // The number of observed outcomes.
   int n = observed.size();
 
-  for (auto i = 0; i < N; ++i) {
+  for (auto i = 0; i < nSets; ++i) {
     // Add a new list to the list, first by copying the observed outcomes.
     out.push_back({});
 

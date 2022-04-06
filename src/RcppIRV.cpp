@@ -17,6 +17,8 @@
 
 #include <Rcpp.h>
 #include <RcppThread.h>
+#include <random>
+#include <thread>
 #include <unordered_map>
 
 /*! \brief The IRV social choice function.
@@ -46,6 +48,10 @@ Rcpp::List RSocialChoiceIRV(Rcpp::List bs, int nWinners) {
 
   for (auto i = 0; i < bs.size(); ++i) {
     bNames = bs[i];
+    if (bNames.size() == 0) {
+      Rcpp::warning("Skipping ballot with length 0.");
+      continue;
+    }
     bIndices = {};
     for (auto j = 0; j < bNames.size(); ++j) {
       cName = bNames[j];
@@ -92,10 +98,14 @@ private:
   // The underlying Dirichlet Tree.
   DirichletTree<IRVNode, IRVBallot, IRVParameters> *tree;
 
-  // A vector (in order) of seen candidates.
-  std::vector<std::string> candidateVector{};
-  // A map of candidate names to their index.
+  // A vector of candidate names.
+  Rcpp::CharacterVector candidateVector{};
+
+  // A map of candidate names to their ballot index.
   std::unordered_map<std::string, size_t> candidateMap{};
+
+  // A record of the number of observed ballots.
+  size_t nObserved = 0;
 
   /*! \brief Converts an R list of valid IRV ballot vectors to a
    * std::list<IRVBallot> format.
@@ -162,24 +172,29 @@ public:
   ~PIRVDirichletTree() { delete tree; }
 
   // Getters
-  int getNCandidates() { return tree->getParameters().getNCandidates(); }
-  int getMinDepth() { return tree->getParameters().getMinDepth(); }
-  float getAlpha0() { return tree->getParameters().getAlpha0(); }
+  int getNCandidates() { return tree->getParameters()->getNCandidates(); }
+  int getMinDepth() { return tree->getParameters()->getMinDepth(); }
+  float getAlpha0() { return tree->getParameters()->getAlpha0(); }
 
   // Setters
   void setMinDepth(int minDepth_) {
-    tree->getParameters().setMinDepth(minDepth_);
+    tree->getParameters()->setMinDepth(minDepth_);
   }
-  void setAlpha0(float alpha0_) { tree->getParameters().setAlpha0(alpha0_); }
+  void setAlpha0(float alpha0_) { tree->getParameters()->setAlpha0(alpha0_); }
   void setSeed(std::string seed_) { tree->setSeed(seed_); }
 
   // Other methods
-  void reset() { tree->reset(); }
+  void reset() {
+    tree->reset();
+    nObserved = 0;
+  }
 
   void update(Rcpp::List ballots) {
     std::list<IRVBallot> bs = parseBallotList(ballots);
-    for (auto b : bs)
+    for (auto b : bs) {
+      ++nObserved;
       tree->update(b, 1);
+    }
   }
 
   Rcpp::List samplePredictive(int nSamples, std::string seed) {
@@ -201,22 +216,69 @@ public:
     return out;
   }
 
-  Rcpp::NumericVector sampleCandidatePosterior(int nElections, int nBallots,
-                                               std::string seed) {
+  Rcpp::NumericVector samplePosterior(int nElections, int nBallots,
+                                      int nWinners, int nBatches,
+                                      std::string seed) {
 
-    Rcpp::NumericVector out = {};
+    if (nBallots < nObserved)
+      Rcpp::stop("`nBallots` must be larger than the number of ballots "
+                 "observed to obtain the posterior.");
+
+    tree->setSeed(seed);
+
     int nCandidates = getNCandidates();
-    int winner;
 
-    for (auto i = 0; i < nCandidates; ++i)
-      out.push_back(0);
+    // Generate nBatches PRNGs.
+    std::mt19937 *treeGen = tree->getEnginePtr();
+    unsigned seeds[nBatches + 1];
+    for (int i = 0; i <= nBatches; ++i) {
+      seeds[i] = (*treeGen)();
+    }
+    // TODO: Remove this?
+    treeGen->discard(treeGen->state_size * 100);
 
-    std::list<std::list<IRVBallot>> elections =
-        tree->posteriorSets(nElections, nBallots);
+    // The number of elections to sample per thread.
+    int workerBatchSize = nElections / nBatches;
+    int batchRemainder = nElections % nBatches;
 
-    for (auto e : elections) {
-      winner = socialChoiceIRV(e, nCandidates).back();
-      out[winner] = out[winner] + 1;
+    // The results vector for each thread.
+    std::vector<std::vector<std::vector<int>>> results(nBatches + 1);
+
+    // Use RcppThreads to compute the posterior in batches.
+    RcppThread::ThreadPool pool(std::thread::hardware_concurrency());
+    auto getBatchResult = [&](size_t i, size_t batchSize) -> void {
+      // Check for interrupt.
+      RcppThread::checkUserInterrupt();
+
+      // Seed a new PRNG, and warm it up.
+      std::mt19937 e(seeds[i]);
+      e.discard(e.state_size * 100);
+
+      // Simulate elections.
+      std::list<std::list<IRVBallot>> elections =
+          tree->posteriorSets(batchSize, nBallots);
+
+      for (auto e : elections) {
+        results[i].push_back(socialChoiceIRV(e, nCandidates));
+      }
+    };
+
+    pool.parallelFor(0, nBatches, // Process batches on workers
+                     [&](size_t i) { getBatchResult(i, workerBatchSize); });
+    getBatchResult(nBatches, // Process remainder on main thread.
+                   batchRemainder);
+    pool.join();
+
+    // Aggregate the results
+    Rcpp::NumericVector out(nCandidates);
+    out.names() = candidateVector;
+
+    for (int j = 0; j <= nBatches; ++j) {
+      for (auto elimination_order_idx : results[j]) {
+        for (auto i = 0; i < nCandidates; ++i)
+          if (i >= nCandidates - nWinners)
+            out[elimination_order_idx[i]] = out[elimination_order_idx[i]] + 1;
+      }
     }
 
     out = out / nElections;
@@ -226,6 +288,8 @@ public:
   Rcpp::NumericVector sampleMarginalProbability(int nSamples,
                                                 Rcpp::CharacterVector ballot,
                                                 std::string seed) {
+    tree->setSeed(seed);
+
     float prob;
     Rcpp::NumericVector out = {};
     std::string name;
@@ -263,8 +327,7 @@ RCPP_MODULE(pirv_dirichlet_tree_module) {
       .method("reset", &PIRVDirichletTree::reset)
       .method("update", &PIRVDirichletTree::update)
       .method("samplePredictive", &PIRVDirichletTree::samplePredictive)
-      .method("sampleCandidatePosterior",
-              &PIRVDirichletTree::sampleCandidatePosterior)
+      .method("samplePosterior", &PIRVDirichletTree::samplePosterior)
       .method("sampleMarginalProbability",
               &PIRVDirichletTree::sampleMarginalProbability);
 }

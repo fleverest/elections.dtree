@@ -85,8 +85,12 @@ read.ballots <- function(filename) {
     ballot.count.str <- strsplit(line, ":")[[1]]
     count <- strtoi(ballot.count.str[2])
     ballot <- strsplit(ballot.count.str[1], ",")[[1]]
-    for (j in 1:count) {
-      ballots <- c(ballots, list(ballot))
+    if (length(ballot) > 0) {
+      for (j in 1:count) {
+        ballots <- c(ballots, list(ballot))
+      }
+    } else {
+      warning("Ballot of length 0 encountered.")
     }
   }
 
