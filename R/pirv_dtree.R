@@ -55,6 +55,27 @@ samplePredictive <- function(dtree, nBallots) {
   return(ballots)
 }
 
+#' @name samplePosterior
+#' @title Draw election outcomes from the posterior distribution.
+#' @description Draws ballots from a realizations of the Dirichlet Tree posterior, and determines the probability for each candidate being elected by aggregating the results.
+#' @param dtree a PIRV Dirichlet Tree object.
+#' @param nElections an integer representing the number of elections to generate. A higher number yields higher precision in the output probabilities.
+#' @param nBallots an integer representing the number of ballots cast in total for each election.
+#' @return A NumericVector containing the probabilities for each candidate winning.
+#' @export
+samplePosterior <- function(dtree, nElections, nBallots, nWinners=1) {
+  stopifnot(class(dtree) %in% .dtree_classes)
+  return(
+    dtree$samplePosterior(
+      nElections=nElections,
+      nBallots=nBallots,
+      nWinners=nWinners,
+      nBatches=nElections/2,
+      gseed()
+    )
+  )
+}
+
 #' @name update
 #' @title Update a Dirichlet Tree with PIRV ballot data.
 #' @description Updates a Dirichlet Tree with observed ballots to obtain a new posterior.
