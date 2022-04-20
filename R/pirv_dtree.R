@@ -61,7 +61,7 @@ samplePredictive <- function(dtree, nBallots) {
 #' @param dtree a PIRV Dirichlet Tree object.
 #' @param nElections an integer representing the number of elections to generate. A higher number yields higher precision in the output probabilities.
 #' @param nBallots an integer representing the number of ballots cast in total for each election.
-#' @return A NumericVector containing the probabilities for each candidate winning.
+#' @return A NumericVector containing the probabilities for each candidate being elected.
 #' @export
 samplePosterior <- function(dtree, nElections, nBallots, nWinners=1) {
   stopifnot(class(dtree) %in% .dtree_classes)
