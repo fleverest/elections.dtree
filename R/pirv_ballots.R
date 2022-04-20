@@ -7,7 +7,8 @@
 #' @export
 write.ballots <- function(filename, ballots, candidates=NULL) {
 
-  stopifnot(class(ballots)=="PIRVBallots")
+  # TODO: Write some kind of warning?
+  #stopifnot(class(ballots)=="PIRVBallots")
 
   f <- file(filename)
   lines <- c()
