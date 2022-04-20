@@ -76,11 +76,18 @@ read.ballots <- function(filename) {
   # Read the file.
   lines = readLines(filename)
 
-  # First 3 lines are the header, we only use the first of the three.
+  # First 2 or 3 lines are the header, we only use the first of those.
   candidates <- strsplit(gsub(" ", "", lines[1]), ",")[[1]]
 
+  # Check if the header contains the affiliated parties or not.
+  if (gsub("[-+]*", "", lines[2]) == "") {
+    startLine <- 4
+  } else {
+    startLine <- 3
+  }
+
   # Then the ballots follow:
-  for (i in 4:length(lines)) {
+  for (i in startLine:length(lines)) {
     line <- gsub("[() ]","",lines[i])
     ballot.count.str <- strsplit(line, ":")[[1]]
     count <- strtoi(ballot.count.str[2])
