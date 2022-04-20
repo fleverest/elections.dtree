@@ -20,7 +20,7 @@ write.ballots <- function(filename, ballots, candidates=NULL) {
 
   # The file header contains candidate names
   lines <- c(lines, paste(collapse=", ", candidates))
-  lines <- c(lines, paste("IND", paste(collapse=", IND", candidates), sep=""))
+  lines <- c(lines, paste(collapse=", ", candidates))
   lines <- c(lines, paste(collapse="+", rep('-', length(candidates))))
 
   # The rest of the file contains the ballot:count pairs.
@@ -50,7 +50,10 @@ count.ballots <- function(ballots, candidates) {
     # Check if it has been seen before.
     seen <- F
     for (i in 1:l) {
-      if (l > 0 && all(ballot.counts[[i]]$ballot==b)) {
+      if (l > 0
+        && length(ballot.counts[[i]]$ballot)==length(b)
+        && all(ballot.counts[[i]]$ballot==b)
+      ) {
         # If it is seen, increment the counter
         seen <- T
         ballot.counts[[i]]$count = ballot.counts[[i]]$count + 1
