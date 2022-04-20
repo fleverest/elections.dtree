@@ -84,7 +84,8 @@ samplePosterior <- function(dtree, nElections, nBallots, nWinners=1) {
 #' @export
 update.Rcpp_PIRVDirichletTree <- function(dtree, ballots) {
   stopifnot(class(dtree) %in% .dtree_classes)
-  stopifnot(class(ballots) == 'PIRVBallots')
+  # TODO: Throw a warning?
+  #stopifnot(class(ballots) == 'PIRVBallots')
   dtree$update(ballots)
 }
 
