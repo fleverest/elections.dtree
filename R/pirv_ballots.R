@@ -81,9 +81,9 @@ read.ballots <- function(filename) {
 
   # Check if the header contains the affiliated parties or not.
   if (gsub("[-+]*", "", lines[2]) == "") {
-    startLine <- 4
-  } else {
     startLine <- 3
+  } else {
+    startLine <- 4
   }
 
   # Then the ballots follow:
