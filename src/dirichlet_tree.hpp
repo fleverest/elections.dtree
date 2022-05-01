@@ -189,6 +189,8 @@ void DirichletTree<NodeType, Outcome, Parameters>::reset() {
   // Replace the root node, calling the destructor of the old root after call.
   delete root;
   root = new NodeType(0, &parameters);
+  // Destroy the observations list
+  observed.clear();
 }
 
 template <typename NodeType, typename Outcome, typename Parameters>
