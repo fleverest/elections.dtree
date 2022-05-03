@@ -12,13 +12,13 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // RSocialChoiceIRV
-Rcpp::List RSocialChoiceIRV(Rcpp::List bs, int nWinners);
+Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners);
 RcppExport SEXP _dirtree_elections_RSocialChoiceIRV(SEXP bsSEXP, SEXP nWinnersSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type bs(bsSEXP);
-    Rcpp::traits::input_parameter< int >::type nWinners(nWinnersSEXP);
+    Rcpp::traits::input_parameter< unsigned >::type nWinners(nWinnersSEXP);
     rcpp_result_gen = Rcpp::wrap(RSocialChoiceIRV(bs, nWinners));
     return rcpp_result_gen;
 END_RCPP
