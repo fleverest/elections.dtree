@@ -62,14 +62,9 @@ std::vector<int> socialChoiceIRV(std::list<IRVBallot> ballots,
 
   // The minimum tally among standing candidates.
   int min_tally;
-  // The maximum tally
-  int max_tally;
 
   // The index of the next candidate to be eliminated.
   int elim;
-
-  // The index of the victor
-  int victor;
 
   // The current tally of first-preferences for each candidate.
   std::vector<int> tally;

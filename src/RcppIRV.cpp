@@ -20,6 +20,7 @@
 #include <random>
 #include <thread>
 #include <unordered_map>
+#include <vector>
 
 /*! \brief The IRV social choice function.
  *
@@ -125,8 +126,6 @@ private:
     std::vector<int> indexPrefs;
     int cIndex;
 
-    int nCandidates = getNCandidates();
-
     std::list<IRVBallot> out;
 
     // We iterate over each ballot, and convert it into an IRVBallot using the
@@ -230,9 +229,9 @@ public:
 
     // Generate nBatches PRNGs.
     std::mt19937 *treeGen = tree->getEnginePtr();
-    unsigned seeds[nBatches + 1];
+    std::vector<unsigned> seeds{};
     for (int i = 0; i <= nBatches; ++i) {
-      seeds[i] = (*treeGen)();
+      seeds.push_back((*treeGen)());
     }
     // TODO: Remove this?
     treeGen->discard(treeGen->state_size * 100);
