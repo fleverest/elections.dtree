@@ -34,7 +34,7 @@
  * \return The winning candidate.
  */
 // [[Rcpp::export]]
-Rcpp::List RSocialChoiceIRV(Rcpp::List bs, int nWinners) {
+Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners) {
 
   Rcpp::List out{};
 
@@ -124,7 +124,7 @@ private:
     Rcpp::CharacterVector namePrefs;
     std::string cName;
     std::vector<int> indexPrefs;
-    int cIndex;
+    size_t cIndex;
 
     std::list<IRVBallot> out;
 
@@ -153,11 +153,11 @@ private:
 
 public:
   // Constructor/destructor
-  PIRVDirichletTree(Rcpp::CharacterVector candidates, int minDepth_,
+  PIRVDirichletTree(Rcpp::CharacterVector candidates, unsigned minDepth_,
                     float alpha0_, std::string seed_) {
     // Parse the candidate strings.
     std::string cName;
-    int cIndex = 0;
+    size_t cIndex = 0;
     for (auto i = 0; i < candidates.size(); ++i) {
       cName = candidates[i];
       candidateVector.push_back(cName);
@@ -171,12 +171,12 @@ public:
   ~PIRVDirichletTree() { delete tree; }
 
   // Getters
-  int getNCandidates() { return tree->getParameters()->getNCandidates(); }
-  int getMinDepth() { return tree->getParameters()->getMinDepth(); }
+  unsigned getNCandidates() { return tree->getParameters()->getNCandidates(); }
+  unsigned getMinDepth() { return tree->getParameters()->getMinDepth(); }
   float getAlpha0() { return tree->getParameters()->getAlpha0(); }
 
   // Setters
-  void setMinDepth(int minDepth_) {
+  void setMinDepth(unsigned minDepth_) {
     tree->getParameters()->setMinDepth(minDepth_);
   }
   void setAlpha0(float alpha0_) { tree->getParameters()->setAlpha0(alpha0_); }
@@ -196,7 +196,7 @@ public:
     }
   }
 
-  Rcpp::List samplePredictive(int nSamples, std::string seed) {
+  Rcpp::List samplePredictive(unsigned nSamples, std::string seed) {
 
     tree->setSeed(seed);
 
@@ -215,8 +215,8 @@ public:
     return out;
   }
 
-  Rcpp::NumericVector samplePosterior(int nElections, int nBallots,
-                                      int nWinners, int nBatches,
+  Rcpp::NumericVector samplePosterior(unsigned nElections, unsigned nBallots,
+                                      unsigned nWinners, unsigned nBatches,
                                       std::string seed) {
 
     if (nBallots < nObserved)
@@ -225,20 +225,20 @@ public:
 
     tree->setSeed(seed);
 
-    int nCandidates = getNCandidates();
+    size_t nCandidates = getNCandidates();
 
     // Generate nBatches PRNGs.
     std::mt19937 *treeGen = tree->getEnginePtr();
     std::vector<unsigned> seeds{};
-    for (int i = 0; i <= nBatches; ++i) {
+    for (auto i = 0; i <= nBatches; ++i) {
       seeds.push_back((*treeGen)());
     }
     // TODO: Remove this?
     treeGen->discard(treeGen->state_size * 100);
 
     // The number of elections to sample per thread.
-    int workerBatchSize = nElections / nBatches;
-    int batchRemainder = nElections % nBatches;
+    unsigned workerBatchSize = nElections / nBatches;
+    unsigned batchRemainder = nElections % nBatches;
 
     // The results vector for each thread.
     std::vector<std::vector<std::vector<int>>> results(nBatches + 1);
@@ -277,7 +277,7 @@ public:
     Rcpp::NumericVector out(nCandidates);
     out.names() = candidateVector;
 
-    for (int j = 0; j <= nBatches; ++j) {
+    for (auto j = 0; j <= nBatches; ++j) {
       for (auto elimination_order_idx : results[j]) {
         for (auto i = 0; i < nCandidates; ++i)
           if (i >= nCandidates - nWinners)
@@ -289,7 +289,7 @@ public:
     return out;
   }
 
-  Rcpp::NumericVector sampleMarginalProbability(int nSamples,
+  Rcpp::NumericVector sampleMarginalProbability(unsigned nSamples,
                                                 Rcpp::CharacterVector ballot,
                                                 std::string seed) {
     tree->setSeed(seed);
@@ -319,7 +319,7 @@ public:
 RCPP_MODULE(pirv_dirichlet_tree_module) {
   Rcpp::class_<PIRVDirichletTree>("PIRVDirichletTree")
       // Constructor needs nCandidates, minDepth, alpha0 and seed.
-      .constructor<Rcpp::CharacterVector, int, float, std::string>()
+      .constructor<Rcpp::CharacterVector, unsigned, float, std::string>()
       // Getter/Setter interface
       .property("nCandidates", &PIRVDirichletTree::getNCandidates)
       .property("alpha0", &PIRVDirichletTree::getAlpha0,
