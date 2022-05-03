@@ -240,12 +240,17 @@ template <typename NodeType, typename Outcome, typename Parameters>
 std::list<std::list<Outcome>>
 DirichletTree<NodeType, Outcome, Parameters>::posteriorSets(
     int nSets, int N, std::mt19937 *engine) {
+
   // Initialize list of outcomes.
   std::list<std::list<Outcome>> out;
   std::list<Outcome> old_outcomes, new_outcomes;
 
   // The number of observed outcomes.
   int n = observed.size();
+
+  // Handle invalid case by returning empty list.
+  if (n >= N || nSets <= 0)
+    return {};
 
   for (auto i = 0; i < nSets; ++i) {
     // Add a new list to the list, first by copying the observed outcomes.
