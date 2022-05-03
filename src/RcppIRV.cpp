@@ -245,7 +245,6 @@ public:
     std::vector<std::vector<std::vector<int>>> results(nBatches + 1);
 
     // Use RcppThreads to compute the posterior in batches.
-    RcppThread::ThreadPool pool(std::thread::hardware_concurrency());
     auto getBatchResult = [&](size_t i, size_t batchSize) -> void {
       // Check for interrupt.
       RcppThread::checkUserInterrupt();
@@ -258,16 +257,22 @@ public:
       std::list<std::list<IRVBallot>> elections =
           tree->posteriorSets(batchSize, nBallots);
 
-      for (auto e : elections) {
+      for (auto e : elections)
         results[i].push_back(socialChoiceIRV(e, nCandidates));
-      }
     };
 
-    pool.parallelFor(0, nBatches, // Process batches on workers
-                     [&](size_t i) { getBatchResult(i, workerBatchSize); });
-    getBatchResult(nBatches, // Process remainder on main thread.
-                   batchRemainder);
-    pool.join();
+    // Dispatch the worker jobs.
+    if (workerBatchSize > 0) {
+
+      RcppThread::ThreadPool pool(std::thread::hardware_concurrency());
+
+      pool.parallelFor(0, nBatches, // Process batches on workers
+                       [&](size_t i) { getBatchResult(i, workerBatchSize); });
+      pool.join();
+    }
+
+    if (batchRemainder > 0) // Process remainder on main thread.
+      getBatchResult(nBatches, batchRemainder);
 
     // Aggregate the results
     Rcpp::NumericVector out(nCandidates);

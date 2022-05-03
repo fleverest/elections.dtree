@@ -50,7 +50,9 @@ std::vector<int> socialChoiceIRV(std::list<IRVBallot> ballots,
   // A copy of the ballots which will be altered during eliminations.
   std::list<IRVBallot> altered_ballots = ballots;
 
-  bool empty;
+  // Filter out the empty ballots, as these are not useless to the
+  // social choice function.
+  altered_ballots.remove_if([](IRVBallot b) { return b.nPreferences() == 0; });
 
   int nEliminations = 0;
 
@@ -79,9 +81,8 @@ std::vector<int> socialChoiceIRV(std::list<IRVBallot> ballots,
     tally = std::vector<int>(nCandidates, 0);
 
     // Tally the first preferences of each ballot.
-    for (auto b : altered_ballots) {
+    for (auto b : altered_ballots)
       tally[b.firstPreference()] += 1;
-    }
 
     // Determine which candidate is to be eliminated this round.
     elim = 0;
@@ -98,7 +99,7 @@ std::vector<int> socialChoiceIRV(std::list<IRVBallot> ballots,
     out.push_back(elim);
 
     altered_ballots.remove_if(
-        [empty, elim](IRVBallot b) mutable { return b.eliminate(elim); });
+        [elim](IRVBallot b) mutable { return b.eliminate(elim); });
 
     ++nEliminations;
   }
