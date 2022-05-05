@@ -9,12 +9,12 @@
 
 #include "irv_ballot.hpp"
 
-IRVBallot::IRVBallot(std::vector<int> preferences_)
+IRVBallot::IRVBallot(std::vector<unsigned> preferences_)
     : preferences(preferences_) {}
 
 IRVBallot::IRVBallot(const IRVBallot &obj) : preferences(obj.preferences) {}
 
-bool IRVBallot::eliminate(int candidate) {
+bool IRVBallot::eliminate(unsigned candidate) {
   // Find the first occurance of the candidate in the ballot.
   auto it = std::find(preferences.begin(), preferences.end(), candidate);
   // If it occurs then erase it.
@@ -42,10 +42,10 @@ bool IRVBallot::operator==(const IRVBallot &b) {
   return equal;
 }
 
-std::vector<int> socialChoiceIRV(std::list<IRVBallot> ballots,
-                                 int nCandidates) {
+std::vector<unsigned> socialChoiceIRV(std::list<IRVBallot> ballots,
+                                      unsigned nCandidates) {
 
-  std::vector<int> out{};
+  std::vector<unsigned> out{};
 
   // A copy of the ballots which will be altered during eliminations.
   std::list<IRVBallot> altered_ballots = ballots;
@@ -54,26 +54,26 @@ std::vector<int> socialChoiceIRV(std::list<IRVBallot> ballots,
   // social choice function.
   altered_ballots.remove_if([](IRVBallot b) { return b.nPreferences() == 0; });
 
-  int nEliminations = 0;
+  unsigned nEliminations = 0;
 
   // An array of booleans representing whether or not the candidate index has
   // been eliminated.
   std::vector<bool> eliminated(nCandidates, false);
 
   // The minimum tally among standing candidates.
-  int min_tally;
+  unsigned min_tally;
 
   // The index of the next candidate to be eliminated.
-  int elim;
+  unsigned elim;
 
   // The current tally of first-preferences for each candidate.
-  std::vector<int> tally;
+  std::vector<unsigned> tally;
 
   // While more than one candidate stands.
   while (nEliminations < nCandidates) {
 
     // Reset the tally.
-    tally = std::vector<int>(nCandidates, 0);
+    tally = std::vector<unsigned>(nCandidates, 0);
 
     // Tally the first preferences of each ballot.
     for (auto b : altered_ballots)
@@ -81,7 +81,7 @@ std::vector<int> socialChoiceIRV(std::list<IRVBallot> ballots,
 
     // Determine which candidate is to be eliminated this round.
     elim = 0;
-    min_tally = std::numeric_limits<int>::max();
+    min_tally = std::numeric_limits<unsigned>::max();
     for (auto i = 0; i < nCandidates; ++i) {
       if (!eliminated[i] && min_tally > tally[i]) {
         elim = i;

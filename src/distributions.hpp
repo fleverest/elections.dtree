@@ -29,8 +29,8 @@
  *
  * \return An array of multinomial counts of dimension d.
  */
-int *rDirichletMultinomial(int count, float *alpha, int d,
-                           std::mt19937 *engine);
+unsigned *rDirichletMultinomial(unsigned count, float *alpha, unsigned d,
+                                std::mt19937 *engine);
 
 /*! \brief Draws samples from a Beta distribution.
  *
