@@ -9,18 +9,16 @@
 
 #include "irv_ballot.hpp"
 
-IRVBallot::IRVBallot(std::vector<unsigned> preferences_)
-    : preferences(preferences_) {}
+#include <algorithm>
+
+IRVBallot::IRVBallot(std::list<unsigned> preferences_) {
+  preferences = std::move(preferences_);
+}
 
 IRVBallot::IRVBallot(const IRVBallot &obj) : preferences(obj.preferences) {}
 
-bool IRVBallot::eliminate(unsigned candidate) {
-  // Find the first occurance of the candidate in the ballot.
-  auto it = std::find(preferences.begin(), preferences.end(), candidate);
-  // If it occurs then erase it.
-  if (it != preferences.end()) {
-    preferences.erase(it);
-  }
+bool IRVBallot::eliminateFirstPref() {
+  preferences.pop_front();
   // Return whether or not the ballot is empty.
   if (nPreferences() == 0) {
     return true;
@@ -34,25 +32,23 @@ bool IRVBallot::operator==(const IRVBallot &b) {
   if (!(nPreferences() == b.nPreferences())) {
     return false;
   }
-  // Then check each path element to ensure they are equal.
-  bool equal = true;
-  for (auto i = 0; i < nPreferences(); ++i) {
-    equal = equal && (preferences[i] == b.preferences[i]);
-  }
-  return equal;
+  // Then check each preference to ensure they are equal.
+  return std::equal(preferences.begin(), preferences.end(),
+                    b.preferences.begin());
 }
 
-std::vector<unsigned> socialChoiceIRV(std::list<IRVBallot> ballots,
+std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> ballots,
                                       unsigned nCandidates) {
+
+  unsigned firstPref;
+  bool isEmpty;
 
   std::vector<unsigned> out{};
 
-  // A copy of the ballots which will be altered during eliminations.
-  std::list<IRVBallot> altered_ballots = ballots;
-
-  // Filter out the empty ballots, as these are not useless to the
+  // Filter out the empty ballots, as these are useless to the
   // social choice function.
-  altered_ballots.remove_if([](IRVBallot b) { return b.nPreferences() == 0; });
+  ballots.remove_if(
+      [](IRVBallotCount b) { return b.first.nPreferences() == 0; });
 
   unsigned nEliminations = 0;
 
@@ -67,17 +63,22 @@ std::vector<unsigned> socialChoiceIRV(std::list<IRVBallot> ballots,
   unsigned elim;
 
   // The current tally of first-preferences for each candidate.
-  std::vector<unsigned> tally;
+  std::vector<unsigned> tally(nCandidates, 0);
+
+  // Vector of lists of iterators to the ballotcounts which contribute to the
+  // tally for each candidate.
+  std::vector<std::list<std::list<IRVBallotCount>::iterator>> tally_groups(
+      nCandidates);
+
+  // Tally the initial first preferences for each ballot.
+  for (auto it = ballots.begin(); it != ballots.end(); ++it) {
+    firstPref = it->first.firstPreference();
+    tally[firstPref] += it->second;
+    tally_groups[firstPref].push_back(it);
+  }
 
   // While more than one candidate stands.
   while (nEliminations < nCandidates) {
-
-    // Reset the tally.
-    tally = std::vector<unsigned>(nCandidates, 0);
-
-    // Tally the first preferences of each ballot.
-    for (auto b : altered_ballots)
-      tally[b.firstPreference()] += 1;
 
     // Determine which candidate is to be eliminated this round.
     elim = 0;
@@ -91,10 +92,27 @@ std::vector<unsigned> socialChoiceIRV(std::list<IRVBallot> ballots,
 
     // Eliminate the standing candidate with the minimum tally.
     eliminated[elim] = true;
+    // reduce the tally for the eliminated candidate to zero.
+    tally[elim] = 0;
     out.push_back(elim);
 
-    altered_ballots.remove_if(
-        [elim](IRVBallot b) mutable { return b.eliminate(elim); });
+    // Redistribute the ballots attributed to the losing candidate.
+    auto list_start = tally_groups[elim].begin();
+    auto list_end = tally_groups[elim].end();
+    while (list_start != list_end) {
+      // Eliminate the first preference
+      if ((*list_start)->first.eliminateFirstPref()) {
+        // If the resulting ballot is empty, then we delete it from
+        // the full set of ballots.
+        ballots.erase(*list_start);
+      } else {
+        // If it is not empty, we add the count to the next preference tally.
+        firstPref = (*list_start)->first.firstPreference();
+        tally[firstPref] += (*list_start)->second;
+        tally_groups[firstPref].push_back(*list_start);
+      }
+      list_start = tally_groups[elim].erase(list_start);
+    }
 
     ++nEliminations;
   }

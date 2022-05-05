@@ -112,9 +112,9 @@ public:
  * \return A list of valid IRV ballots from the sub-tree uniquely specified by
  * the arguments.
  */
-std::list<IRVBallot> lazyIRVBallots(IRVParameters params, unsigned count,
-                                    std::vector<unsigned> path, unsigned depth,
-                                    std::mt19937 *engine);
+std::list<IRVBallotCount> lazyIRVBallots(IRVParameters params, unsigned count,
+                                         std::vector<unsigned> path,
+                                         unsigned depth, std::mt19937 *engine);
 
 class IRVNode : public TreeNode<IRVBallot, IRVNode, IRVParameters> {
 public:
@@ -156,10 +156,10 @@ public:
    *
    * \param engine A PRNG for random sampling.
    *
-   * \return A list of completed ballots sampled from the subtree.
+   * \return A list of (ballot, count) pairs sampled from the subtree.
    */
-  std::list<IRVBallot> sample(unsigned count, std::vector<unsigned> path,
-                              std::mt19937 *engine);
+  std::list<IRVBallotCount> sample(unsigned count, std::vector<unsigned> path,
+                                   std::mt19937 *engine);
 
   /*! \brief Updates the parameters in the sub-tree to obtain a posterior.
    *

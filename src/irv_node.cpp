@@ -8,17 +8,17 @@
  *****************************************************************************/
 #include "irv_node.hpp"
 
-std::list<IRVBallot> lazyIRVBallots(IRVParameters *params, unsigned count,
-                                    std::vector<unsigned> path, unsigned depth,
-                                    std::mt19937 *engine) {
+std::list<IRVBallotCount> lazyIRVBallots(IRVParameters *params, unsigned count,
+                                         std::vector<unsigned> path,
+                                         unsigned depth, std::mt19937 *engine) {
 
   // Get parameters
   unsigned nCandidates = params->getNCandidates();
   float alpha0 = params->getAlpha0();
   float minDepth = params->getMinDepth();
 
-  std::list<IRVBallot> temp = {};
-  std::list<IRVBallot> out = {};
+  std::list<IRVBallotCount> temp = {};
+  std::list<IRVBallotCount> out = {};
 
   float *alpha;
   unsigned *mnomCounts;
@@ -29,9 +29,8 @@ std::list<IRVBallot> lazyIRVBallots(IRVParameters *params, unsigned count,
   if (depth == nCandidates - 1) {
     // If the ballot is completely specified, return count * the specified
     // ballot.
-    IRVBallot b(std::vector<unsigned>(path.begin(), path.begin() + depth));
-    for (auto i = 0; i < count; ++i)
-      out.push_back(b);
+    IRVBallot b(std::list<unsigned>(path.begin(), path.begin() + depth));
+    out.emplace_back(std::move(b), count);
     return out;
   }
 
@@ -48,10 +47,9 @@ std::list<IRVBallot> lazyIRVBallots(IRVParameters *params, unsigned count,
   // Add the ballots which terminate at this node.
   if (depth >= minDepth && mnomCounts[nOutcomes - 1] > 0) {
     // Create the ballot.
-    IRVBallot b(std::vector<unsigned>(path.begin(), path.begin() + depth));
+    IRVBallot b(std::list<unsigned>(path.begin(), path.begin() + depth));
     // Add ballots to output.
-    for (auto i = 0; i < mnomCounts[nOutcomes - 1]; ++i)
-      out.push_back(b);
+    out.emplace_back(std::move(b), mnomCounts[nOutcomes - 1]);
   }
 
   for (auto i = 0; i < nChildren; ++i) {
@@ -97,11 +95,12 @@ IRVNode::~IRVNode() {
   delete[] children;
 }
 
-std::list<IRVBallot> IRVNode::sample(unsigned count, std::vector<unsigned> path,
-                                     std::mt19937 *engine) {
+std::list<IRVBallotCount> IRVNode::sample(unsigned count,
+                                          std::vector<unsigned> path,
+                                          std::mt19937 *engine) {
 
-  std::list<IRVBallot> temp = {};
-  std::list<IRVBallot> out = {};
+  std::list<IRVBallotCount> temp = {};
+  std::list<IRVBallotCount> out = {};
 
   unsigned minDepth = parameters->getMinDepth();
   float alpha0 = parameters->getAlpha0();
@@ -121,10 +120,8 @@ std::list<IRVBallot> IRVNode::sample(unsigned count, std::vector<unsigned> path,
   // Add any terminated ballots to the output.
   if (depth >= minDepth && mnomCounts[nChildren] > 0) {
 
-    IRVBallot b(std::vector<unsigned>(path.begin(), path.begin() + depth));
-
-    for (auto i = 0; i < mnomCounts[nChildren]; ++i)
-      out.push_back(b);
+    IRVBallot b(std::list<unsigned>(path.begin(), path.begin() + depth));
+    out.emplace_back(std::move(b), mnomCounts[nChildren]);
   }
 
   // If nChildren is 2, stop recursing and add the completely specified ballots
@@ -137,11 +134,9 @@ std::list<IRVBallot> IRVNode::sample(unsigned count, std::vector<unsigned> path,
 
       std::swap(path[depth], path[depth + i]);
 
-      IRVBallot b(
-          std::vector<unsigned>(path.begin(), path.begin() + depth + 1));
+      IRVBallot b(std::list<unsigned>(path.begin(), path.begin() + depth + 1));
 
-      for (auto j = 0; j < mnomCounts[i]; ++j)
-        out.push_back(b);
+      out.emplace_back(std::move(b), mnomCounts[i]);
 
       std::swap(path[depth], path[depth + i]);
     }
@@ -198,7 +193,11 @@ void IRVNode::update(const IRVBallot &b, std::vector<unsigned> path,
   }
 
   // Determine the next candidate preference.
-  unsigned nextCandidate = b.preferences[depth];
+  auto it = b.preferences.begin();
+  // TODO: make this O(1) somehow, although this doesn't need to be efficient.
+  for (auto i = 0; i < depth; ++i)
+    ++it;
+  unsigned nextCandidate = *it;
 
   // Find the index of the next candidate, and increment the corresponding
   // parameter.
@@ -238,7 +237,11 @@ float IRVNode::marginalProbability(const IRVBallot &b,
     return 0.;
 
   // See update method for traversal.
-  unsigned nextCandidate = b.preferences[depth];
+  auto it = b.preferences.begin();
+  // TODO: make this O(1) somehow, although this doesn't need to be efficient.
+  for (auto i = 0; i < depth; ++i)
+    ++it;
+  unsigned nextCandidate = *it;
 
   // Otherwise determine the next candidate index.
   unsigned i = depth;
