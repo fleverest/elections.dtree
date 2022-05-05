@@ -28,7 +28,7 @@ public:
    *
    * \return A vector representing the default path.
    */
-  std::vector<int> defaultPath();
+  std::vector<unsigned> defaultPath();
 };
 
 template <typename Outcome, typename ChildNode, class Parameters>
@@ -38,14 +38,14 @@ protected:
   Parameters *parameters;
 
   // The depth of the node in the tree.
-  int depth;
+  unsigned depth;
 
   // The number of child nodes below. For example, in IRV this can represent the
   // selection of a candidate for next preference. The leaves in a tree will
   // have 2 children, representing one of two remaining candidates. If
   // partial ballots are allowed, then the number of children is still the same
   // as a ballot termination does require a child node.
-  int nChildren;
+  unsigned nChildren;
 
   // The alpha parameters for the dirichlet distribution on the possible
   // next-preferences. Considering the case of IRV ballots allowing for partial
@@ -82,7 +82,7 @@ public:
    * underlying stochastic process possible from the starting point
    * that this node represents.
    */
-  virtual std::list<Outcome> sample(int count, std::vector<int> path,
+  virtual std::list<Outcome> sample(unsigned count, std::vector<unsigned> path,
                                     std::mt19937 *engine) = 0;
 
   /*! \brief Updates sub-tree parameters to obtain a posterior.
@@ -97,7 +97,8 @@ public:
    *
    * \param count The number of times to observe o.
    */
-  virtual void update(const Outcome &o, std::vector<int> path, int count) = 0;
+  virtual void update(const Outcome &o, std::vector<unsigned> path,
+                      unsigned count) = 0;
 
   /*! \brief Samples a marginal probability of observing an outcome under the
    * posterior.
@@ -114,7 +115,8 @@ public:
    *
    * \return A probability (in [0, 1]) of observing the given outcome.
    */
-  virtual float marginalProbability(const Outcome &o, std::vector<int> path,
+  virtual float marginalProbability(const Outcome &o,
+                                    std::vector<unsigned> path,
                                     std::mt19937 *engine) = 0;
 };
 

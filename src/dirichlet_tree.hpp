@@ -81,7 +81,7 @@ public:
    *
    * \return void
    */
-  void update(Outcome o, int count);
+  void update(Outcome o, unsigned count);
 
   /*! \brief Sample from the marginal posterior distribution for a specific
    * outcome.
@@ -113,7 +113,7 @@ public:
    * \return A list of outcomes observed from the resulting stochastic
    * process.
    */
-  std::list<Outcome> sample(int n, std::mt19937 *engine = nullptr);
+  std::list<Outcome> sample(unsigned n, std::mt19937 *engine = nullptr);
 
   /*! \brief Sample possible full sets from the posterior.
    *
@@ -133,7 +133,7 @@ public:
    * \return Returns `nSets` complete outcome sets sampled from the posterior
    * Dirichlet Tree distribution, using the already observed data.
    */
-  std::list<std::list<Outcome>> posteriorSets(int nSets, int N,
+  std::list<std::list<Outcome>> posteriorSets(unsigned nSets, unsigned N,
                                               std::mt19937 *engine = nullptr);
 
   // Getters
@@ -195,9 +195,9 @@ void DirichletTree<NodeType, Outcome, Parameters>::reset() {
 
 template <typename NodeType, typename Outcome, typename Parameters>
 void DirichletTree<NodeType, Outcome, Parameters>::update(Outcome o,
-                                                          int count) {
+                                                          unsigned count) {
   observed.push_back(o);
-  std::vector<int> path = parameters.defaultPath();
+  std::vector<unsigned> path = parameters.defaultPath();
   root->update(o, path, count);
 }
 
@@ -211,13 +211,13 @@ float DirichletTree<NodeType, Outcome, Parameters>::marginalProbability(
   }
 
   // Pass straight to the root node.
-  std::vector<int> path = parameters.defaultPath();
+  std::vector<unsigned> path = parameters.defaultPath();
   return root->marginalProbability(o, path, engine_);
 }
 
 template <typename NodeType, typename Outcome, typename Parameters>
 std::list<Outcome>
-DirichletTree<NodeType, Outcome, Parameters>::sample(int n,
+DirichletTree<NodeType, Outcome, Parameters>::sample(unsigned n,
                                                      std::mt19937 *engine_) {
   // Use the default engine unless one is passed to the method.
   if (engine_ == nullptr) {
@@ -225,7 +225,7 @@ DirichletTree<NodeType, Outcome, Parameters>::sample(int n,
   }
 
   // Initialize output
-  std::vector<int> path = parameters.defaultPath();
+  std::vector<unsigned> path = parameters.defaultPath();
   std::list<Outcome> out = root->sample(n, path, engine_);
 
   return out;
@@ -239,14 +239,14 @@ DirichletTree<NodeType, Outcome, Parameters>::~DirichletTree() {
 template <typename NodeType, typename Outcome, typename Parameters>
 std::list<std::list<Outcome>>
 DirichletTree<NodeType, Outcome, Parameters>::posteriorSets(
-    int nSets, int N, std::mt19937 *engine) {
+    unsigned nSets, unsigned N, std::mt19937 *engine) {
 
   // Initialize list of outcomes.
   std::list<std::list<Outcome>> out;
   std::list<Outcome> old_outcomes, new_outcomes;
 
   // The number of observed outcomes.
-  int n = observed.size();
+  unsigned n = observed.size();
 
   // Handle invalid case by returning empty list.
   if (n >= N || nSets <= 0)

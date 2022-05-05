@@ -8,12 +8,12 @@
  *****************************************************************************/
 #include "irv_node.hpp"
 
-std::list<IRVBallot> lazyIRVBallots(IRVParameters *params, int count,
-                                    std::vector<int> path, int depth,
+std::list<IRVBallot> lazyIRVBallots(IRVParameters *params, unsigned count,
+                                    std::vector<unsigned> path, unsigned depth,
                                     std::mt19937 *engine) {
 
   // Get parameters
-  int nCandidates = params->getNCandidates();
+  unsigned nCandidates = params->getNCandidates();
   float alpha0 = params->getAlpha0();
   float minDepth = params->getMinDepth();
 
@@ -21,15 +21,15 @@ std::list<IRVBallot> lazyIRVBallots(IRVParameters *params, int count,
   std::list<IRVBallot> out = {};
 
   float *alpha;
-  int *mnomCounts;
+  unsigned *mnomCounts;
 
-  int nChildren = nCandidates - depth;
-  int nOutcomes = nChildren + (depth >= minDepth);
+  unsigned nChildren = nCandidates - depth;
+  unsigned nOutcomes = nChildren + (depth >= minDepth);
 
   if (depth == nCandidates - 1) {
     // If the ballot is completely specified, return count * the specified
     // ballot.
-    IRVBallot b(std::vector<int>(path.begin(), path.begin() + depth));
+    IRVBallot b(std::vector<unsigned>(path.begin(), path.begin() + depth));
     for (auto i = 0; i < count; ++i)
       out.push_back(b);
     return out;
@@ -48,7 +48,7 @@ std::list<IRVBallot> lazyIRVBallots(IRVParameters *params, int count,
   // Add the ballots which terminate at this node.
   if (depth >= minDepth && mnomCounts[nOutcomes - 1] > 0) {
     // Create the ballot.
-    IRVBallot b(std::vector<int>(path.begin(), path.begin() + depth));
+    IRVBallot b(std::vector<unsigned>(path.begin(), path.begin() + depth));
     // Add ballots to output.
     for (auto i = 0; i < mnomCounts[nOutcomes - 1]; ++i)
       out.push_back(b);
@@ -74,7 +74,7 @@ std::list<IRVBallot> lazyIRVBallots(IRVParameters *params, int count,
   return out;
 }
 
-IRVNode::IRVNode(int depth_, IRVParameters *parameters_) {
+IRVNode::IRVNode(unsigned depth_, IRVParameters *parameters_) {
   parameters = parameters_;
   nChildren = parameters->getNCandidates() - depth_;
   depth = depth_;
@@ -97,16 +97,16 @@ IRVNode::~IRVNode() {
   delete[] children;
 }
 
-std::list<IRVBallot> IRVNode::sample(int count, std::vector<int> path,
+std::list<IRVBallot> IRVNode::sample(unsigned count, std::vector<unsigned> path,
                                      std::mt19937 *engine) {
 
   std::list<IRVBallot> temp = {};
   std::list<IRVBallot> out = {};
 
-  int minDepth = parameters->getMinDepth();
+  unsigned minDepth = parameters->getMinDepth();
   float alpha0 = parameters->getAlpha0();
 
-  int nOutcomes = nChildren + (depth >= minDepth);
+  unsigned nOutcomes = nChildren + (depth >= minDepth);
 
   float *alphasPost = new float[nOutcomes];
   for (auto i = 0; i < nOutcomes; ++i)
@@ -114,13 +114,14 @@ std::list<IRVBallot> IRVNode::sample(int count, std::vector<int> path,
 
   // Get Dirichlet-multinomial counts for next-preference selections below
   // current node.
-  int *mnomCounts = rDirichletMultinomial(count, alphasPost, nOutcomes, engine);
+  unsigned *mnomCounts =
+      rDirichletMultinomial(count, alphasPost, nOutcomes, engine);
   delete[] alphasPost;
 
   // Add any terminated ballots to the output.
   if (depth >= minDepth && mnomCounts[nChildren] > 0) {
 
-    IRVBallot b(std::vector<int>(path.begin(), path.begin() + depth));
+    IRVBallot b(std::vector<unsigned>(path.begin(), path.begin() + depth));
 
     for (auto i = 0; i < mnomCounts[nChildren]; ++i)
       out.push_back(b);
@@ -136,7 +137,8 @@ std::list<IRVBallot> IRVNode::sample(int count, std::vector<int> path,
 
       std::swap(path[depth], path[depth + i]);
 
-      IRVBallot b(std::vector<int>(path.begin(), path.begin() + depth + 1));
+      IRVBallot b(
+          std::vector<unsigned>(path.begin(), path.begin() + depth + 1));
 
       for (auto j = 0; j < mnomCounts[i]; ++j)
         out.push_back(b);
@@ -175,7 +177,8 @@ std::list<IRVBallot> IRVNode::sample(int count, std::vector<int> path,
   return out;
 }
 
-void IRVNode::update(const IRVBallot &b, std::vector<int> path, int count) {
+void IRVNode::update(const IRVBallot &b, std::vector<unsigned> path,
+                     unsigned count) {
   /* We traverse the tree such that at each step, b.preferences and
    * path vectors are exactly equal up to the next index.
    *
@@ -195,14 +198,14 @@ void IRVNode::update(const IRVBallot &b, std::vector<int> path, int count) {
   }
 
   // Determine the next candidate preference.
-  int nextCandidate = b.preferences[depth];
+  unsigned nextCandidate = b.preferences[depth];
 
   // Find the index of the next candidate, and increment the corresponding
   // parameter.
-  int i = depth;
+  unsigned i = depth;
   while (path[i] != nextCandidate)
     ++i;
-  int next_idx = i - depth;
+  unsigned next_idx = i - depth;
   alphas[next_idx] += count;
 
   // Stop traversing if the number of children is 2, since we don't need to
@@ -221,12 +224,13 @@ void IRVNode::update(const IRVBallot &b, std::vector<int> path, int count) {
   children[next_idx]->update(b, path);
 }
 
-float IRVNode::marginalProbability(const IRVBallot &b, std::vector<int> path,
+float IRVNode::marginalProbability(const IRVBallot &b,
+                                   std::vector<unsigned> path,
                                    std::mt19937 *engine) {
   float alpha0 = parameters->getAlpha0();
-  int minDepth = parameters->getMinDepth();
-  int nOutcomes = nChildren + (depth >= minDepth);
-  int nCandidates = parameters->getNCandidates();
+  unsigned minDepth = parameters->getMinDepth();
+  unsigned nOutcomes = nChildren + (depth >= minDepth);
+  unsigned nCandidates = parameters->getNCandidates();
   float a_beta, b_beta, branchProb;
 
   // Return 0. if the ballot is invalid.
@@ -234,13 +238,13 @@ float IRVNode::marginalProbability(const IRVBallot &b, std::vector<int> path,
     return 0.;
 
   // See update method for traversal.
-  int nextCandidate = b.preferences[depth];
+  unsigned nextCandidate = b.preferences[depth];
 
   // Otherwise determine the next candidate index.
-  int i = depth;
+  unsigned i = depth;
   while (i < nCandidates && path[i] != nextCandidate)
     ++i;
-  int next_idx = i - depth;
+  unsigned next_idx = i - depth;
 
   // Evaluate the alpha and beta parameters, and sample the next
   // marginal branch probability.

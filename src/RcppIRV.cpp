@@ -45,7 +45,7 @@ Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners) {
 
   Rcpp::CharacterVector bNames;
   std::string cName;
-  std::vector<int> bIndices;
+  std::vector<unsigned> bIndices;
 
   for (auto i = 0; i < bs.size(); ++i) {
     bNames = bs[i];
@@ -70,7 +70,7 @@ Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners) {
     Rcpp::stop("`nWinners` must be >= 1 and <= the number of candidates.");
   }
 
-  std::vector<int> elimination_order_idx =
+  std::vector<unsigned> elimination_order_idx =
       socialChoiceIRV(scInput, cNames.size());
 
   Rcpp::CharacterVector elimination_order{};
@@ -123,7 +123,7 @@ private:
   std::list<IRVBallot> parseBallotList(Rcpp::List bs) {
     Rcpp::CharacterVector namePrefs;
     std::string cName;
-    std::vector<int> indexPrefs;
+    std::vector<unsigned> indexPrefs;
     size_t cIndex;
 
     std::list<IRVBallot> out;
@@ -241,7 +241,7 @@ public:
     unsigned batchRemainder = nElections % nBatches;
 
     // The results vector for each thread.
-    std::vector<std::vector<std::vector<int>>> results(nBatches + 1);
+    std::vector<std::vector<std::vector<unsigned>>> results(nBatches + 1);
 
     // Use RcppThreads to compute the posterior in batches.
     auto getBatchResult = [&](size_t i, size_t batchSize) -> void {
@@ -298,7 +298,7 @@ public:
     Rcpp::NumericVector out = {};
     std::string name;
 
-    std::vector<int> preferences = {};
+    std::vector<unsigned> preferences = {};
     for (auto i = 0; i < ballot.size(); ++i) {
       name = ballot[i];
       preferences.push_back(candidateMap[name]);

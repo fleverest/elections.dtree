@@ -23,7 +23,7 @@ class IRVBallot {
 public:
   // The IRV Ballot in vector representation with candidate indices in order of
   // preference as elements, e.g. {0, 1, 2, 3, 4} or {4, 3, 2}.
-  std::vector<int> preferences;
+  std::vector<unsigned> preferences;
 
   /*! \brief The IRVBallot constructor.
    *
@@ -32,7 +32,7 @@ public:
    *
    * \return A ballot with the specified preferences.
    */
-  IRVBallot(std::vector<int> preferences);
+  IRVBallot(std::vector<unsigned> preferences);
 
   /*! \brief The copy constructor for IRVBallot.
    *
@@ -50,7 +50,7 @@ public:
    *
    * \return The number of specified preferences.
    */
-  int nPreferences() const { return preferences.size(); }
+  unsigned nPreferences() const { return preferences.size(); }
 
   /*! \brief Returns the first preference of the ballot.
    *
@@ -59,7 +59,7 @@ public:
    *
    * \return The first preference of the ballot.
    */
-  int firstPreference() const { return preferences[0]; }
+  unsigned firstPreference() const { return preferences[0]; }
 
   /*! \brief Eliminates a specified candidate from the ballot.
    *
@@ -69,7 +69,7 @@ public:
    * empty after elimination of the candidate. For example, if preferences is
    * {4} and we call `ballot.eliminate(4)`.
    */
-  bool eliminate(int candidate);
+  bool eliminate(unsigned candidate);
 
   /*! \brief Returns whether the provided ballot is equal to this one.
    *
@@ -82,6 +82,11 @@ public:
   bool operator==(const IRVBallot &b);
 };
 
+struct IRVBallotCount {
+  IRVBallot ballot;
+  unsigned count;
+};
+
 /*! \brief Evaluates the outcome of an IRV election.
  *
  *  Given a set of ballots, this applies the social choice function to determine
@@ -91,7 +96,7 @@ public:
  *
  * \return A vector of candidate indices in order of elimination.
  */
-std::vector<int> socialChoiceIRV(std::list<IRVBallot> election,
-                                 int nCandidates);
+std::vector<unsigned> socialChoiceIRV(std::list<IRVBallot> election,
+                                      unsigned nCandidates);
 
 #endif /* IRV_BALLOT_H */
