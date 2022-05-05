@@ -29,7 +29,8 @@ std::list<IRVBallotCount> lazyIRVBallots(IRVParameters *params, unsigned count,
   if (depth == nCandidates - 1) {
     // If the ballot is completely specified, return count * the specified
     // ballot.
-    IRVBallot b(std::list<unsigned>(path.begin(), path.begin() + depth));
+    IRVBallot b(
+        std::move(std::list<unsigned>(path.begin(), path.begin() + depth)));
     out.emplace_back(std::move(b), count);
     return out;
   }
@@ -47,7 +48,8 @@ std::list<IRVBallotCount> lazyIRVBallots(IRVParameters *params, unsigned count,
   // Add the ballots which terminate at this node.
   if (depth >= minDepth && mnomCounts[nOutcomes - 1] > 0) {
     // Create the ballot.
-    IRVBallot b(std::list<unsigned>(path.begin(), path.begin() + depth));
+    IRVBallot b(
+        std::move(std::list<unsigned>(path.begin(), path.begin() + depth)));
     // Add ballots to output.
     out.emplace_back(std::move(b), mnomCounts[nOutcomes - 1]);
   }
@@ -120,7 +122,8 @@ std::list<IRVBallotCount> IRVNode::sample(unsigned count,
   // Add any terminated ballots to the output.
   if (depth >= minDepth && mnomCounts[nChildren] > 0) {
 
-    IRVBallot b(std::list<unsigned>(path.begin(), path.begin() + depth));
+    IRVBallot b(
+        std::move(std::list<unsigned>(path.begin(), path.begin() + depth)));
     out.emplace_back(std::move(b), mnomCounts[nChildren]);
   }
 
@@ -134,7 +137,8 @@ std::list<IRVBallotCount> IRVNode::sample(unsigned count,
 
       std::swap(path[depth], path[depth + i]);
 
-      IRVBallot b(std::list<unsigned>(path.begin(), path.begin() + depth + 1));
+      IRVBallot b(std::move(
+          std::list<unsigned>(path.begin(), path.begin() + depth + 1)));
 
       out.emplace_back(std::move(b), mnomCounts[i]);
 
