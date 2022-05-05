@@ -78,12 +78,12 @@ public:
    *
    * \param engine A PRNG used for sampling.
    *
-   * \return A list of outcomes corresponding to realizations of the
-   * underlying stochastic process possible from the starting point
-   * that this node represents.
+   * \return A list of (outcome, count) pairs corresponding to realizations of
+   * the underlying stochastic process possible from the starting point that
+   * this node represents.
    */
-  virtual std::list<Outcome> sample(unsigned count, std::vector<unsigned> path,
-                                    std::mt19937 *engine) = 0;
+  virtual std::list<std::pair<Outcome, unsigned>>
+  sample(unsigned count, std::vector<unsigned> path, std::mt19937 *engine) = 0;
 
   /*! \brief Updates sub-tree parameters to obtain a posterior.
    *
