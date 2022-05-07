@@ -4,6 +4,7 @@ results
 bin
 build
 test*
+*.out
 *.swp
 *.o
 *.so
