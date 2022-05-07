@@ -48,7 +48,7 @@ std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> ballots,
   // Filter out the empty ballots, as these are useless to the
   // social choice function.
   ballots.remove_if(
-      [](IRVBallotCount b) { return b.first.nPreferences() == 0; });
+      [](IRVBallotCount &b) { return b.first.nPreferences() == 0; });
 
   unsigned nEliminations = 0;
 
