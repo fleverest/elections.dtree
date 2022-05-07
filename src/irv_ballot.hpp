@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <limits>
 #include <list>
+#include <random>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -94,9 +95,12 @@ typedef std::pair<IRVBallot, unsigned> IRVBallotCount;
  * \param ballotcounts A reference to a set of ballot counts to conduct the
  * social choice function with. The reference object will be deleted.
  *
+ * \param engine A pointer to a mt19937 PRNG for tie-breaking.
+ *
  * \return A list of candidate indices in order of elimination.
  */
 std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> &ballotcounts,
-                                      unsigned nCandidates);
+                                      unsigned nCandidates,
+                                      std::mt19937 *engine);
 
 #endif /* IRV_BALLOT_H */
