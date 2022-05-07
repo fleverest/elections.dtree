@@ -166,7 +166,7 @@ public:
     std::seed_seq ss(seed.begin(), seed.end());
     engine.seed(ss);
     // warmup. TODO: treeGen->discard(treeGen->state_size * 100);
-    for (auto i = 1000; i; --i)
+    for (unsigned i = 1000; i; --i)
       engine();
   }
 };
@@ -252,7 +252,7 @@ DirichletTree<NodeType, Outcome, Parameters>::posteriorSets(
   if (n >= N || nSets <= 0)
     return {};
 
-  for (auto i = 0; i < nSets; ++i) {
+  for (unsigned i = 0; i < nSets; ++i) {
     // Add a new list to the list, first by copying the observed outcomes.
     out.push_back({});
 
