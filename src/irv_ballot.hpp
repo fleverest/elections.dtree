@@ -34,14 +34,6 @@ public:
    */
   IRVBallot(std::list<unsigned> preferences);
 
-  /*! \brief The copy constructor for IRVBallot.
-   *
-   * \param b An IRVBallot.
-   *
-   * \return A new ballot which is exactly the same as b.
-   */
-  IRVBallot(const IRVBallot &b);
-
   /*! \brief Returns the number of preferences specified by the ballot
    *
    *  Returns the number of preferences specified in the ballot. For example, in
