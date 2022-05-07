@@ -17,7 +17,6 @@ std::list<IRVBallotCount> lazyIRVBallots(IRVParameters *params, unsigned count,
   float alpha0 = params->getAlpha0();
   float minDepth = params->getMinDepth();
 
-  std::list<IRVBallotCount> temp = {};
   std::list<IRVBallotCount> out = {};
 
   float *alpha;
@@ -41,7 +40,7 @@ std::list<IRVBallotCount> lazyIRVBallots(IRVParameters *params, unsigned count,
 
   // We start by initializing alpha to the appropriate values.
   alpha = new float[nOutcomes];
-  for (auto i = 0; i < nOutcomes; ++i)
+  for (unsigned i = 0; i < nOutcomes; ++i)
     alpha[i] = alpha0;
   mnomCounts = rDirichletMultinomial(count, alpha, nOutcomes, engine);
 
@@ -54,16 +53,16 @@ std::list<IRVBallotCount> lazyIRVBallots(IRVParameters *params, unsigned count,
     out.emplace_back(std::move(b), mnomCounts[nOutcomes - 1]);
   }
 
-  for (auto i = 0; i < nChildren; ++i) {
+  for (unsigned i = 0; i < nChildren; ++i) {
     // Skip if there the sampled count for the subtree is zero.
     if (mnomCounts[i] == 0)
       continue;
 
     // Update path for recursive sampling.
     std::swap(path[depth], path[depth + i]);
-    temp = lazyIRVBallots(params, mnomCounts[i], path, depth + 1, engine);
-    // Combine temp with output.
-    out.splice(out.end(), temp);
+    // Combine results with output.
+    out.splice(out.end(),
+               lazyIRVBallots(params, mnomCounts[i], path, depth + 1, engine));
     // Change the path back for further sampling.
     std::swap(path[depth], path[depth + i]);
   }
@@ -71,7 +70,7 @@ std::list<IRVBallotCount> lazyIRVBallots(IRVParameters *params, unsigned count,
   delete[] mnomCounts;
   delete[] alpha;
 
-  return out;
+  return std::move(out);
 }
 
 IRVNode::IRVNode(unsigned depth_, IRVParameters *parameters_) {
@@ -80,7 +79,7 @@ IRVNode::IRVNode(unsigned depth_, IRVParameters *parameters_) {
   depth = depth_;
 
   alphas = new float[nChildren + 1]; // +1 for incomplete ballots
-  for (auto i = 0; i < nChildren + 1; ++i)
+  for (unsigned i = 0; i < nChildren + 1; ++i)
     alphas[i] = 0.;
 
   children = new NodeP[nChildren]{nullptr};
@@ -90,7 +89,7 @@ IRVNode::~IRVNode() {
   // Destructor must delete the entire sub-tree. Hence, we need to delete any
   // initialized nodes in the sub-tree before removing the array.
   delete[] alphas;
-  for (auto i = 0; i < nChildren; ++i) {
+  for (unsigned i = 0; i < nChildren; ++i) {
     if (children[i])
       delete children[i];
   }
@@ -101,7 +100,6 @@ std::list<IRVBallotCount> IRVNode::sample(unsigned count,
                                           std::vector<unsigned> path,
                                           std::mt19937 *engine) {
 
-  std::list<IRVBallotCount> temp = {};
   std::list<IRVBallotCount> out = {};
 
   unsigned minDepth = parameters->getMinDepth();
@@ -110,7 +108,7 @@ std::list<IRVBallotCount> IRVNode::sample(unsigned count,
   unsigned nOutcomes = nChildren + (depth >= minDepth);
 
   float *alphasPost = new float[nOutcomes];
-  for (auto i = 0; i < nOutcomes; ++i)
+  for (unsigned i = 0; i < nOutcomes; ++i)
     alphasPost[i] = alphas[i] + alpha0;
 
   // Get Dirichlet-multinomial counts for next-preference selections below
@@ -130,7 +128,7 @@ std::list<IRVBallotCount> IRVNode::sample(unsigned count,
   // If nChildren is 2, stop recursing and add the completely specified ballots
   // to the output.
   if (nChildren == 2) {
-    for (auto i = 0; i < 2; ++i) {
+    for (unsigned i = 0; i < 2; ++i) {
       // Skip if there the sampled count for the ballot is zero.
       // if (mnomCounts[i] == 0)
       //  continue;
@@ -152,7 +150,7 @@ std::list<IRVBallotCount> IRVNode::sample(unsigned count,
   // Otherwise we continue recursively sampling from subtrees. If a subtree is
   // not specified, then we lazily generate samples from a uniform dirichlet
   // tree.
-  for (auto i = 0; i < nChildren; ++i) {
+  for (unsigned i = 0; i < nChildren; ++i) {
 
     // Skip if there the sampled count for the subtree is zero.
     if (mnomCounts[i] == 0)
@@ -161,14 +159,14 @@ std::list<IRVBallotCount> IRVNode::sample(unsigned count,
     // Sample from the next subtree.
     std::swap(path[depth], path[depth + i]);
 
+    // Add the samples to the output.
     if (children[i] == nullptr) {
-      temp = lazyIRVBallots(parameters, mnomCounts[i], path, depth + 1, engine);
+      out.splice(out.end(), lazyIRVBallots(parameters, mnomCounts[i], path,
+                                           depth + 1, engine));
     } else {
-      temp = children[i]->sample(mnomCounts[i], path, engine);
+      out.splice(out.end(), children[i]->sample(mnomCounts[i], path, engine));
     }
     std::swap(path[depth], path[depth + i]);
-    // Add the samples to the output.
-    out.splice(out.end(), temp);
   }
 
   delete[] mnomCounts;
@@ -199,7 +197,7 @@ void IRVNode::update(const IRVBallot &b, std::vector<unsigned> path,
   // Determine the next candidate preference.
   auto it = b.preferences.begin();
   // TODO: make this O(1) somehow, although this doesn't need to be efficient.
-  for (auto i = 0; i < depth; ++i)
+  for (unsigned i = 0; i < depth; ++i)
     ++it;
   unsigned nextCandidate = *it;
 
@@ -243,7 +241,7 @@ float IRVNode::marginalProbability(const IRVBallot &b,
   // See update method for traversal.
   auto it = b.preferences.begin();
   // TODO: make this O(1) somehow, although this doesn't need to be efficient.
-  for (auto i = 0; i < depth; ++i)
+  for (unsigned i = 0; i < depth; ++i)
     ++it;
   unsigned nextCandidate = *it;
 
@@ -257,7 +255,7 @@ float IRVNode::marginalProbability(const IRVBallot &b,
   // marginal branch probability.
   a_beta = alphas[next_idx] + alpha0;
   b_beta = 0.;
-  for (auto j = 0; j < nOutcomes; ++j)
+  for (unsigned j = 0; j < nOutcomes; ++j)
     if (j != next_idx)
       b_beta += alphas[j] + alpha0;
   branchProb = rBeta(a_beta, b_beta, engine);
@@ -275,7 +273,8 @@ float IRVNode::marginalProbability(const IRVBallot &b,
     // the following branch probabilities will necessarily be distributed as
     // Beta(alpha0, alpha0*(nCandidates-i')), where i ranges from depth+1 to
     // b.nPreferences(), and i'= i - 1(i>=minDepth).
-    for (auto i = depth + 1; i < b.nPreferences() && i < nCandidates - 1; ++i) {
+    for (unsigned i = depth + 1; i < b.nPreferences() && i < nCandidates - 1;
+         ++i) {
       branchProb *= rBeta(
           alpha0, alpha0 * (nCandidates - i - 1 + (i >= minDepth)), engine);
     }
