@@ -79,7 +79,7 @@ std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> ballots,
     // Determine which candidate is to be eliminated this round.
     elim = 0;
     min_tally = std::numeric_limits<unsigned>::max();
-    for (auto i = 0; i < nCandidates; ++i) {
+    for (unsigned i = 0; i < nCandidates; ++i) {
       if (!eliminated[i] && min_tally > tally_groups[i].size()) {
         elim = i;
         min_tally = tally_groups[i].size();
