@@ -94,9 +94,7 @@ std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> ballots,
     auto list_start = tally_groups[elim].begin();
     auto list_end = tally_groups[elim].end();
     while (list_start != list_end) {
-      // Delete the first preference from the start of the ballot.
-      isEmpty = (*list_start)->first.eliminateFirstPref();
-      // Keep deleting other eliminated candidates from the start of the ballot.
+      // Delete all eliminated candidates from the start of the ballot.
       firstPref = (*list_start)->first.firstPreference();
       while (eliminated[firstPref]) {
         // Check if the ballot was emptied. If so, we break now.
