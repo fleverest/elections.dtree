@@ -84,23 +84,19 @@ read.ballots <- function(filename) {
   candidates <- strsplit(gsub(" ", "", lines[1]), ",")[[1]]
 
   # Check if the header contains the affiliated parties or not.
-  if (gsub("[-+]*", "", lines[2]) == "") {
-    startLine <- 3
-  } else {
-    startLine <- 4
-  }
+  if (gsub("[-+]*", "", lines[2]) == "")
+    final.header.line <- 2
+  else
+    final.header.line <- 3
 
-  # Then the ballots follow:
-  for (i in startLine:length(lines)) {
-    line <- gsub("[() ]","",lines[i])
-    ballot.count.str <- strsplit(line, ":")[[1]]
-    count <- strtoi(ballot.count.str[2])
-    ballot <- strsplit(ballot.count.str[1], ",")[[1]]
-    for (j in 1:count) {
-      ballots <- c(ballots, list(ballot))
-    }
-  }
+  # Process the ballots.
+  lines.body   <- gsub("[() ]", "", lines[-(1:final.header.line)])
+  lines.body   <- strsplit(lines.body, ":")
+  ballot.types <- strsplit(sapply(lines.body, "[", 1), ",")
+  counts       <-   strtoi(sapply(lines.body, "[", 2))
+  ballots      <- rep(ballot.types, counts)
 
+  # Package them up and return.
   class(ballots) <- "PIRVBallots"
   return(list(candidates=candidates, ballots=ballots))
 }
