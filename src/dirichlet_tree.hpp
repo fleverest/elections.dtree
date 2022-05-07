@@ -80,7 +80,7 @@ public:
    *
    * \return void
    */
-  void update(std::pair<Outcome, unsigned> oc);
+  void update(const std::pair<Outcome, unsigned> &oc);
 
   /*! \brief Sample from the marginal posterior distribution for a specific
    * outcome.
@@ -97,7 +97,7 @@ public:
    * \return A probability of observing the outcome, drawn from the posterior
    * Dirichlet Tree.
    */
-  float marginalProbability(Outcome o, std::mt19937 *engine = nullptr);
+  float marginalProbability(const Outcome &o, std::mt19937 *engine = nullptr);
 
   /*! \brief Sample outcomes from the posterior predictive distribution.
    *
@@ -195,7 +195,7 @@ void DirichletTree<NodeType, Outcome, Parameters>::reset() {
 
 template <typename NodeType, typename Outcome, typename Parameters>
 void DirichletTree<NodeType, Outcome, Parameters>::update(
-    std::pair<Outcome, unsigned> oc) {
+    const std::pair<Outcome, unsigned> &oc) {
   observed.push_back(oc);
   std::vector<unsigned> path = parameters.defaultPath();
   root->update(oc.first, path, oc.second);
@@ -203,7 +203,7 @@ void DirichletTree<NodeType, Outcome, Parameters>::update(
 
 template <typename NodeType, typename Outcome, typename Parameters>
 float DirichletTree<NodeType, Outcome, Parameters>::marginalProbability(
-    Outcome o, std::mt19937 *engine_) {
+    const Outcome &o, std::mt19937 *engine_) {
 
   // Use the default engine unless one is passed to the method.
   if (engine_ == nullptr) {

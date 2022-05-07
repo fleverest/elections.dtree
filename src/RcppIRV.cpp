@@ -190,7 +190,7 @@ public:
 
   void update(Rcpp::List ballots) {
     std::list<IRVBallotCount> bcs = parseBallotList(ballots);
-    for (auto b : bcs) {
+    for (IRVBallotCount &b : bcs) {
       ++nObserved;
       tree->update(b);
     }
@@ -204,7 +204,7 @@ public:
     Rcpp::CharacterVector rBallot;
 
     std::list<IRVBallotCount> samples = tree->sample(nSamples);
-    for (auto [b, count] : samples) {
+    for (auto &[b, count] : samples) {
       // Push count * b to the list.
       for (auto i = 0; i < count; ++i) {
         rBallot = Rcpp::CharacterVector::create();
