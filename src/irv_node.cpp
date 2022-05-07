@@ -173,7 +173,7 @@ std::list<IRVBallotCount> IRVNode::sample(unsigned count,
 
   delete[] mnomCounts;
 
-  return out;
+  return std::move(out);
 }
 
 void IRVNode::update(const IRVBallot &b, std::vector<unsigned> path,
