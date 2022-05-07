@@ -15,7 +15,7 @@ IRVBallot::IRVBallot(std::list<unsigned> preferences_) {
   preferences = std::move(preferences_);
 }
 
-IRVBallot::IRVBallot(const IRVBallot &obj) : preferences(obj.preferences) {}
+IRVBallot::IRVBallot(const IRVBallot &b) { preferences = b.preferences; }
 
 bool IRVBallot::eliminateFirstPref() {
   preferences.pop_front();
@@ -62,9 +62,6 @@ std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> ballots,
   // The index of the next candidate to be eliminated.
   unsigned elim;
 
-  // The current tally of first-preferences for each candidate.
-  std::vector<unsigned> tally(nCandidates, 0);
-
   // Vector of lists of iterators to the ballotcounts which contribute to the
   // tally for each candidate.
   std::vector<std::list<std::list<IRVBallotCount>::iterator>> tally_groups(
@@ -73,48 +70,63 @@ std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> ballots,
   // Tally the initial first preferences for each ballot.
   for (auto it = ballots.begin(); it != ballots.end(); ++it) {
     firstPref = it->first.firstPreference();
-    tally[firstPref] += it->second;
     tally_groups[firstPref].push_back(it);
   }
 
   // While more than one candidate stands.
-  while (nEliminations < nCandidates) {
+  while (nEliminations < nCandidates - 1) {
 
     // Determine which candidate is to be eliminated this round.
     elim = 0;
     min_tally = std::numeric_limits<unsigned>::max();
     for (auto i = 0; i < nCandidates; ++i) {
-      if (!eliminated[i] && min_tally > tally[i]) {
+      if (!eliminated[i] && min_tally > tally_groups[i].size()) {
         elim = i;
-        min_tally = tally[i];
+        min_tally = tally_groups[i].size();
       }
     }
 
     // Eliminate the standing candidate with the minimum tally.
     eliminated[elim] = true;
-    // reduce the tally for the eliminated candidate to zero.
-    tally[elim] = 0;
     out.push_back(elim);
 
     // Redistribute the ballots attributed to the losing candidate.
     auto list_start = tally_groups[elim].begin();
     auto list_end = tally_groups[elim].end();
     while (list_start != list_end) {
-      // Eliminate the first preference
-      if ((*list_start)->first.eliminateFirstPref()) {
-        // If the resulting ballot is empty, then we delete it from
-        // the full set of ballots.
+      // Delete the first preference from the start of the ballot.
+      isEmpty = (*list_start)->first.eliminateFirstPref();
+      // Keep deleting other eliminated candidates from the start of the ballot.
+      firstPref = (*list_start)->first.firstPreference();
+      while (eliminated[firstPref]) {
+        // Check if the ballot was emptied. If so, we break now.
+        isEmpty = (*list_start)->first.eliminateFirstPref();
+        if (isEmpty)
+          break;
+        // Otherwise, continue looking for a standing next-preference.
+        firstPref = (*list_start)->first.firstPreference();
+      }
+      if (isEmpty) {
+        // If the resulting ballot was emptied, then we delete it from
+        // the full set of ballots, and we don't redistribute it.
         ballots.erase(*list_start);
       } else {
-        // If it is not empty, we add the count to the next preference tally.
-        firstPref = (*list_start)->first.firstPreference();
-        tally[firstPref] += (*list_start)->second;
+        // If it is not empty, we add the ballotcount to the next *standing*
+        // candidates' tally.
         tally_groups[firstPref].push_back(*list_start);
       }
+      // Now that the ballot has been redistributed, continue
       list_start = tally_groups[elim].erase(list_start);
     }
-
     ++nEliminations;
+  }
+
+  // Push the last standing to the back.
+  for (unsigned i = 0; i < nCandidates; ++i) {
+    if (!eliminated[i]) {
+      out.push_back(i);
+      break;
+    }
   }
 
   return out;
