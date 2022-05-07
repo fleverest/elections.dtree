@@ -18,6 +18,7 @@
 #include "tree_node.hpp"
 
 #include <list>
+#include <map>
 #include <random>
 
 template <typename NodeType, typename Outcome, class Parameters>
@@ -34,8 +35,10 @@ private:
   // changed dynamically.
   Parameters parameters;
 
-  // A list of (observation, count) pairs determining the posterior.
-  std::list<std::pair<Outcome, unsigned>> observed;
+  // The number of outcomes observed to obtain the posterior.
+  unsigned nObserved = 0;
+  // A map of unique observations to the number of times it has been observed.
+  std::map<Outcome, unsigned> observed{};
 
   // A default PRNG for sampling.
   std::mt19937 engine;
@@ -196,7 +199,11 @@ void DirichletTree<NodeType, Outcome, Parameters>::reset() {
 template <typename NodeType, typename Outcome, typename Parameters>
 void DirichletTree<NodeType, Outcome, Parameters>::update(
     const std::pair<Outcome, unsigned> &oc) {
-  observed.push_back(oc);
+  if (observed.count(oc.first) == 0) {
+    observed[oc.first] = oc.second;
+  } else {
+    observed[oc.first] = observed[oc.first] + oc.second;
+  }
   std::vector<unsigned> path = parameters.defaultPath();
   root->update(oc.first, path, oc.second);
 }
@@ -245,11 +252,8 @@ DirichletTree<NodeType, Outcome, Parameters>::posteriorSets(
   std::list<std::list<std::pair<Outcome, unsigned>>> out;
   std::list<std::pair<Outcome, unsigned>> old_outcomes, new_outcomes;
 
-  // The number of observed outcomes.
-  unsigned n = observed.size();
-
   // Handle invalid case by returning empty list.
-  if (n >= N || nSets <= 0)
+  if (nObserved >= N || nSets <= 0)
     return {};
 
   for (unsigned i = 0; i < nSets; ++i) {
@@ -257,10 +261,11 @@ DirichletTree<NodeType, Outcome, Parameters>::posteriorSets(
     out.push_back({});
 
     // Copy the observed outcomes
-    old_outcomes = observed;
+    old_outcomes = std::list<std::pair<Outcome, unsigned>>(observed.begin(),
+                                                           observed.end());
 
     // Then sample new outcomes.
-    new_outcomes = sample(N - n, engine);
+    new_outcomes = sample(N - nObserved, engine);
 
     // Combine the two, by appending to the new list.
     out.back().splice(out.back().end(), old_outcomes);

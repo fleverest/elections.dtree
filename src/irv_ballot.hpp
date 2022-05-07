@@ -71,6 +71,17 @@ public:
    * \return A boolean representing whether or not the two ballots are equal.
    */
   bool operator==(const IRVBallot &b);
+
+  /*! \breif Defines a comparison < on IRV ballots.
+   *
+   * An IRVBallot b is convered less than b2 if its starting preferences
+   * are all less than b2s' equivalent preferences.
+   *
+   * \param b Another IRVBallot to compare with this one.
+   *
+   * \return A boolean representing whether this ballot is less than b2.
+   */
+  bool operator<(const IRVBallot &b) const;
 };
 
 typedef std::pair<IRVBallot, unsigned> IRVBallotCount;

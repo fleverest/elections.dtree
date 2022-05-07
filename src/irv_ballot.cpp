@@ -10,6 +10,7 @@
 #include "irv_ballot.hpp"
 
 #include <algorithm>
+#include <list>
 
 IRVBallot::IRVBallot(std::list<unsigned> preferences_) {
   preferences = std::move(preferences_);
@@ -33,6 +34,27 @@ bool IRVBallot::operator==(const IRVBallot &b) {
   // Then check each preference to ensure they are equal.
   return std::equal(preferences.begin(), preferences.end(),
                     b.preferences.begin());
+}
+
+bool IRVBallot::operator<(const IRVBallot &b) const {
+  // Iterators on the preferences.
+  std::list<unsigned>::const_iterator it_b, it_self;
+
+  // First find the smallest number of preferences specified.
+  unsigned maxi = std::min(nPreferences(), b.nPreferences());
+
+  // Find the first preference where b is larger.
+  it_self = preferences.begin();
+  it_b = b.preferences.begin();
+  for (unsigned i = 0; i < maxi; ++i) {
+    if ((*it_self) < (*it_b))
+      return true;
+    ++it_self;
+    ++it_b;
+  }
+
+  // If there are none, the shorter ballot is considered to be less.
+  return nPreferences() < b.nPreferences();
 }
 
 std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> &ballots,
