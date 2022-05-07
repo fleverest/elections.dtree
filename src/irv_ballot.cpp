@@ -109,10 +109,10 @@ std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> &ballots,
       if (!eliminated[i] && tally_groups[i].size() <= min_tally) {
         if (tally_groups[i].size() == min_tally) {
           tied_min.push_back(i);
-          continue;
+        } else {
+          tied_min = {i};
+          min_tally = tally_groups[i].size();
         }
-        tied_min = {i};
-        min_tally = tally_groups[i].size();
       }
     }
     // Tie-break by choosing at random from the tied candidates.

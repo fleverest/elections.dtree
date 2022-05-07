@@ -108,5 +108,10 @@ read.ballots <- function(filename) {
 #' @param nWinners The number of candidates to elect.
 #' @export
 social.choice.PIRVBallots <- function(ballots, nWinners=1) {
-  return(RSocialChoiceIRV(ballots, nWinners))
+  return(RSocialChoiceIRV(ballots, nWinners, gseed()))
+}
+
+# Helper function to get a random seed string to pass to CPP methods
+gseed <- function() {
+  return( paste(sample(LETTERS, 10), collapse="") )
 }
