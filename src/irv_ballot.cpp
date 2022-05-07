@@ -94,7 +94,7 @@ std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> &ballots,
   }
 
   // While more than one candidate stands.
-  while (nEliminations < nCandidates - 1) {
+  while (nEliminations < nCandidates) {
 
     // Determine which candidate is to be eliminated this round.
     elim = 0;
@@ -137,14 +137,6 @@ std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> &ballots,
       list_start = tally_groups[elim].erase(list_start);
     }
     ++nEliminations;
-  }
-
-  // Push the last standing to the back.
-  for (unsigned i = 0; i < nCandidates; ++i) {
-    if (!eliminated[i]) {
-      out.push_back(i);
-      break;
-    }
   }
 
   return out;
