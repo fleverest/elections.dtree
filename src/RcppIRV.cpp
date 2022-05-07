@@ -287,7 +287,8 @@ public:
                        [&](size_t i) { getBatchResult(i, workerBatchSize); });
 
       // Process remainder on main thread.
-      getBatchResult(nBatches, batchRemainder);
+      if (batchRemainder > 0)
+        getBatchResult(nBatches, batchRemainder);
 
       pool.join();
     } else {
