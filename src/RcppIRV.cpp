@@ -31,10 +31,13 @@
  *
  * \param nWinners An integer indicating the number of winners to elect.
  *
+ * \param seed A seed for the PRNG for tie-breaking.
+ *
  * \return The winning candidate.
  */
 // [[Rcpp::export]]
-Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners) {
+Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners,
+                            std::string seed) {
 
   Rcpp::List out{};
 
@@ -70,8 +73,13 @@ Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners) {
     Rcpp::stop("`nWinners` must be >= 1 and <= the number of candidates.");
   }
 
+  // Seed the PRNG.
+  std::seed_seq ss(seed.begin(), seed.end());
+  std::mt19937 e(ss);
+  e.discard(e.state_size * 100);
+
   std::vector<unsigned> elimination_order_idx =
-      socialChoiceIRV(scInput, cNames.size());
+      socialChoiceIRV(scInput, cNames.size(), &e);
 
   Rcpp::CharacterVector elimination_order{};
   Rcpp::CharacterVector winners{};
@@ -259,8 +267,8 @@ public:
       std::list<std::list<IRVBallotCount>> elections =
           tree->posteriorSets(batchSize, nBallots);
 
-      for (auto e : elections)
-        results[i].push_back(socialChoiceIRV(e, nCandidates));
+      for (auto &el : elections)
+        results[i].push_back(socialChoiceIRV(el, nCandidates, &e));
     };
 
     // Dispatch the worker jobs.

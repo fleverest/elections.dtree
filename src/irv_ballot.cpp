@@ -11,6 +11,8 @@
 
 #include <algorithm>
 #include <list>
+#include <random>
+#include <vector>
 
 IRVBallot::IRVBallot(std::list<unsigned> preferences_) {
   preferences = std::move(preferences_);
@@ -58,10 +60,14 @@ bool IRVBallot::operator<(const IRVBallot &b) const {
 }
 
 std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> &ballots,
-                                      unsigned nCandidates) {
+                                      unsigned nCandidates,
+                                      std::mt19937 *engine) {
 
   unsigned firstPref;
   bool isEmpty;
+
+  // For tie-breaking
+  std::uniform_int_distribution<> rand_int_distr;
 
   std::vector<unsigned> out{};
 
@@ -78,6 +84,7 @@ std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> &ballots,
 
   // The minimum tally among standing candidates.
   unsigned min_tally;
+  std::vector<unsigned> tied_min{};
 
   // The index of the next candidate to be eliminated.
   unsigned elim;
@@ -96,15 +103,22 @@ std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> &ballots,
   // While more than one candidate stands.
   while (nEliminations < nCandidates) {
 
-    // Determine which candidate is to be eliminated this round.
-    elim = 0;
+    // Determine candidates with the minimum tally.
     min_tally = std::numeric_limits<unsigned>::max();
     for (unsigned i = 0; i < nCandidates; ++i) {
-      if (!eliminated[i] && min_tally > tally_groups[i].size()) {
-        elim = i;
+      if (!eliminated[i] && tally_groups[i].size() <= min_tally) {
+        if (tally_groups[i].size() == min_tally) {
+          tied_min.push_back(i);
+          continue;
+        }
+        tied_min = {i};
         min_tally = tally_groups[i].size();
       }
     }
+    // Tie-break by choosing at random from the tied candidates.
+    rand_int_distr = std::uniform_int_distribution<>(
+        0, std::distance(tied_min.begin(), tied_min.end()) - 1);
+    elim = tied_min[rand_int_distr(*engine)];
 
     // Eliminate the standing candidate with the minimum tally.
     eliminated[elim] = true;
