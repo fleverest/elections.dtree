@@ -39,24 +39,9 @@ bool IRVBallot::operator==(const IRVBallot &b) {
 }
 
 bool IRVBallot::operator<(const IRVBallot &b) const {
-  // Iterators on the preferences.
-  std::list<unsigned>::const_iterator it_b, it_self;
-
-  // First find the smallest number of preferences specified.
-  unsigned maxi = std::min(nPreferences(), b.nPreferences());
-
-  // Find the first preference where b is larger.
-  it_self = preferences.begin();
-  it_b = b.preferences.begin();
-  for (unsigned i = 0; i < maxi; ++i) {
-    if ((*it_self) < (*it_b))
-      return true;
-    ++it_self;
-    ++it_b;
-  }
-
-  // If there are none, the shorter ballot is considered to be less.
-  return nPreferences() < b.nPreferences();
+  return std::lexicographical_compare(preferences.begin(), preferences.end(),
+                                      b.preferences.begin(),
+                                      b.preferences.end());
 }
 
 std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> &ballots,

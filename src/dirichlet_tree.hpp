@@ -249,7 +249,7 @@ DirichletTree<NodeType, Outcome, Parameters>::posteriorSets(
     unsigned nSets, unsigned N, std::mt19937 *engine) {
 
   // Initialize list of outcomes.
-  std::list<std::list<std::pair<Outcome, unsigned>>> out;
+  std::list<std::list<std::pair<Outcome, unsigned>>> out{};
   std::list<std::pair<Outcome, unsigned>> old_outcomes, new_outcomes;
 
   // Handle invalid case by returning empty list.
