@@ -3,7 +3,7 @@ mcresults
 results
 bin
 build
-test.*
+test*
 *.swp
 *.o
 *.so
