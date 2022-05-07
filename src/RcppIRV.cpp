@@ -248,8 +248,14 @@ public:
     treeGen->discard(treeGen->state_size * 100);
 
     // The number of elections to sample per thread.
-    unsigned workerBatchSize = nElections / nBatches;
-    unsigned batchRemainder = nElections % nBatches;
+    unsigned workerBatchSize, batchRemainder;
+    if (nElections <= 1) {
+      workerBatchSize = 0;
+      batchRemainder = nElections;
+    } else {
+      workerBatchSize = nElections / nBatches;
+      batchRemainder = nElections % nBatches;
+    }
 
     // The results vector for each thread.
     std::vector<std::vector<std::vector<unsigned>>> results(nBatches + 1);
@@ -271,18 +277,22 @@ public:
         results[i].push_back(socialChoiceIRV(el, nCandidates, &e));
     };
 
-    // Dispatch the worker jobs.
+    // Dispatch the jobs.
     if (workerBatchSize > 0) {
 
       RcppThread::ThreadPool pool(std::thread::hardware_concurrency());
 
-      pool.parallelFor(0, nBatches, // Process batches on workers
+      // Process batches on workers
+      pool.parallelFor(0, nBatches,
                        [&](size_t i) { getBatchResult(i, workerBatchSize); });
-      pool.join();
-    }
 
-    if (batchRemainder > 0) // Process remainder on main thread.
+      // Process remainder on main thread.
       getBatchResult(nBatches, batchRemainder);
+
+      pool.join();
+    } else {
+      getBatchResult(nBatches, batchRemainder);
+    }
 
     // Aggregate the results
     Rcpp::NumericVector out(nCandidates);
@@ -290,9 +300,8 @@ public:
 
     for (auto j = 0; j <= nBatches; ++j) {
       for (auto elimination_order_idx : results[j]) {
-        for (auto i = 0; i < nCandidates; ++i)
-          if (i >= nCandidates - nWinners)
-            out[elimination_order_idx[i]] = out[elimination_order_idx[i]] + 1;
+        for (auto i = nCandidates - nWinners; i < nCandidates; ++i)
+          out[elimination_order_idx[i]] = out[elimination_order_idx[i]] + 1;
       }
     }
 
