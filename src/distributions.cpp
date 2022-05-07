@@ -13,21 +13,20 @@ unsigned *rDirichletMultinomial(unsigned count, float *alpha, unsigned d,
                                 std::mt19937 *engine) {
   unsigned *out = new unsigned[d];
 
-  float gam, sum_ps, p;
+  float sum_ps, p;
   float *gamma = new float[d];
   float gamma_sum = 0.;
 
   // Sample the gamma variates for category i.
   for (unsigned i = 0; i < d; ++i) {
     std::gamma_distribution<float> g(alpha[i], 1.0);
-    gam = g(*engine);
-    gamma[i] = gam;
-    gamma_sum += gam;
+    gamma[i] = g(*engine);
+    gamma_sum += gamma[i];
   }
 
   // Sample from Multinomial distribution with pi=gamma/gamma_sum.
   sum_ps = 1.0;
-  for (unsigned i = 0; i < d - 1; ++i) {
+  for (unsigned i = 0; i < d; ++i) {
     // Calculate marginal probability p.
     if (gamma_sum == 0) {
       p = 1.;
@@ -41,8 +40,6 @@ unsigned *rDirichletMultinomial(unsigned count, float *alpha, unsigned d,
     // Renormalise ps for next categories.
     sum_ps -= p;
   }
-  // Remainder goes to last category.
-  out[d - 1] = count;
 
   delete[] gamma;
 
