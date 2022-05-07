@@ -4,7 +4,7 @@
  * Author:           Floyd Everest <me@floydeverest.com>
  * Created:          02/22/22
  * Description:      This file declares an IRV TreeNode representing the
- *                   internal states of a stochastic process which produces
+ *                   unsignedernal states of a stochastic process which produces
  *                   valid, partially specified IRV ballots with some minimum
  *                   number of candidates selected.
  *****************************************************************************/
@@ -22,15 +22,15 @@
 class IRVParameters : Parameters {
 private:
   // The number of candidates participating in the IRV election.
-  int nCandidates;
+  unsigned nCandidates;
   // The minimum number of ballots that must be specified for an IRV election.
-  int minDepth;
+  unsigned minDepth;
   // The prior parameter for a uniform Dirichlet Tree.
   float alpha0;
 
 public:
   // Canonical constructor
-  IRVParameters(int nCandidates_, int minDepth_, float alpha0_ = 1.)
+  IRVParameters(unsigned nCandidates_, unsigned minDepth_, float alpha0_ = 1.)
       : nCandidates(nCandidates_), minDepth(minDepth_), alpha0(alpha0_) {}
 
   // Copy constructor
@@ -49,8 +49,8 @@ public:
    *
    * \return A vector representing the default path.
    */
-  std::vector<int> defaultPath() {
-    std::vector<int> out{};
+  std::vector<unsigned> defaultPath() {
+    std::vector<unsigned> out{};
     for (auto i = 0; i < nCandidates; ++i)
       out.emplace_back(i);
     return out;
@@ -60,14 +60,14 @@ public:
    *
    * \return Returns the number of candidates participating in the IRV election.
    */
-  int getNCandidates() { return nCandidates; }
+  unsigned getNCandidates() { return nCandidates; }
 
   /*! \brief Gets the minimum depth.
    *
    * \return Returns the minimum number of candidates which must be specified
    * for a valid IRV Ballot.
    */
-  int getMinDepth() { return minDepth; }
+  unsigned getMinDepth() { return minDepth; }
 
   /*! \brief Gets the prior uniform-Dirichlet-Tree parameter alpha0.
    *
@@ -83,7 +83,7 @@ public:
    * \param minDepth_ The new minimum number of candidates to be specified for a
    * valid IRV ballot.
    */
-  void setMinDepth(int minDepth_) { minDepth = minDepth_; }
+  void setMinDepth(unsigned minDepth_) { minDepth = minDepth_; }
 
   /*! \brief Sets the uniform Dirichlet Tree prior parameter alpha0.
    *
@@ -95,14 +95,15 @@ public:
 /*! \brief Simulate random ballots from a uniform Dirichlet Tree starting from
  * an incomplete ballot.
  *
- *  Simulates random ballots, starting from an internal state in the IRV
+ *  Simulates random ballots, starting from an unsignedernal state in the IRV
  * stochastic process.
  *
  * \param params The IRVParameters for the election.
  *
  * \param count The number of ballots to sample.
  *
- * \param path The path to the internal node representing the incomplete ballot.
+ * \param path The path to the unsignedernal node representing the incomplete
+ * ballot.
  *
  * \param depth The current depth in the Dirichlet Tree.
  *
@@ -111,9 +112,9 @@ public:
  * \return A list of valid IRV ballots from the sub-tree uniquely specified by
  * the arguments.
  */
-std::list<IRVBallot> lazyIRVBallots(IRVParameters params, int count,
-                                    std::vector<int> path, int depth,
-                                    std::mt19937 *engine);
+std::list<IRVBallotCount> lazyIRVBallots(IRVParameters params, unsigned count,
+                                         std::vector<unsigned> path,
+                                         unsigned depth, std::mt19937 *engine);
 
 class IRVNode : public TreeNode<IRVBallot, IRVNode, IRVParameters> {
 public:
@@ -121,8 +122,9 @@ public:
 
   /*! \brief Constructs a new IRVNode.
    *
-   *  Constructs an IRVNode representing an internal state of the stochastic
-   * process which yields valid IRV ballots by selecting candidates one-by-one.
+   *  Constructs an IRVNode representing an unsignedernal state of the
+   * stochastic process which yields valid IRV ballots by selecting candidates
+   * one-by-one.
    *
    * \param nChildren_ The number of possible child states (not including the
    * terminal state). In IRV, this is the number of remaining candidates to
@@ -130,12 +132,12 @@ public:
    *
    * \param depth_ The depth of this node in the tree.
    *
-   * \param parameters A pointer to the object containing the IRV distribution
-   * parameters.
+   * \param parameters A pounsigneder to the object containing the IRV
+   * distribution parameters.
    *
    * \return Returns a new IRV node.
    */
-  IRVNode(int depth_, IRVParameters *parameters_);
+  IRVNode(unsigned depth_, IRVParameters *parameters_);
 
   /*! \brief Destroys the node and its' sub-tree.
    */
@@ -144,7 +146,7 @@ public:
   /*! \brief Samples valid ballots from the sub-tree.
    *
    *  An IRVNode represents an incompleted ballot. This method provides an
-   * interface for sampling completed ballots from the starting point
+   * unsignederface for sampling completed ballots from the starting pounsigned
    * represented by this node.
    *
    * \param count The number of ballots to sample.
@@ -154,10 +156,10 @@ public:
    *
    * \param engine A PRNG for random sampling.
    *
-   * \return A list of completed ballots sampled from the subtree.
+   * \return A list of (ballot, count) pairs sampled from the subtree.
    */
-  std::list<IRVBallot> sample(int count, std::vector<int> path,
-                              std::mt19937 *engine);
+  std::list<IRVBallotCount> sample(unsigned count, std::vector<unsigned> path,
+                                   std::mt19937 *engine);
 
   /*! \brief Updates the parameters in the sub-tree to obtain a posterior.
    *
@@ -171,7 +173,8 @@ public:
    *
    * \param count The number of times to observe the ballot.
    */
-  void update(const IRVBallot &b, std::vector<int> path, int count = 1);
+  void update(const IRVBallot &b, std::vector<unsigned> path,
+              unsigned count = 1);
 
   /*! \brief Samples a probability of observing a ballot from the posterior.
    *
@@ -187,7 +190,7 @@ public:
    *
    * \return Return parameter description
    */
-  float marginalProbability(const IRVBallot &b, std::vector<int> path,
+  float marginalProbability(const IRVBallot &b, std::vector<unsigned> path,
                             std::mt19937 *engine);
 };
 

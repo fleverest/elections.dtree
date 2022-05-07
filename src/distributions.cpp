@@ -9,9 +9,9 @@
 
 #include "distributions.hpp"
 
-int *rDirichletMultinomial(int count, float *alpha, int d,
-                           std::mt19937 *engine) {
-  int *out = new int[d];
+unsigned *rDirichletMultinomial(unsigned count, float *alpha, unsigned d,
+                                std::mt19937 *engine) {
+  unsigned *out = new unsigned[d];
 
   float gam, sum_ps, p;
   float *gamma = new float[d];
@@ -35,7 +35,7 @@ int *rDirichletMultinomial(int count, float *alpha, int d,
       p = gamma[i] / gamma_sum;
     }
     // Draw from marginal binomial distribution.
-    std::binomial_distribution<int> b(count, p / sum_ps);
+    std::binomial_distribution<unsigned> b(count, p / sum_ps);
     out[i] = b(*engine);
     count -= out[i];
     // Renormalise ps for next categories.

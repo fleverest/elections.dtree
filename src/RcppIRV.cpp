@@ -38,14 +38,14 @@ Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners) {
 
   Rcpp::List out{};
 
-  std::list<IRVBallot> scInput{};
+  std::list<IRVBallotCount> scInput{};
 
   std::unordered_map<std::string, size_t> c2Index{};
   std::vector<std::string> cNames{};
 
   Rcpp::CharacterVector bNames;
   std::string cName;
-  std::vector<int> bIndices;
+  std::list<unsigned> bIndices;
 
   for (auto i = 0; i < bs.size(); ++i) {
     bNames = bs[i];
@@ -63,14 +63,14 @@ Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners) {
       }
       bIndices.push_back(c2Index[cName]);
     }
-    scInput.emplace_back(bIndices);
+    scInput.emplace_back(std::move(bIndices), 1);
   }
 
   if (nWinners < 1 || nWinners >= cNames.size()) {
     Rcpp::stop("`nWinners` must be >= 1 and <= the number of candidates.");
   }
 
-  std::vector<int> elimination_order_idx =
+  std::vector<unsigned> elimination_order_idx =
       socialChoiceIRV(scInput, cNames.size());
 
   Rcpp::CharacterVector elimination_order{};
@@ -109,7 +109,7 @@ private:
   size_t nObserved = 0;
 
   /*! \brief Converts an R list of valid IRV ballot vectors to a
-   * std::list<IRVBallot> format.
+   * std::list<IRVBallotCount> format.
    *
    *  In R, we consider a matrix of ballots to be that with columns
    * corresponding to each preference choice, and elements corresponding to the
@@ -118,18 +118,18 @@ private:
    * \param bs An Rcpp::List of ballots (assumed to be in Rcpp::CharacterVector
    * representation).
    *
-   * \return A list of IRVBallot objects.
+   * \return A list of IRVBallotCount objects.
    */
-  std::list<IRVBallot> parseBallotList(Rcpp::List bs) {
+  std::list<IRVBallotCount> parseBallotList(Rcpp::List bs) {
     Rcpp::CharacterVector namePrefs;
     std::string cName;
-    std::vector<int> indexPrefs;
+    std::list<unsigned> indexPrefs;
     size_t cIndex;
 
-    std::list<IRVBallot> out;
+    std::list<IRVBallotCount> out;
 
-    // We iterate over each ballot, and convert it into an IRVBallot using the
-    // "candidate index" for each seen candidate.
+    // We iterate over each ballot, and convert it into an IRVBallotCount using
+    // the "candidate index" for each seen candidate.
     for (auto i = 0; i < bs.size(); ++i) {
       namePrefs = bs[i];
       indexPrefs = {};
@@ -145,7 +145,7 @@ private:
 
         indexPrefs.push_back(cIndex);
       }
-      out.emplace_back(indexPrefs);
+      out.emplace_back(std::move(indexPrefs), 1);
     }
 
     return out;
@@ -189,10 +189,10 @@ public:
   }
 
   void update(Rcpp::List ballots) {
-    std::list<IRVBallot> bs = parseBallotList(ballots);
-    for (auto b : bs) {
+    std::list<IRVBallotCount> bcs = parseBallotList(ballots);
+    for (IRVBallotCount &b : bcs) {
       ++nObserved;
-      tree->update(b, 1);
+      tree->update(b);
     }
   }
 
@@ -203,13 +203,16 @@ public:
     Rcpp::List out;
     Rcpp::CharacterVector rBallot;
 
-    std::list<IRVBallot> samples = tree->sample(nSamples);
-    for (auto b : samples) {
-      rBallot = Rcpp::CharacterVector::create();
-      for (auto cIndex : b.preferences) {
-        rBallot.push_back(candidateVector[cIndex]);
+    std::list<IRVBallotCount> samples = tree->sample(nSamples);
+    for (auto &[b, count] : samples) {
+      // Push count * b to the list.
+      for (auto i = 0; i < count; ++i) {
+        rBallot = Rcpp::CharacterVector::create();
+        for (auto cIndex : b.preferences) {
+          rBallot.push_back(candidateVector[cIndex]);
+        }
+        out.push_back(rBallot);
       }
-      out.push_back(rBallot);
     }
 
     return out;
@@ -241,7 +244,7 @@ public:
     unsigned batchRemainder = nElections % nBatches;
 
     // The results vector for each thread.
-    std::vector<std::vector<std::vector<int>>> results(nBatches + 1);
+    std::vector<std::vector<std::vector<unsigned>>> results(nBatches + 1);
 
     // Use RcppThreads to compute the posterior in batches.
     auto getBatchResult = [&](size_t i, size_t batchSize) -> void {
@@ -253,7 +256,7 @@ public:
       e.discard(e.state_size * 100);
 
       // Simulate elections.
-      std::list<std::list<IRVBallot>> elections =
+      std::list<std::list<IRVBallotCount>> elections =
           tree->posteriorSets(batchSize, nBallots);
 
       for (auto e : elections)
@@ -298,7 +301,7 @@ public:
     Rcpp::NumericVector out = {};
     std::string name;
 
-    std::vector<int> preferences = {};
+    std::list<unsigned> preferences = {};
     for (auto i = 0; i < ballot.size(); ++i) {
       name = ballot[i];
       preferences.push_back(candidateMap[name]);
