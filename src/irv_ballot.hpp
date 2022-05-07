@@ -80,11 +80,12 @@ typedef std::pair<IRVBallot, unsigned> IRVBallotCount;
  *  Given a set of ballots, this applies the social choice function to determine
  * the elimination order.
  *
- * \param election A set of ballots to conduct the social choice function with.
+ * \param ballotcounts A reference to a set of ballot counts to conduct the
+ * social choice function with. The reference object will be deleted.
  *
  * \return A list of candidate indices in order of elimination.
  */
-std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> election,
+std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> &ballotcounts,
                                       unsigned nCandidates);
 
 #endif /* IRV_BALLOT_H */

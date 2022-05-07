@@ -35,7 +35,7 @@ bool IRVBallot::operator==(const IRVBallot &b) {
                     b.preferences.begin());
 }
 
-std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> ballots,
+std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> &ballots,
                                       unsigned nCandidates) {
 
   unsigned firstPref;
