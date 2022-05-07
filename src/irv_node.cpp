@@ -70,7 +70,7 @@ std::list<IRVBallotCount> lazyIRVBallots(IRVParameters *params, unsigned count,
   delete[] mnomCounts;
   delete[] alpha;
 
-  return std::move(out);
+  return out;
 }
 
 IRVNode::IRVNode(unsigned depth_, IRVParameters *parameters_) {
@@ -171,7 +171,7 @@ std::list<IRVBallotCount> IRVNode::sample(unsigned count,
 
   delete[] mnomCounts;
 
-  return std::move(out);
+  return out;
 }
 
 void IRVNode::update(const IRVBallot &b, std::vector<unsigned> path,
