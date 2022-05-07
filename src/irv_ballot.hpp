@@ -21,18 +21,18 @@
 
 class IRVBallot {
 public:
-  // The IRV Ballot in vector representation with candidate indices in order of
+  // The IRV Ballot in list representation with candidate indices in order of
   // preference as elements, e.g. {0, 1, 2, 3, 4} or {4, 3, 2}.
-  std::vector<int> preferences;
+  std::list<unsigned> preferences;
 
   /*! \brief The IRVBallot constructor.
    *
-   * \param preferences A vector representation of an IRV ballot consisting of
+   * \param preferences A list representation of an IRV ballot consisting of
    * candidate indices in order of preference.
    *
    * \return A ballot with the specified preferences.
    */
-  IRVBallot(std::vector<int> preferences);
+  IRVBallot(std::list<unsigned> preferences);
 
   /*! \brief The copy constructor for IRVBallot.
    *
@@ -50,7 +50,7 @@ public:
    *
    * \return The number of specified preferences.
    */
-  int nPreferences() const { return preferences.size(); }
+  unsigned nPreferences() const { return preferences.size(); }
 
   /*! \brief Returns the first preference of the ballot.
    *
@@ -59,17 +59,16 @@ public:
    *
    * \return The first preference of the ballot.
    */
-  int firstPreference() const { return preferences[0]; }
+  unsigned firstPreference() const { return preferences.front(); }
 
-  /*! \brief Eliminates a specified candidate from the ballot.
+  /*! \brief Eliminate the first candidate.
    *
-   *  For example, if preferences is {1, 2, 3, 4} and we call
-   * `ballot.eliminate(2)`, then the resulting preferences will be {1, 3, 4}.
-   * This method returns a boolean representing whether or not the ballot is
-   * empty after elimination of the candidate. For example, if preferences is
-   * {4} and we call `ballot.eliminate(4)`.
+   * Eliminates the first preference from the ballot e.g.
+   * if the ballot is {1, 2, 3, 4}, then after eliminate it will be
+   * {2, 3, 4}.
+   * If the resulting ballot is empty, this returns true.
    */
-  bool eliminate(int candidate);
+  bool eliminateFirstPref();
 
   /*! \brief Returns whether the provided ballot is equal to this one.
    *
@@ -82,6 +81,8 @@ public:
   bool operator==(const IRVBallot &b);
 };
 
+typedef std::pair<IRVBallot, unsigned> IRVBallotCount;
+
 /*! \brief Evaluates the outcome of an IRV election.
  *
  *  Given a set of ballots, this applies the social choice function to determine
@@ -89,9 +90,9 @@ public:
  *
  * \param election A set of ballots to conduct the social choice function with.
  *
- * \return A vector of candidate indices in order of elimination.
+ * \return A list of candidate indices in order of elimination.
  */
-std::vector<int> socialChoiceIRV(std::list<IRVBallot> election,
-                                 int nCandidates);
+std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> election,
+                                      unsigned nCandidates);
 
 #endif /* IRV_BALLOT_H */
