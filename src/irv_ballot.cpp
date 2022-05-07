@@ -15,8 +15,6 @@ IRVBallot::IRVBallot(std::list<unsigned> preferences_) {
   preferences = std::move(preferences_);
 }
 
-IRVBallot::IRVBallot(const IRVBallot &b) { preferences = b.preferences; }
-
 bool IRVBallot::eliminateFirstPref() {
   preferences.pop_front();
   // Return whether or not the ballot is empty.
