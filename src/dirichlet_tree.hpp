@@ -253,7 +253,7 @@ DirichletTree<NodeType, Outcome, Parameters>::posteriorSets(
   std::list<std::pair<Outcome, unsigned>> old_outcomes, new_outcomes;
 
   // Handle invalid case by returning empty list.
-  if (nObserved >= N || nSets <= 0)
+  if (nObserved > N || nSets <= 0)
     return {};
 
   for (unsigned i = 0; i < nSets; ++i) {

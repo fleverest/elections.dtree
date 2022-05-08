@@ -52,10 +52,8 @@ Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners,
 
   for (auto i = 0; i < bs.size(); ++i) {
     bNames = bs[i];
-    if (bNames.size() == 0) {
-      Rcpp::warning("Skipping ballot with length 0.");
+    if (bNames.size() == 0) // Skip empty ballots
       continue;
-    }
     bIndices = {};
     for (auto j = 0; j < bNames.size(); ++j) {
       cName = bNames[j];
@@ -69,9 +67,11 @@ Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners,
     scInput.emplace_back(std::move(bIndices), 1);
   }
 
-  if (nWinners < 1 || nWinners >= cNames.size()) {
+  if (nWinners < 1 || nWinners >= cNames.size())
     Rcpp::stop("`nWinners` must be >= 1 and <= the number of candidates.");
-  }
+
+  if (scInput.size() == 0)
+    Rcpp::stop("No valid ballots for the IRV social choice function.");
 
   // Seed the PRNG.
   std::seed_seq ss(seed.begin(), seed.end());
@@ -198,9 +198,9 @@ public:
 
   void update(Rcpp::List ballots) {
     std::list<IRVBallotCount> bcs = parseBallotList(ballots);
-    for (IRVBallotCount &b : bcs) {
-      ++nObserved;
-      tree->update(b);
+    for (IRVBallotCount &bc : bcs) {
+      nObserved += bc.second;
+      tree->update(bc);
     }
   }
 
@@ -248,12 +248,12 @@ public:
     treeGen->discard(treeGen->state_size * 100);
 
     // The number of elections to sample per thread.
-    unsigned workerBatchSize, batchRemainder;
+    unsigned batchSize, batchRemainder;
     if (nElections <= 1) {
-      workerBatchSize = 0;
+      batchSize = 0;
       batchRemainder = nElections;
     } else {
-      workerBatchSize = nElections / nBatches;
+      batchSize = nElections / nBatches;
       batchRemainder = nElections % nBatches;
     }
 
@@ -271,29 +271,24 @@ public:
 
       // Simulate elections.
       std::list<std::list<IRVBallotCount>> elections =
-          tree->posteriorSets(batchSize, nBallots);
+          tree->posteriorSets(batchSize, nBallots, &e);
 
       for (auto &el : elections)
         results[i].push_back(socialChoiceIRV(el, nCandidates, &e));
     };
 
     // Dispatch the jobs.
-    if (workerBatchSize > 0) {
+    RcppThread::ThreadPool pool(std::thread::hardware_concurrency());
 
-      RcppThread::ThreadPool pool(std::thread::hardware_concurrency());
+    // Process batches on workers
+    pool.parallelFor(0, nBatches,
+                     [&](size_t i) { getBatchResult(i, batchSize); });
 
-      // Process batches on workers
-      pool.parallelFor(0, nBatches,
-                       [&](size_t i) { getBatchResult(i, workerBatchSize); });
-
-      // Process remainder on main thread.
-      if (batchRemainder > 0)
-        getBatchResult(nBatches, batchRemainder);
-
-      pool.join();
-    } else {
+    // Process remainder on main thread.
+    if (batchRemainder > 0)
       getBatchResult(nBatches, batchRemainder);
-    }
+
+    pool.join();
 
     // Aggregate the results
     Rcpp::NumericVector out(nCandidates);
