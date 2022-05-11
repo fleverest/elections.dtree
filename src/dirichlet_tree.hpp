@@ -195,6 +195,7 @@ void DirichletTree<NodeType, Outcome, Parameters>::reset() {
   root = new NodeType(0, parameters);
   // Destroy the observations list
   observed.clear();
+  nObserved = 0;
 }
 
 template <typename NodeType, typename Outcome, typename Parameters>
