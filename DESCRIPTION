@@ -15,9 +15,11 @@ LazyData: TRUE
 RoxygenNote: 7.1.1
 LinkingTo:
     Rcpp,
-    RcppThread
+    RcppThread,
+    testthat
 Imports:
     Rcpp
-Suggests: 
-    testthat (>= 3.0.0)
+Suggests:
+    testthat (>= 3.0.0),
+    xml2
 Config/testthat/edition: 3

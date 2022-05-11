@@ -25,11 +25,13 @@ BEGIN_RCPP
 END_RCPP
 }
 
+RcppExport SEXP run_testthat_tests(SEXP);
 RcppExport SEXP _rcpp_module_boot_pirv_dirichlet_tree_module();
 
 static const R_CallMethodDef CallEntries[] = {
     {"_dirtree_elections_RSocialChoiceIRV", (DL_FUNC) &_dirtree_elections_RSocialChoiceIRV, 3},
     {"_rcpp_module_boot_pirv_dirichlet_tree_module", (DL_FUNC) &_rcpp_module_boot_pirv_dirichlet_tree_module, 0},
+    {"run_testthat_tests", (DL_FUNC) &run_testthat_tests, 1},
     {NULL, NULL, 0}
 };
 
