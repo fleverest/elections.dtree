@@ -78,11 +78,14 @@ std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> &ballots,
   // tally for each candidate.
   std::vector<std::list<std::list<IRVBallotCount>::iterator>> tally_groups(
       nCandidates);
+  // The vector of candidate tallies.
+  std::vector<unsigned> tallies(nCandidates, 0);
 
   // Tally the initial first preferences for each ballot.
   for (auto it = ballots.begin(); it != ballots.end(); ++it) {
     firstPref = it->first.firstPreference();
     tally_groups[firstPref].push_back(it);
+    tallies[firstPref] += it->second;
   }
 
   // While more than one candidate stands.
@@ -91,12 +94,12 @@ std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> &ballots,
     // Determine candidates with the minimum tally.
     min_tally = std::numeric_limits<unsigned>::max();
     for (unsigned i = 0; i < nCandidates; ++i) {
-      if (!eliminated[i] && tally_groups[i].size() <= min_tally) {
-        if (tally_groups[i].size() == min_tally) {
+      if (!eliminated[i] && tallies[i] <= min_tally) {
+        if (tallies[i] == min_tally) {
           tied_min.push_back(i);
         } else {
           tied_min = {i};
-          min_tally = tally_groups[i].size();
+          min_tally = tallies[i];
         }
       }
     }
@@ -131,6 +134,7 @@ std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> &ballots,
         // If it is not empty, we add the ballotcount to the next *standing*
         // candidates' tally.
         tally_groups[firstPref].push_back(*list_start);
+        tallies[firstPref] += (*list_start)->second;
       }
       // Now that the ballot has been redistributed, continue
       list_start = tally_groups[elim].erase(list_start);
