@@ -178,7 +178,10 @@ public:
 
     tree = new DirichletTree<IRVNode, IRVBallot, IRVParameters>(params, seed_);
   }
-  ~PIRVDirichletTree() { delete tree; }
+  ~PIRVDirichletTree() {
+    delete tree;
+    delete tree->getParameters();
+  }
 
   // Getters
   unsigned getNCandidates() { return tree->getParameters()->getNCandidates(); }
