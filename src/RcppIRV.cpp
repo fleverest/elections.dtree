@@ -5,7 +5,7 @@
  * Created:          03/01/22
  * Description:      This file implements an Rcpp interface for the IRV
  *                   Dirichlet Tree methods, and for the IRV social choice
- *function.
+ *                   function.
  *****************************************************************************/
 
 // [[Rcpp::plugins("cpp17")]]
