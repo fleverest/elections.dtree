@@ -173,7 +173,9 @@ public:
       ++cIndex;
     }
     // Initialize tree.
-    IRVParameters params(candidates.size(), minDepth_, alpha0_);
+    IRVParameters *params =
+        new IRVParameters(candidates.size(), minDepth_, alpha0_);
+
     tree = new DirichletTree<IRVNode, IRVBallot, IRVParameters>(params, seed_);
   }
   ~PIRVDirichletTree() { delete tree; }

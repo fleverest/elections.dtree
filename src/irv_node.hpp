@@ -38,8 +38,8 @@ public:
       : nCandidates(params.getNCandidates()), minDepth(params.getMinDepth()),
         alpha0(params.getAlpha0()) {}
 
-  // Copy assignment
-  // IRVParameters &operator=(const IRVParameters &) = default;
+  // Copy assignment is removed.
+  IRVParameters &operator=(const IRVParameters &) = delete;
 
   // Getters
 
