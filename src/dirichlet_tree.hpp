@@ -33,7 +33,7 @@ private:
   // parameter scheme at each level might be possible to alter dynamically. The
   // parameters might also indicate some outcome filtering which can often be
   // changed dynamically.
-  Parameters parameters;
+  Parameters *parameters;
 
   // The number of outcomes observed to obtain the posterior.
   unsigned nObserved = 0;
@@ -55,7 +55,7 @@ public:
    *
    * \return A DirichletTree object with the corresponding attributes.
    */
-  DirichletTree(Parameters parameters_, std::string seed = "12345");
+  DirichletTree(Parameters *parameters_, std::string seed = "12345");
 
   // No copy constructor
   DirichletTree(const DirichletTree &dirichletTree) = delete;
@@ -153,7 +153,7 @@ public:
    *
    * \return Returns a pointer to the Dirichlet Tree parameters.
    */
-  Parameters *getParameters() { return &parameters; }
+  Parameters *getParameters() { return parameters; }
 
   // Setters
 
@@ -176,11 +176,12 @@ public:
 
 template <typename NodeType, typename Outcome, typename Parameters>
 DirichletTree<NodeType, Outcome, Parameters>::DirichletTree(
-    Parameters parameters_, std::string seed)
-    : parameters(parameters_) {
+    Parameters *parameters_, std::string seed) {
+
+  parameters = parameters_;
 
   // Initialize the root node of the tree.
-  root = new NodeType(0, &parameters);
+  root = new NodeType(0, parameters);
 
   // Initialize a default PRNG, seed it and warm it up.
   std::mt19937 engine{};
@@ -191,9 +192,11 @@ template <typename NodeType, typename Outcome, typename Parameters>
 void DirichletTree<NodeType, Outcome, Parameters>::reset() {
   // Replace the root node, calling the destructor of the old root after call.
   delete root;
-  root = new NodeType(0, &parameters);
+  root = new NodeType(0, parameters);
   // Destroy the observations list
   observed.clear();
+  // Delete the tree parameters.
+  delete parameters;
 }
 
 template <typename NodeType, typename Outcome, typename Parameters>
@@ -204,7 +207,7 @@ void DirichletTree<NodeType, Outcome, Parameters>::update(
   } else {
     observed[oc.first] = observed[oc.first] + oc.second;
   }
-  std::vector<unsigned> path = parameters.defaultPath();
+  std::vector<unsigned> path = parameters->defaultPath();
   root->update(oc.first, path, oc.second);
 }
 
@@ -218,7 +221,7 @@ float DirichletTree<NodeType, Outcome, Parameters>::marginalProbability(
   }
 
   // Pass straight to the root node.
-  std::vector<unsigned> path = parameters.defaultPath();
+  std::vector<unsigned> path = parameters->defaultPath();
   return root->marginalProbability(o, path, engine_);
 }
 
@@ -232,7 +235,7 @@ DirichletTree<NodeType, Outcome, Parameters>::sample(unsigned n,
   }
 
   // Initialize output
-  std::vector<unsigned> path = parameters.defaultPath();
+  std::vector<unsigned> path = parameters->defaultPath();
   std::list<std::pair<Outcome, unsigned>> out = root->sample(n, path, engine_);
 
   return out;
