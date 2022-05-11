@@ -205,6 +205,7 @@ void DirichletTree<NodeType, Outcome, Parameters>::update(
   } else {
     observed[oc.first] = observed[oc.first] + oc.second;
   }
+  nObserved += oc.second;
   std::vector<unsigned> path = parameters->defaultPath();
   root->update(oc.first, path, oc.second);
 }
