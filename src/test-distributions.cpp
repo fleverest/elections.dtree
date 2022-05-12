@@ -25,7 +25,6 @@ context("Test Dirichlet-Multinomial sums.") {
   bool always_sums_to_count = true;
 
   for (unsigned d = 1; d < 100; ++d) {
-
     // Initialize a new alpha vector.
     alpha = new float[d];
     for (auto i = 0; i < d; ++i)
@@ -42,8 +41,8 @@ context("Test Dirichlet-Multinomial sums.") {
       always_sums_to_count = false;
 
     // Delete alpha and mnom counts
-    delete alpha;
-    delete result;
+    delete[] alpha;
+    delete[] result;
   }
   test_that("Dirichlet-Multinomial sample sums to count.") {
     expect_true(always_sums_to_count);
