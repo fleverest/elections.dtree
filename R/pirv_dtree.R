@@ -7,7 +7,6 @@
 #' @param alpha0 the prior parameter for the distribution.
 #' @param vd a boolean value representing whether or not the prior should reduce to a vanilla Dirichlet distribution.
 #' @docType class
-#'
 #' @author Floyd Everest
 #' @import methods
 #' @return A Dirichlet Tree representing partial IRV ballots, as an Rcpp module of class `PIRVDirichletTree`.
@@ -64,9 +63,9 @@ samplePredictive <- function(dtree, nBallots) {
 #' @name samplePosterior
 #' @title Draw election outcomes from the posterior distribution.
 #' @description Draws ballots from a realizations of the Dirichlet Tree posterior, and determines the probability for each candidate being elected by aggregating the results.
-#' @param dtree a PIRV Dirichlet Tree object.
-#' @param nElections an integer representing the number of elections to generate. A higher number yields higher precision in the output probabilities.
-#' @param nBallots an integer representing the number of ballots cast in total for each election.
+#' @param dtree A PIRV Dirichlet Tree object.
+#' @param nElections An integer representing the number of elections to generate. A higher number yields higher precision in the output probabilities.
+#' @param nBallots An integer representing the number of ballots cast in total for each election.
 #' @return A NumericVector containing the probabilities for each candidate being elected.
 #' @export
 samplePosterior <- function(dtree, nElections, nBallots, nWinners=1) {
@@ -80,6 +79,18 @@ samplePosterior <- function(dtree, nElections, nBallots, nWinners=1) {
       gseed()
     )
   )
+}
+
+#' @name sampleMPP
+#' @title Sample marginal posterior probabilities for a ballot.
+#' @description Draws marginal probabilities for observing a given ballot under the posterior distribution.
+#' @param dtree A PIRV Dirichlet Tree object.
+#' @param n The number of samples to draw from the posterior.
+#' @param ballot The ballot to sample posterior probabilities for.
+#' @return A NumericVector of \code{n} probabilities, each corresponding to a probability of observing \code{b} under an independent realisation of the posterior distribution.
+sampleMPP <- function(dtree, n, ballot) {
+  stopifnot(class(dtree) %in% .dtree_classes)
+  return(dtree$sampleMarginalProbability(n, ballot, gseed()))
 }
 
 #' @name update
