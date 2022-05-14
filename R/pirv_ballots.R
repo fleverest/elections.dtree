@@ -108,7 +108,7 @@ read.ballots <- function(filename) {
 
   # Package them up and return.
   class(ballots) <- "PIRVBallots"
-  attr(ballot, "candidates") <- candidates
+  attr(ballots, "candidates") <- candidates
   return(ballots)
 }
 
