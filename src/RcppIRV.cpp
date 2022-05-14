@@ -145,11 +145,26 @@ bool PIRVDirichletTree::getVD() { return tree->getParameters()->getVD(); }
 // Setters
 void PIRVDirichletTree::setMinDepth(unsigned minDepth_) {
   tree->getParameters()->setMinDepth(minDepth_);
+  // If the tree is reducible to a Dirichlet distribution,
+  // we need to check that the ballots observed so far do not
+  // violate len(ballot) < minDepth - otherwise the resulting
+  // posterior will not be Dirichlet.
+  for (const auto &d : observedDepths) {
+    if (d < minDepth_) {
+      Rcpp::warning("Ballots with fewer than `minDepth` preferences specified "
+                    "have been observed. Hence, the resulting posterior does "
+                    "not truly represent a true Dirichlet distribution.");
+      break;
+    }
+  }
 }
+
 void PIRVDirichletTree::setAlpha0(float alpha0_) {
   tree->getParameters()->setAlpha0(alpha0_);
 }
+
 void PIRVDirichletTree::setSeed(std::string seed_) { tree->setSeed(seed_); }
+
 void PIRVDirichletTree::setVD(bool vd_) {
   // If the tree represents a Dirichlet distribution,
   // we need to check that no observed ballots had length >=
@@ -157,7 +172,7 @@ void PIRVDirichletTree::setVD(bool vd_) {
   // will not be reducible to a Dirichlet distribution.
   unsigned minDepth = tree->getParameters()->getMinDepth();
   for (const auto &d : observedDepths) {
-    if (d > minDepth) {
+    if (d < minDepth) {
       Rcpp::warning(
           "Updating the parameter structure to represent a Dirichlet "
           "distribution, however ballots with fewer than `minDepth` "
