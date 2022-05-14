@@ -9,11 +9,6 @@
 
 #include "irv_ballot.hpp"
 
-#include <algorithm>
-#include <list>
-#include <random>
-#include <vector>
-
 IRVBallot::IRVBallot(std::list<unsigned> preferences_) {
   preferences = std::move(preferences_);
 }
