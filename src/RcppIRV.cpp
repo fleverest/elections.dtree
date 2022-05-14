@@ -8,34 +8,11 @@
  *                   function.
  *****************************************************************************/
 
+#include "RcppIRV.hpp"
+
 // [[Rcpp::plugins("cpp17")]]
 // [[Rcpp::depends(RcppThread)]]
 
-#include "dirichlet_tree.hpp"
-#include "irv_ballot.hpp"
-#include "irv_node.hpp"
-
-#include <Rcpp.h>
-#include <RcppThread.h>
-#include <random>
-#include <thread>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
-
-/*! \brief The IRV social choice function.
- *
- *  This function calculates an election outcome using the standard IRV social
- * choice function.
- *
- * \param  bs An Rcpp::List of ballots in CharacterVector representation.
- *
- * \param nWinners An integer indicating the number of winners to elect.
- *
- * \param seed A seed for the PRNG for tie-breaking.
- *
- * \return The winning candidate.
- */
 // [[Rcpp::export]]
 Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners,
                             std::string seed) {
@@ -98,284 +75,257 @@ Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners,
   return out;
 }
 
-/*! \brief An Rcpp object which implements the `dtree` R object interface.
- *
- *  This class exposes all interfaces for the partially-ordered, IRV-ballot
- * Dirichlet Tree.
- */
-class PIRVDirichletTree {
-private:
-  // The underlying Dirichlet Tree.
-  DirichletTree<IRVNode, IRVBallot, IRVParameters> *tree;
+std::list<IRVBallotCount> PIRVDirichletTree::parseBallotList(Rcpp::List bs) {
+  Rcpp::CharacterVector namePrefs;
+  std::string cName;
+  std::list<unsigned> indexPrefs;
+  size_t cIndex;
 
-  // A vector of candidate names.
-  Rcpp::CharacterVector candidateVector{};
+  std::list<IRVBallotCount> out;
 
-  // A map of candidate names to their ballot index.
-  std::unordered_map<std::string, size_t> candidateMap{};
+  // We iterate over each ballot, and convert it into an IRVBallotCount using
+  // the "candidate index" for each seen candidate.
+  for (auto i = 0; i < bs.size(); ++i) {
+    namePrefs = bs[i];
+    indexPrefs = {};
+    for (auto j = 0; j < namePrefs.size(); ++j) {
+      cName = namePrefs[j];
 
-  // A record of the number of observed ballots.
-  size_t nObserved = 0;
-
-  // Records the depths which have been observed, so that we can check whether
-  // the posterior can reduce to a Dirichlet distribution or not.
-  std::unordered_set<unsigned> observedDepths{};
-
-  /*! \brief Converts an R list of valid IRV ballot vectors to a
-   * std::list<IRVBallotCount> format.
-   *
-   *  In R, we consider a matrix of ballots to be that with columns
-   * corresponding to each preference choice, and elements corresponding to the
-   * index of the candidate.
-   *
-   * \param bs An Rcpp::List of ballots (assumed to be in Rcpp::CharacterVector
-   * representation).
-   *
-   * \return A list of IRVBallotCount objects.
-   */
-  std::list<IRVBallotCount> parseBallotList(Rcpp::List bs) {
-    Rcpp::CharacterVector namePrefs;
-    std::string cName;
-    std::list<unsigned> indexPrefs;
-    size_t cIndex;
-
-    std::list<IRVBallotCount> out;
-
-    // We iterate over each ballot, and convert it into an IRVBallotCount using
-    // the "candidate index" for each seen candidate.
-    for (auto i = 0; i < bs.size(); ++i) {
-      namePrefs = bs[i];
-      indexPrefs = {};
-      for (auto j = 0; j < namePrefs.size(); ++j) {
-        cName = namePrefs[j];
-
-        // Find index for the candidate. Add it to our set if it doesn't exist.
-        if (candidateMap.count(cName) == 0) {
-          Rcpp::stop("Unknown candidate encountered in ballot!");
-        } else {
-          cIndex = candidateMap[cName];
-        }
-
-        indexPrefs.push_back(cIndex);
+      // Find index for the candidate. Add it to our set if it doesn't exist.
+      if (candidateMap.count(cName) == 0) {
+        Rcpp::stop("Unknown candidate encountered in ballot!");
+      } else {
+        cIndex = candidateMap[cName];
       }
-      out.emplace_back(std::move(indexPrefs), 1);
+
+      indexPrefs.push_back(cIndex);
     }
-
-    return out;
+    out.emplace_back(std::move(indexPrefs), 1);
   }
 
-public:
-  // Constructor
-  PIRVDirichletTree(Rcpp::CharacterVector candidates, unsigned minDepth_,
-                    float alpha0_, bool vd_, std::string seed_) {
-    // Parse the candidate strings.
-    std::string cName;
-    size_t cIndex = 0;
-    for (auto i = 0; i < candidates.size(); ++i) {
-      cName = candidates[i];
-      candidateVector.push_back(cName);
-      candidateMap[cName] = cIndex;
-      ++cIndex;
+  return out;
+}
+
+PIRVDirichletTree::PIRVDirichletTree(Rcpp::CharacterVector candidates,
+                                     unsigned minDepth_, float alpha0_,
+                                     bool vd_, std::string seed_) {
+  // Parse the candidate strings.
+  std::string cName;
+  size_t cIndex = 0;
+  for (auto i = 0; i < candidates.size(); ++i) {
+    cName = candidates[i];
+    candidateVector.push_back(cName);
+    candidateMap[cName] = cIndex;
+    ++cIndex;
+  }
+  // Initialize tree.
+  IRVParameters *params =
+      new IRVParameters(candidates.size(), minDepth_, alpha0_, vd_);
+  tree = new DirichletTree<IRVNode, IRVBallot, IRVParameters>(params, seed_);
+}
+
+// Destructor.
+PIRVDirichletTree::~PIRVDirichletTree() {
+  delete tree->getParameters();
+  delete tree;
+}
+
+// Getters
+unsigned PIRVDirichletTree::getNCandidates() {
+  return tree->getParameters()->getNCandidates();
+}
+unsigned PIRVDirichletTree::getMinDepth() {
+  return tree->getParameters()->getMinDepth();
+}
+float PIRVDirichletTree::getAlpha0() {
+  return tree->getParameters()->getAlpha0();
+}
+bool PIRVDirichletTree::getVD() { return tree->getParameters()->getVD(); }
+
+// Setters
+void PIRVDirichletTree::setMinDepth(unsigned minDepth_) {
+  tree->getParameters()->setMinDepth(minDepth_);
+}
+void PIRVDirichletTree::setAlpha0(float alpha0_) {
+  tree->getParameters()->setAlpha0(alpha0_);
+}
+void PIRVDirichletTree::setSeed(std::string seed_) { tree->setSeed(seed_); }
+void PIRVDirichletTree::setVD(bool vd_) {
+  // If the tree represents a Dirichlet distribution,
+  // we need to check that no observed ballots had length >=
+  // the minDepth of the tree, otherwise the posterior tree
+  // will not be reducible to a Dirichlet distribution.
+  unsigned minDepth = tree->getParameters()->getMinDepth();
+  for (const auto &d : observedDepths) {
+    if (d > minDepth) {
+      Rcpp::warning(
+          "Updating the parameter structure to represent a Dirichlet "
+          "distribution, however ballots with fewer than `minDepth` "
+          "preferences specified have been observed. Hence, the resulting "
+          "posterior does not represent a true Dirichlet distribution.");
+      break;
     }
-    // Initialize tree.
-    IRVParameters *params =
-        new IRVParameters(candidates.size(), minDepth_, alpha0_, vd_);
-    tree = new DirichletTree<IRVNode, IRVBallot, IRVParameters>(params, seed_);
   }
+  tree->getParameters()->setVD(vd_);
+}
 
-  // Destructor.
-  ~PIRVDirichletTree() {
-    delete tree->getParameters();
-    delete tree;
-  }
+// Other methods
+void PIRVDirichletTree::reset() {
+  tree->reset();
+  nObserved = 0;
+  observedDepths.clear();
+}
 
-  // Getters
-  unsigned getNCandidates() { return tree->getParameters()->getNCandidates(); }
-  unsigned getMinDepth() { return tree->getParameters()->getMinDepth(); }
-  float getAlpha0() { return tree->getParameters()->getAlpha0(); }
-  bool getVD() { return tree->getParameters()->getVD(); }
-
-  // Setters
-  void setMinDepth(unsigned minDepth_) {
-    tree->getParameters()->setMinDepth(minDepth_);
-  }
-  void setAlpha0(float alpha0_) { tree->getParameters()->setAlpha0(alpha0_); }
-  void setSeed(std::string seed_) { tree->setSeed(seed_); }
-  void setVD(bool vd_) {
-    // If the tree represents a Dirichlet distribution,
-    // we need to check that no observed ballots had length >=
+void PIRVDirichletTree::update(Rcpp::List ballots) {
+  // For checking validitity of inputs.
+  unsigned minDepth = tree->getParameters()->getMinDepth();
+  unsigned depth;
+  // Parse the ballots.
+  std::list<IRVBallotCount> bcs = parseBallotList(ballots);
+  for (IRVBallotCount &bc : bcs) {
+    // If the tree is reducible to a Dirichlet distribution,
+    // we need to check that the observed ballot length is >=
     // the minDepth of the tree, otherwise the posterior tree
-    // will not be reducible to a Dirichlet distribution.
-    unsigned minDepth = tree->getParameters()->getMinDepth();
-    for (const auto &d : observedDepths) {
-      if (d > minDepth) {
-        Rcpp::warning(
-            "Updating the parameter structure to represent a Dirichlet "
-            "distribution, however ballots with fewer than `minDepth` "
-            "preferences specified have been observed. Hence, the resulting "
-            "posterior does not represent a true Dirichlet distribution.");
-        break;
+    // will no longer be reducible to a Dirichlet distribution.
+    depth = bc.first.nPreferences();
+    if (depth < minDepth)
+      Rcpp::warning("Updating a Dirichlet distribution with a ballot "
+                    "specifying fewer than `minDepth` preferences. The "
+                    "resulting posterior is no longer Dirichlet.");
+    // Update the tree with count * the ballot.
+    nObserved += bc.second;
+    tree->update(bc);
+    observedDepths.insert(depth);
+  }
+}
+
+Rcpp::List PIRVDirichletTree::samplePredictive(unsigned nSamples,
+                                               std::string seed) {
+
+  tree->setSeed(seed);
+
+  Rcpp::List out;
+  Rcpp::CharacterVector rBallot;
+
+  std::list<IRVBallotCount> samples = tree->sample(nSamples);
+  for (auto &[b, count] : samples) {
+    // Push count * b to the list.
+    for (auto i = 0; i < count; ++i) {
+      rBallot = Rcpp::CharacterVector::create();
+      for (auto cIndex : b.preferences) {
+        rBallot.push_back(candidateVector[cIndex]);
       }
-    }
-    tree->getParameters()->setVD(vd_);
-  }
-
-  // Other methods
-  void reset() {
-    tree->reset();
-    nObserved = 0;
-    observedDepths.clear();
-  }
-
-  void update(Rcpp::List ballots) {
-    // For checking validitity of inputs.
-    unsigned minDepth = tree->getParameters()->getMinDepth();
-    unsigned depth;
-    // Parse the ballots.
-    std::list<IRVBallotCount> bcs = parseBallotList(ballots);
-    for (IRVBallotCount &bc : bcs) {
-      // If the tree is reducible to a Dirichlet distribution,
-      // we need to check that the observed ballot length is >=
-      // the minDepth of the tree, otherwise the posterior tree
-      // will no longer be reducible to a Dirichlet distribution.
-      depth = bc.first.nPreferences();
-      if (depth < minDepth)
-        Rcpp::warning("Updating a Dirichlet distribution with a ballot "
-                      "specifying fewer than `minDepth` preferences. The "
-                      "resulting posterior is no longer Dirichlet.");
-      // Update the tree with count * the ballot.
-      nObserved += bc.second;
-      tree->update(bc);
-      observedDepths.insert(depth);
+      out.push_back(rBallot);
     }
   }
 
-  Rcpp::List samplePredictive(unsigned nSamples, std::string seed) {
+  return out;
+}
 
-    tree->setSeed(seed);
+Rcpp::NumericVector PIRVDirichletTree::samplePosterior(unsigned nElections,
+                                                       unsigned nBallots,
+                                                       unsigned nWinners,
+                                                       unsigned nBatches,
+                                                       std::string seed) {
 
-    Rcpp::List out;
-    Rcpp::CharacterVector rBallot;
+  if (nBallots < nObserved)
+    Rcpp::stop("`nBallots` must be larger than the number of ballots "
+               "observed to obtain the posterior.");
 
-    std::list<IRVBallotCount> samples = tree->sample(nSamples);
-    for (auto &[b, count] : samples) {
-      // Push count * b to the list.
-      for (auto i = 0; i < count; ++i) {
-        rBallot = Rcpp::CharacterVector::create();
-        for (auto cIndex : b.preferences) {
-          rBallot.push_back(candidateVector[cIndex]);
-        }
-        out.push_back(rBallot);
-      }
-    }
+  tree->setSeed(seed);
 
-    return out;
+  size_t nCandidates = getNCandidates();
+
+  // Generate nBatches PRNGs.
+  std::mt19937 *treeGen = tree->getEnginePtr();
+  std::vector<unsigned> seeds{};
+  for (auto i = 0; i <= nBatches; ++i) {
+    seeds.push_back((*treeGen)());
+  }
+  // TODO: Remove this?
+  treeGen->discard(treeGen->state_size * 100);
+
+  // The number of elections to sample per thread.
+  unsigned batchSize, batchRemainder;
+  if (nElections <= 1) {
+    batchSize = 0;
+    batchRemainder = nElections;
+  } else {
+    batchSize = nElections / nBatches;
+    batchRemainder = nElections % nBatches;
   }
 
-  Rcpp::NumericVector samplePosterior(unsigned nElections, unsigned nBallots,
-                                      unsigned nWinners, unsigned nBatches,
-                                      std::string seed) {
+  // The results vector for each thread.
+  std::vector<std::vector<std::vector<unsigned>>> results(nBatches + 1);
 
-    if (nBallots < nObserved)
-      Rcpp::stop("`nBallots` must be larger than the number of ballots "
-                 "observed to obtain the posterior.");
+  // Use RcppThreads to compute the posterior in batches.
+  auto getBatchResult = [&](size_t i, size_t batchSize) -> void {
+    // Check for interrupt.
+    RcppThread::checkUserInterrupt();
 
-    tree->setSeed(seed);
+    // Seed a new PRNG, and warm it up.
+    std::mt19937 e(seeds[i]);
+    e.discard(e.state_size * 100);
 
-    size_t nCandidates = getNCandidates();
+    // Simulate elections.
+    std::list<std::list<IRVBallotCount>> elections =
+        tree->posteriorSets(batchSize, nBallots, &e);
 
-    // Generate nBatches PRNGs.
-    std::mt19937 *treeGen = tree->getEnginePtr();
-    std::vector<unsigned> seeds{};
-    for (auto i = 0; i <= nBatches; ++i) {
-      seeds.push_back((*treeGen)());
+    for (auto &el : elections)
+      results[i].push_back(socialChoiceIRV(el, nCandidates, &e));
+  };
+
+  // Dispatch the jobs.
+  RcppThread::ThreadPool pool(std::thread::hardware_concurrency());
+
+  // Process batches on workers
+  pool.parallelFor(0, nBatches,
+                   [&](size_t i) { getBatchResult(i, batchSize); });
+
+  // Process remainder on main thread.
+  if (batchRemainder > 0)
+    getBatchResult(nBatches, batchRemainder);
+
+  pool.join();
+
+  // Aggregate the results
+  Rcpp::NumericVector out(nCandidates);
+  out.names() = candidateVector;
+
+  for (auto j = 0; j <= nBatches; ++j) {
+    for (auto elimination_order_idx : results[j]) {
+      for (auto i = nCandidates - nWinners; i < nCandidates; ++i)
+        out[elimination_order_idx[i]] = out[elimination_order_idx[i]] + 1;
     }
-    // TODO: Remove this?
-    treeGen->discard(treeGen->state_size * 100);
-
-    // The number of elections to sample per thread.
-    unsigned batchSize, batchRemainder;
-    if (nElections <= 1) {
-      batchSize = 0;
-      batchRemainder = nElections;
-    } else {
-      batchSize = nElections / nBatches;
-      batchRemainder = nElections % nBatches;
-    }
-
-    // The results vector for each thread.
-    std::vector<std::vector<std::vector<unsigned>>> results(nBatches + 1);
-
-    // Use RcppThreads to compute the posterior in batches.
-    auto getBatchResult = [&](size_t i, size_t batchSize) -> void {
-      // Check for interrupt.
-      RcppThread::checkUserInterrupt();
-
-      // Seed a new PRNG, and warm it up.
-      std::mt19937 e(seeds[i]);
-      e.discard(e.state_size * 100);
-
-      // Simulate elections.
-      std::list<std::list<IRVBallotCount>> elections =
-          tree->posteriorSets(batchSize, nBallots, &e);
-
-      for (auto &el : elections)
-        results[i].push_back(socialChoiceIRV(el, nCandidates, &e));
-    };
-
-    // Dispatch the jobs.
-    RcppThread::ThreadPool pool(std::thread::hardware_concurrency());
-
-    // Process batches on workers
-    pool.parallelFor(0, nBatches,
-                     [&](size_t i) { getBatchResult(i, batchSize); });
-
-    // Process remainder on main thread.
-    if (batchRemainder > 0)
-      getBatchResult(nBatches, batchRemainder);
-
-    pool.join();
-
-    // Aggregate the results
-    Rcpp::NumericVector out(nCandidates);
-    out.names() = candidateVector;
-
-    for (auto j = 0; j <= nBatches; ++j) {
-      for (auto elimination_order_idx : results[j]) {
-        for (auto i = nCandidates - nWinners; i < nCandidates; ++i)
-          out[elimination_order_idx[i]] = out[elimination_order_idx[i]] + 1;
-      }
-    }
-
-    out = out / nElections;
-    return out;
   }
 
-  Rcpp::NumericVector sampleMarginalProbability(unsigned nSamples,
-                                                Rcpp::CharacterVector ballot,
-                                                std::string seed) {
-    tree->setSeed(seed);
+  out = out / nElections;
+  return out;
+}
 
-    float prob;
-    Rcpp::NumericVector out = {};
-    std::string name;
+Rcpp::NumericVector PIRVDirichletTree::sampleMarginalProbability(
+    unsigned nSamples, Rcpp::CharacterVector ballot, std::string seed) {
+  tree->setSeed(seed);
 
-    std::list<unsigned> preferences = {};
-    for (auto i = 0; i < ballot.size(); ++i) {
-      name = ballot[i];
-      preferences.push_back(candidateMap[name]);
-    }
+  float prob;
+  Rcpp::NumericVector out = {};
+  std::string name;
 
-    IRVBallot b(preferences);
-
-    for (auto i = 0; i < nSamples; ++i) {
-      prob = tree->marginalProbability(b, nullptr);
-      out.push_back(prob);
-    }
-
-    return out;
+  std::list<unsigned> preferences = {};
+  for (auto i = 0; i < ballot.size(); ++i) {
+    name = ballot[i];
+    preferences.push_back(candidateMap[name]);
   }
-};
+
+  IRVBallot b(preferences);
+
+  for (auto i = 0; i < nSamples; ++i) {
+    prob = tree->marginalProbability(b, nullptr);
+    out.push_back(prob);
+  }
+
+  return out;
+}
 
 // The Rcpp module interface.
 RCPP_MODULE(pirv_dirichlet_tree_module) {
