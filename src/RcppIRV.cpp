@@ -163,8 +163,6 @@ void PIRVDirichletTree::setAlpha0(float alpha0_) {
   tree->getParameters()->setAlpha0(alpha0_);
 }
 
-void PIRVDirichletTree::setSeed(std::string seed_) { tree->setSeed(seed_); }
-
 void PIRVDirichletTree::setVD(bool vd_) {
   // If the tree represents a Dirichlet distribution,
   // we need to check that no observed ballots had length >=
@@ -354,7 +352,6 @@ RCPP_MODULE(pirv_dirichlet_tree_module) {
       .property("minDepth", &PIRVDirichletTree::getMinDepth,
                 &PIRVDirichletTree::setMinDepth)
       .property("vd", &PIRVDirichletTree::getVD, &PIRVDirichletTree::setVD)
-      .method("setSeed", &PIRVDirichletTree::setSeed)
       // Methods
       .method("reset", &PIRVDirichletTree::reset)
       .method("update", &PIRVDirichletTree::update)
