@@ -25,7 +25,7 @@ To avoid loading all tree nodes into memory for sampling, I chose to implement a
 # 10 candidates (named A through J), requiring all candidates to be
 # specified for a valid ballot, and using a prior parameter of 5.
 dtree <- dirtree.irv(
-  candidates = c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J"),
+  candidates = LETTERS[1:10],
   minDepth = 9,
   alpha0 = 5.
 )
@@ -41,11 +41,19 @@ update(dtree, ballots)
 #  2. evaluating the outcome of the 1000 sampled ballots, plus the 1000 observed.
 samplePosterior(dtree, nElections = 100, nBallots = 2000)
 
-# Change the prior parameter.
+# Change the prior parameter and compare the posterior winning probabilities.
 dtree$alpha0 <- 1.
+samplePosterior(dtree, nElections = 100, nBallots = 2000)
 
-# Reset to the prior, removing observed data. This is equivalent to re-running
-# the first command.
+# Do it again, with a Dirichlet prior this time!
+dtree$vd <- TRUE
+samplePosterior(dtree, nElections = 100, nBallots = 2000)
+
+# Sample posterior probabilities of observing a given ballot under the posterior.
+b <- ballots[1]
+sampleMPP(dtree, n=100, ballot=b)
+
+# Reset to the prior, removing observed data. This is equivalent to creating
+# a new tree with the same parameters.
 reset(dtree)
 ```
-
