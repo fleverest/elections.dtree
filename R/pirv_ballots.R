@@ -2,12 +2,11 @@
 
 #' @name write.ballots
 #' @title Write PIRV ballots to a file.
-#' @description Writes a set of partial IRV ballots to a new file. This follows the ballot:count standard, with a header describing candidates.
-#' @param filename The name of the file to write to.
+#' @description Writes a set of ballots to a new file. This follows the ballot:count standard, with a header describing candidates.
 #' @param ballots The IRVBallots to write to a file.
-#' @param candidates Optionally, supply the candidate names in advance.
+#' @param filename The name of the file to write to, or \code{""} to print to stdout.
 #' @export
-write.ballots <- function(ballots, filename="", candidates=NULL) {
+write.ballots <- function(ballots, filename="") {
 
   # TODO: Warning once we fully implement ballot classes
   #stopifnot(class(ballots) %in% .ballot.types)
