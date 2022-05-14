@@ -4,15 +4,13 @@
 \alias{write.ballots}
 \title{Write PIRV ballots to a file.}
 \usage{
-write.ballots(filename, ballots, candidates = NULL)
+write.ballots(ballots, filename = "")
 }
 \arguments{
-\item{filename}{The name of the file to write to.}
-
 \item{ballots}{The IRVBallots to write to a file.}
 
-\item{candidates}{Optionally, supply the candidate names in advance.}
+\item{filename}{The name of the file to write to, or \code{""} to print to stdout.}
 }
 \description{
-Writes a set of partial IRV ballots to a new file. This follows the ballot:count standard, with a header describing candidates.
+Writes a set of ballots to a new file. This follows the ballot:count standard, with a header describing candidates.
 }
