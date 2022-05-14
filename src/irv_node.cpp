@@ -10,7 +10,6 @@
 
 // Calculates the factors with which to multiply alpha0 in order to obtain the
 // interior parameters which reduce to a Dirichlet distribution.
-#include <iostream>
 void IRVParameters::calculateDepthFactors() {
   depthFactors = std::vector<unsigned>(nCandidates - 1);
   // The number of children to a node for a given depth in the tree.
@@ -21,8 +20,8 @@ void IRVParameters::calculateDepthFactors() {
     nChildren = nCandidates - depth;
     if (depth >= minDepth)
       ++nChildren;
-    f = f * nChildren;
     depthFactors[depth] = f;
+    f = f * nChildren;
   }
 }
 
@@ -293,14 +292,17 @@ float IRVNode::marginalProbability(const IRVBallot &b,
   // sampling.
   if (children[next_idx] == nullptr) {
     // For each remaining preference, since we have not initialized the
-    // corresponding nodes we know that alpha'=(alpha0,...,alpha0). Hence,
-    // the following branch probabilities will necessarily be distributed as
-    // Beta(alpha0, alpha0*(nCandidates-i')), where i ranges from depth+1 to
-    // b.nPreferences(), and i'= i - 1(i>=minDepth).
+    // corresponding nodes we know that alpha'=(alpha0,...,alpha0)  (where
+    // alpha0 is multiplied by the appropriate factor is the tree is Dirichlet).
+    // Hence, the following branch probabilities will necessarily be distributed
+    // as Beta(alpha0, alpha0*(nChildren-1)). nChildren = nCandidates - i',
+    // where i ranges from depth+1 to b.nPreferences(), i'= i - 1(i>=minDepth).
     for (unsigned i = depth + 1; i < b.nPreferences() && i < nCandidates - 1;
          ++i) {
-      branchProb *= rBeta(
-          alpha0, alpha0 * (nCandidates - i - 1 + (i >= minDepth)), engine);
+      unsigned nChildren = nCandidates - i + (i >= minDepth);
+      if (parameters->getVD()) // divide by nChildren for Dirichlet.
+        alpha0 = alpha0 / nChildren;
+      branchProb *= rBeta(alpha0, alpha0 * (nChildren - 1), engine);
     }
     return branchProb;
   }
