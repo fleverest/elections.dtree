@@ -1,3 +1,5 @@
+.ballot.types <- c("PIRVBallots")
+
 #' @name write.ballots
 #' @title Write PIRV ballots to a file.
 #' @description Writes a set of partial IRV ballots to a new file. This follows the ballot:count standard, with a header describing candidates.
@@ -7,16 +9,15 @@
 #' @export
 write.ballots <- function(filename, ballots, candidates=NULL) {
 
-  # TODO: Write some kind of warning?
-  #stopifnot(class(ballots)=="PIRVBallots")
+  # TODO: Warning once we fully implement ballot classes
+  #stopifnot(class(ballots) %in% .ballot.types)
 
   f <- file(filename)
   lines <- c()
 
-  temp <- count.ballots(ballots, candidates=candidates)
+  ballot.counts <- count.ballots(ballots, candidates=candidates)
 
-  ballot.counts <- temp$ballot.counts
-  candidates <- temp$candidates
+  candidates <- attr(ballot.counts, "candidates")
 
   # The file header contains candidate names
   lines <- c(lines, paste(collapse=", ", candidates))
@@ -65,7 +66,8 @@ count.ballots <- function(ballots, candidates) {
       ballot.counts <- c(ballot.counts, list(list(ballot=b, count=1)))
     }
   }
-  return(list(ballot.counts=ballot.counts, candidates=candidates))
+  attr(ballot.counts, "candidates") <- candidates
+  return(ballot.counts)
 }
 
 
@@ -93,12 +95,13 @@ read.ballots <- function(filename) {
   lines.body   <- gsub("[() ]", "", lines[-(1:final.header.line)])
   lines.body   <- strsplit(lines.body, ":")
   ballot.types <- strsplit(sapply(lines.body, "[", 1), ",")
-  counts       <-   strtoi(sapply(lines.body, "[", 2))
+  counts       <- strtoi(sapply(lines.body, "[", 2))
   ballots      <- rep(ballot.types, counts)
 
   # Package them up and return.
   class(ballots) <- "PIRVBallots"
-  return(list(candidates=candidates, ballots=ballots))
+  attr(ballot, "candidates") <- candidates
+  return(ballots)
 }
 
 #' @name social.choice
@@ -107,8 +110,11 @@ read.ballots <- function(filename) {
 #' @param ballots The set of ballots for which to compute the outcome of the social choice function.
 #' @param nWinners The number of candidates to elect.
 #' @export
-social.choice.PIRVBallots <- function(ballots, nWinners=1) {
-  return(RSocialChoiceIRV(ballots, nWinners, gseed()))
+social.choice <- function(x, ...) UseMethod("social.choice", x)
+
+#' @export
+social.choice.PIRVBallots <- function(x, nWinners = 1, ...) {
+  RSocialChoiceIRV(x, nWinners, gseed())
 }
 
 # Helper function to get a random seed string to pass to CPP methods

@@ -2,10 +2,9 @@
 % Please edit documentation in R/pirv_ballots.R
 \name{social.choice}
 \alias{social.choice}
-\alias{social.choice.PIRVBallots}
 \title{Computes the outcome of the appropriate social choice function.}
 \usage{
-social.choice.PIRVBallots(ballots, nWinners = 1)
+social.choice(x, ...)
 }
 \arguments{
 \item{ballots}{The set of ballots for which to compute the outcome of the social choice function.}
