@@ -24,3 +24,9 @@ test_that("Update and reset have an effect.", {
     expect_equal(prior.mean/prior.mean.expected, 1, tolerance=0.25)
   }
 })
+
+test_that("Update fails with invalid ballot.", {
+  dtree <- dirtree.pirv(candidates=LETTERS[1:3])
+  # Invalid ballot.
+  expect_error({update(dtree, list(LETTERS[4]))})
+})
