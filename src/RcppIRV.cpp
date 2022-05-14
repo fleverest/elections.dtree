@@ -20,6 +20,7 @@
 #include <random>
 #include <thread>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 /*! \brief The IRV social choice function.
@@ -116,6 +117,10 @@ private:
   // A record of the number of observed ballots.
   size_t nObserved = 0;
 
+  // Records the depths which have been observed, so that we can check whether
+  // the posterior can reduce to a Dirichlet distribution or not.
+  std::unordered_set<unsigned> observedDepths{};
+
   /*! \brief Converts an R list of valid IRV ballot vectors to a
    * std::list<IRVBallotCount> format.
    *
@@ -160,9 +165,9 @@ private:
   }
 
 public:
-  // Constructor/destructor
+  // Constructor
   PIRVDirichletTree(Rcpp::CharacterVector candidates, unsigned minDepth_,
-                    float alpha0_, std::string seed_) {
+                    float alpha0_, bool vd_, std::string seed_) {
     // Parse the candidate strings.
     std::string cName;
     size_t cIndex = 0;
@@ -174,10 +179,11 @@ public:
     }
     // Initialize tree.
     IRVParameters *params =
-        new IRVParameters(candidates.size(), minDepth_, alpha0_);
-
+        new IRVParameters(candidates.size(), minDepth_, alpha0_, vd_);
     tree = new DirichletTree<IRVNode, IRVBallot, IRVParameters>(params, seed_);
   }
+
+  // Destructor.
   ~PIRVDirichletTree() {
     delete tree->getParameters();
     delete tree;
@@ -187,6 +193,7 @@ public:
   unsigned getNCandidates() { return tree->getParameters()->getNCandidates(); }
   unsigned getMinDepth() { return tree->getParameters()->getMinDepth(); }
   float getAlpha0() { return tree->getParameters()->getAlpha0(); }
+  bool getVD() { return tree->getParameters()->getVD(); }
 
   // Setters
   void setMinDepth(unsigned minDepth_) {
@@ -194,18 +201,52 @@ public:
   }
   void setAlpha0(float alpha0_) { tree->getParameters()->setAlpha0(alpha0_); }
   void setSeed(std::string seed_) { tree->setSeed(seed_); }
+  void setVD(bool vd_) {
+    // If the tree represents a Dirichlet distribution,
+    // we need to check that no observed ballots had length >=
+    // the minDepth of the tree, otherwise the posterior tree
+    // will not be reducible to a Dirichlet distribution.
+    unsigned minDepth = tree->getParameters()->getMinDepth();
+    for (const auto &d : observedDepths) {
+      if (d > minDepth) {
+        Rcpp::warning(
+            "Updating the parameter structure to represent a Dirichlet "
+            "distribution, however ballots with fewer than `minDepth` "
+            "preferences specified have been observed. Hence, the resulting "
+            "posterior does not represent a true Dirichlet distribution.");
+        break;
+      }
+    }
+    tree->getParameters()->setVD(vd_);
+  }
 
   // Other methods
   void reset() {
     tree->reset();
     nObserved = 0;
+    observedDepths.clear();
   }
 
   void update(Rcpp::List ballots) {
+    // For checking validitity of inputs.
+    unsigned minDepth = tree->getParameters()->getMinDepth();
+    unsigned depth;
+    // Parse the ballots.
     std::list<IRVBallotCount> bcs = parseBallotList(ballots);
     for (IRVBallotCount &bc : bcs) {
+      // If the tree is reducible to a Dirichlet distribution,
+      // we need to check that the observed ballot length is >=
+      // the minDepth of the tree, otherwise the posterior tree
+      // will no longer be reducible to a Dirichlet distribution.
+      depth = bc.first.nPreferences();
+      if (depth < minDepth)
+        Rcpp::warning("Updating a Dirichlet distribution with a ballot "
+                      "specifying fewer than `minDepth` preferences. The "
+                      "resulting posterior is no longer Dirichlet.");
+      // Update the tree with count * the ballot.
       nObserved += bc.second;
       tree->update(bc);
+      observedDepths.insert(depth);
     }
   }
 
@@ -340,13 +381,14 @@ public:
 RCPP_MODULE(pirv_dirichlet_tree_module) {
   Rcpp::class_<PIRVDirichletTree>("PIRVDirichletTree")
       // Constructor needs nCandidates, minDepth, alpha0 and seed.
-      .constructor<Rcpp::CharacterVector, unsigned, float, std::string>()
+      .constructor<Rcpp::CharacterVector, unsigned, float, bool, std::string>()
       // Getter/Setter interface
       .property("nCandidates", &PIRVDirichletTree::getNCandidates)
       .property("alpha0", &PIRVDirichletTree::getAlpha0,
                 &PIRVDirichletTree::setAlpha0)
       .property("minDepth", &PIRVDirichletTree::getMinDepth,
                 &PIRVDirichletTree::setMinDepth)
+      .property("vd", &PIRVDirichletTree::getVD, &PIRVDirichletTree::setVD)
       .method("setSeed", &PIRVDirichletTree::setSeed)
       // Methods
       .method("reset", &PIRVDirichletTree::reset)
