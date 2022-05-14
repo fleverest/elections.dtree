@@ -57,6 +57,7 @@ samplePredictive <- function(dtree, nBallots) {
   }
   ballots = dtree$samplePredictive(as.integer(nBallots), gseed())
   class(ballots) <- "PIRVBallots"
+  attr(ballots, "candidates") <- dtree$candidates
   return(ballots)
 }
 

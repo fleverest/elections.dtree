@@ -32,11 +32,14 @@
  *
  * \param nWinners An integer indicating the number of winners to elect.
  *
+ * \param candidates A vector of strings corresponding to candidate names.
+ *
  * \param seed A seed for the PRNG for tie-breaking.
  *
  * \return The winning candidate.
  */
-Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners, std::string seed);
+Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners,
+                            Rcpp::CharacterVector candidates, std::string seed);
 
 /*! \brief An Rcpp object which implements the `dtree` R object interface.
  *
@@ -90,6 +93,7 @@ public:
   unsigned getMinDepth();
   float getAlpha0();
   bool getVD();
+  Rcpp::CharacterVector getCandidates();
 
   // Setters
   void setMinDepth(unsigned minDepth_);

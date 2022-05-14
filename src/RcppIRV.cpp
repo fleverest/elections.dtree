@@ -15,6 +15,7 @@
 
 // [[Rcpp::export]]
 Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners,
+                            Rcpp::CharacterVector candidates,
                             std::string seed) {
 
   Rcpp::List out{};
@@ -23,9 +24,17 @@ Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners,
 
   std::unordered_map<std::string, size_t> c2Index{};
   std::vector<std::string> cNames{};
+  // If candidates vector is not null, initialze some indices.
+  std::string cName;
+  for (const auto &candidate : candidates) {
+    cName = candidate;
+    if (c2Index.count(cName) == 0) {
+      c2Index[cName] = cNames.size();
+      cNames.push_back(cName);
+    }
+  }
 
   Rcpp::CharacterVector bNames;
-  std::string cName;
   std::list<unsigned> bIndices;
 
   for (auto i = 0; i < bs.size(); ++i) {
@@ -141,6 +150,12 @@ float PIRVDirichletTree::getAlpha0() {
   return tree->getParameters()->getAlpha0();
 }
 bool PIRVDirichletTree::getVD() { return tree->getParameters()->getVD(); }
+Rcpp::CharacterVector PIRVDirichletTree::getCandidates() {
+  Rcpp::CharacterVector out{};
+  for (const auto &[candidate, idx] : candidateMap)
+    out.push_back(candidate);
+  return out;
+}
 
 // Setters
 void PIRVDirichletTree::setMinDepth(unsigned minDepth_) {
@@ -352,6 +367,7 @@ RCPP_MODULE(pirv_dirichlet_tree_module) {
       .property("minDepth", &PIRVDirichletTree::getMinDepth,
                 &PIRVDirichletTree::setMinDepth)
       .property("vd", &PIRVDirichletTree::getVD, &PIRVDirichletTree::setVD)
+      .property("candidates", &PIRVDirichletTree::getCandidates)
       // Methods
       .method("reset", &PIRVDirichletTree::reset)
       .method("update", &PIRVDirichletTree::update)
