@@ -8,14 +8,34 @@
  *****************************************************************************/
 #include "irv_node.hpp"
 
+// Calculates the factors with which to multiply alpha0 in order to obtain the
+// interior parameters which reduce to a Dirichlet distribution.
+#include <iostream>
+void IRVParameters::calculateDepthFactors() {
+  depthFactors = std::vector<unsigned>(nCandidates - 1);
+  // The number of children to a node for a given depth in the tree.
+  unsigned nChildren;
+  // For each depth, nCandidates-2 through 0, we calculate the factors.
+  unsigned f = 1;
+  for (int depth = nCandidates - 2; depth >= 0; --depth) {
+    nChildren = nCandidates - depth;
+    if (depth >= minDepth)
+      ++nChildren;
+    f = f * nChildren;
+    depthFactors[depth] = f;
+  }
+}
+
 std::list<IRVBallotCount> lazyIRVBallots(IRVParameters *params, unsigned count,
                                          std::vector<unsigned> path,
                                          unsigned depth, std::mt19937 *engine) {
 
   // Get parameters
   unsigned nCandidates = params->getNCandidates();
-  float alpha0 = params->getAlpha0();
   float minDepth = params->getMinDepth();
+  float alpha0 = params->getAlpha0();
+  if (params->getVD())
+    alpha0 = alpha0 * params->depthFactor(depth);
 
   std::list<IRVBallotCount> out = {};
 
@@ -90,7 +110,7 @@ IRVNode::~IRVNode() {
   // initialized nodes in the sub-tree before removing the array.
   delete[] alphas;
   for (unsigned i = 0; i < nChildren; ++i) {
-    if (children[i])
+    if (children[i] != nullptr)
       delete children[i];
   }
   delete[] children;
@@ -104,6 +124,8 @@ std::list<IRVBallotCount> IRVNode::sample(unsigned count,
 
   unsigned minDepth = parameters->getMinDepth();
   float alpha0 = parameters->getAlpha0();
+  if (parameters->getVD())
+    alpha0 = alpha0 * parameters->depthFactor(depth);
 
   unsigned nOutcomes = nChildren + (depth >= minDepth);
 
@@ -229,6 +251,8 @@ float IRVNode::marginalProbability(const IRVBallot &b,
                                    std::vector<unsigned> path,
                                    std::mt19937 *engine) {
   float alpha0 = parameters->getAlpha0();
+  if (parameters->getVD())
+    alpha0 = alpha0 * parameters->depthFactor(depth);
   unsigned minDepth = parameters->getMinDepth();
   unsigned nOutcomes = nChildren + (depth >= minDepth);
   unsigned nCandidates = parameters->getNCandidates();

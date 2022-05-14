@@ -24,22 +24,48 @@ private:
   // The number of candidates participating in the IRV election.
   unsigned nCandidates;
   // The minimum number of ballots that must be specified for an IRV election.
-  unsigned minDepth;
+  unsigned minDepth = 0;
   // The prior parameter for a uniform Dirichlet Tree.
-  float alpha0;
+  float alpha0 = 1.;
+  // A flag indicating whether or not the parameter structure reduces to a
+  // vanilla Dirichlet distribution.
+  bool vd = false;
+  // For storing factor calculations for each depth level in the tree.
+  std::vector<unsigned> depthFactors;
 
 public:
   // Canonical constructor
-  IRVParameters(unsigned nCandidates_, unsigned minDepth_, float alpha0_ = 1.)
-      : nCandidates(nCandidates_), minDepth(minDepth_), alpha0(alpha0_) {}
+  IRVParameters(unsigned nCandidates_, unsigned minDepth_ = 0,
+                float alpha0_ = 1., bool vd_ = false)
+      : nCandidates(nCandidates_), minDepth(minDepth_), alpha0(alpha0_),
+        vd(vd_) {
+    calculateDepthFactors();
+  }
 
-  // Copy constructor
-  IRVParameters(IRVParameters &params)
-      : nCandidates(params.getNCandidates()), minDepth(params.getMinDepth()),
-        alpha0(params.getAlpha0()) {}
+  // Copy constructor is removed.
+  IRVParameters(const IRVParameters &) = delete;
 
-  // Copy assignment is removed.
+  // Copy assignment via `=` operator is removed.
   IRVParameters &operator=(const IRVParameters &) = delete;
+
+  /*! \brief Returns the factor with which to multiply alpha0 for the prior to
+   * reduce to a vanilla Dirichlet distribution.
+   *
+   * \param depth The depth in the tree.
+   *
+   * \return The factor with which to multiply alpha0 by for a Dirichlet
+   * distribution.
+   */
+  unsigned depthFactor(unsigned depth) { return depthFactors[depth]; };
+
+  /*! \brief Calculates the factors with which to multiple alpha0 at each depth.
+   *
+   *  For a tree prior to reduce to a vanilla Dirichlet distribution, the
+   * interior parameters at each node must add to the sum of the parameters at
+   * its children. Hence, when we update minDepth we need to recalculate this
+   * value, as the number of children at each node are prone to change.
+   */
+  void calculateDepthFactors();
 
   // Getters
 
@@ -75,10 +101,14 @@ public:
    */
   float getAlpha0() { return alpha0; }
 
+  /*! \brief Indicates whether the tree reduces to a Dirichlet distribution.
+   *
+   * \return vd, true if the tree reduces to a vanilla Dirichlet distribution.
+   */
+  float getVD() { return vd; }
+
   // Setters
   /*! \brief Sets the minimum depth for the election.
-   *
-   *  Detailed description of the function
    *
    * \param minDepth_ The new minimum number of candidates to be specified for a
    * valid IRV ballot.
@@ -90,6 +120,16 @@ public:
    * \param alpha0_ The new prior parameter for the uniform Dirichlet Tree.
    */
   void setAlpha0(float alpha0_) { alpha0 = alpha0_; }
+
+  /*! \brief Change the parameter structure of the prior.
+   *
+   *  Changes the prior either to a uniform Dirichlet-Tree with alpha0 on
+   *  every branch, or scale the parameters such that it is reducible to a
+   *  vanilla Dirichlet distribution.
+   *
+   * \param alpha0_ The new prior parameter for the uniform Dirichlet Tree.
+   */
+  void setVD(bool vd_) { vd = vd_; };
 };
 
 /*! \brief Simulate random ballots from a uniform Dirichlet Tree starting from
