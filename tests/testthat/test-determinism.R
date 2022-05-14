@@ -1,4 +1,3 @@
-
 seed <- runif(1, 0, 1000)
 
 dtree <- dirtree.pirv(candidates=LETTERS[1:10], alpha0=1., minDepth=0)

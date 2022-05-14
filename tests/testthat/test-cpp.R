@@ -1,1 +1,1 @@
- run_cpp_tests("dirtree.elections")
+run_cpp_tests("dirtree.elections")

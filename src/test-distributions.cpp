@@ -2,15 +2,11 @@
  * This file tests the required distributions.
  */
 
-#include <random>
 #include <testthat.h>
 
 #include "distributions.hpp"
 
-// Initialize a unit test context. This is similar to how you
-// might begin an R test file with 'context()', expect the
-// associated context should be wrapped in braced.
-context("Test Dirichlet-Multinomial sums.") {
+context("Test Dirichlet-Multinomial samples sum to count.") {
 
   unsigned *result, sum;
   float *alpha;
