@@ -11,11 +11,11 @@
 // Calculates the factors with which to multiply alpha0 in order to obtain the
 // interior parameters which reduce to a Dirichlet distribution.
 void IRVParameters::calculateDepthFactors() {
-  depthFactors = std::vector<unsigned>(nCandidates - 1);
+  depthFactors = std::vector<float>(nCandidates - 1);
   // The number of children to a node for a given depth in the tree.
   unsigned nChildren;
   // For each depth, nCandidates-2 through 0, we calculate the factors.
-  unsigned f = 1;
+  float f = 1.;
   for (int depth = nCandidates - 2; depth >= 0; --depth) {
     nChildren = nCandidates - depth;
     if (depth >= minDepth)
@@ -300,8 +300,8 @@ float IRVNode::marginalProbability(const IRVBallot &b,
     for (unsigned i = depth + 1; i < b.nPreferences() && i < nCandidates - 1;
          ++i) {
       unsigned nChildren = nCandidates - i + (i >= minDepth);
-      if (parameters->getVD()) // divide by nChildren for Dirichlet.
-        alpha0 = alpha0 / nChildren;
+      if (parameters->getVD()) // Update alpha if dirichlet.
+        alpha0 = parameters->getAlpha0() * parameters->depthFactor(i);
       branchProb *= rBeta(alpha0, alpha0 * (nChildren - 1), engine);
     }
     return branchProb;
