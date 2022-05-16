@@ -89,6 +89,7 @@ samplePosterior <- function(dtree, nElections, nBallots, nWinners=1) {
 #' @param n The number of samples to draw from the posterior.
 #' @param ballot The ballot to sample posterior probabilities for.
 #' @return A NumericVector of \code{n} probabilities, each corresponding to a probability of observing \code{b} under an independent realisation of the posterior distribution.
+#' @export
 sampleMPP <- function(dtree, n, ballot) {
   stopifnot(class(dtree) %in% .dtree_classes)
   return(dtree$sampleMarginalProbability(n, ballot, gseed()))

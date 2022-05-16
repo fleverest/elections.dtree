@@ -31,7 +31,7 @@ private:
   // vanilla Dirichlet distribution.
   bool vd = false;
   // For storing factor calculations for each depth level in the tree.
-  std::vector<unsigned> depthFactors;
+  std::vector<float> depthFactors;
 
 public:
   // Canonical constructor
@@ -56,7 +56,7 @@ public:
    * \return The factor with which to multiply alpha0 by for a Dirichlet
    * distribution.
    */
-  unsigned depthFactor(unsigned depth) { return depthFactors[depth]; };
+  float depthFactor(unsigned depth) { return depthFactors[depth]; };
 
   /*! \brief Calculates the factors with which to multiple alpha0 at each depth.
    *
