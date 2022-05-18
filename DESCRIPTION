@@ -9,7 +9,7 @@ Authors@R: c(
             )
 Version: 0.3
 Depends: R (>= 3.3.1)
-SystemRequirements: C++11
+SystemRequirements: C++17
 License: GPL-3
 LazyData: TRUE
 RoxygenNote: 7.1.1
@@ -19,7 +19,6 @@ LinkingTo:
     testthat
 Imports:
     Rcpp,
-    RcppThread,
     methods
 Suggests:
     testthat (>= 3.0.0),
