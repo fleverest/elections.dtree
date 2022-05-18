@@ -1,10 +1,10 @@
-dtree <- dirtree.pirv(candidates=LETTERS[1:3], alpha0=1, minDepth=0, vd=F)
+dtree <- dirtree.pirv(candidates=LETTERS[1:3], a0=1, minDepth=0, vd=F)
 
-test_that("Can update alpha0", {
-  dtree$alpha0 <- 0
-  expect_equal(dtree$alpha0, 0)
-  dtree$alpha0 <- 1000
-  expect_equal(dtree$alpha0, 1000)
+test_that("Can update a0", {
+  dtree$a0 <- 0
+  expect_equal(dtree$a0, 0)
+  dtree$a0 <- 1000
+  expect_equal(dtree$a0, 1000)
 })
 
 test_that("Can update minDepth", {

@@ -2,7 +2,7 @@ test_that("Prior marginal probabilities are approximately `1/N!` with fully spec
   for (i in 1:10) {
     # Initialize a new tree
     nCandidates = floor(runif(1, 3, 10))
-    dtree <- dirtree.pirv(candidates=LETTERS[1:nCandidates], alpha0=1., minDepth=nCandidates-1)
+    dtree <- dirtree.pirv(candidates=LETTERS[1:nCandidates], a0=1., minDepth=nCandidates-1)
 
     # The true mean probability for all ballots under a uniform prior.
     ps.mean <- 1/factorial(nCandidates)

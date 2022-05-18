@@ -26,7 +26,7 @@ private:
   // The minimum number of ballots that must be specified for an IRV election.
   unsigned minDepth = 0;
   // The prior parameter for a uniform Dirichlet Tree.
-  float alpha0 = 1.;
+  float a0 = 1.;
   // A flag indicating whether or not the parameter structure reduces to a
   // vanilla Dirichlet distribution.
   bool vd = false;
@@ -35,10 +35,9 @@ private:
 
 public:
   // Canonical constructor
-  IRVParameters(unsigned nCandidates_, unsigned minDepth_ = 0,
-                float alpha0_ = 1., bool vd_ = false)
-      : nCandidates(nCandidates_), minDepth(minDepth_), alpha0(alpha0_),
-        vd(vd_) {
+  IRVParameters(unsigned nCandidates_, unsigned minDepth_ = 0, float a0_ = 1.,
+                bool vd_ = false)
+      : nCandidates(nCandidates_), minDepth(minDepth_), a0(a0_), vd(vd_) {
     calculateDepthFactors();
   }
 
@@ -48,17 +47,17 @@ public:
   // Copy assignment via `=` operator is removed.
   IRVParameters &operator=(const IRVParameters &) = delete;
 
-  /*! \brief Returns the factor with which to multiply alpha0 for the prior to
+  /*! \brief Returns the factor with which to multiply a0 for the prior to
    * reduce to a vanilla Dirichlet distribution.
    *
    * \param depth The depth in the tree.
    *
-   * \return The factor with which to multiply alpha0 by for a Dirichlet
+   * \return The factor with which to multiply a0 by for a Dirichlet
    * distribution.
    */
   float depthFactor(unsigned depth) { return depthFactors[depth]; };
 
-  /*! \brief Calculates the factors with which to multiple alpha0 at each depth.
+  /*! \brief Calculates the factors with which to multiple a0 at each depth.
    *
    *  For a tree prior to reduce to a vanilla Dirichlet distribution, the
    * interior parameters at each node must add to the sum of the parameters at
@@ -95,11 +94,11 @@ public:
    */
   unsigned getMinDepth() { return minDepth; }
 
-  /*! \brief Gets the prior uniform-Dirichlet-Tree parameter alpha0.
+  /*! \brief Gets the prior uniform-Dirichlet-Tree parameter a0.
    *
-   * \return alpha0, the prior parameter of the uniform Dirichlet Tree.
+   * \return a0, the prior parameter of the uniform Dirichlet Tree.
    */
-  float getAlpha0() { return alpha0; }
+  float getA0() { return a0; }
 
   /*! \brief Indicates whether the tree reduces to a Dirichlet distribution.
    *
@@ -115,19 +114,19 @@ public:
    */
   void setMinDepth(unsigned minDepth_) { minDepth = minDepth_; }
 
-  /*! \brief Sets the uniform Dirichlet Tree prior parameter alpha0.
+  /*! \brief Sets the uniform Dirichlet Tree prior parameter a0.
    *
-   * \param alpha0_ The new prior parameter for the uniform Dirichlet Tree.
+   * \param a0_ The new prior parameter for the uniform Dirichlet Tree.
    */
-  void setAlpha0(float alpha0_) { alpha0 = alpha0_; }
+  void setA0(float a0_) { a0 = a0_; }
 
   /*! \brief Change the parameter structure of the prior.
    *
-   *  Changes the prior either to a uniform Dirichlet-Tree with alpha0 on
+   *  Changes the prior either to a uniform Dirichlet-Tree with a0 on
    *  every branch, or scale the parameters such that it is reducible to a
    *  vanilla Dirichlet distribution.
    *
-   * \param alpha0_ The new prior parameter for the uniform Dirichlet Tree.
+   * \param a0_ The new prior parameter for the uniform Dirichlet Tree.
    */
   void setVD(bool vd_) { vd = vd_; };
 };

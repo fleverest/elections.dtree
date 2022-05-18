@@ -4,14 +4,14 @@
 #' @description A Dirichlet Tree for modelling partially ordered IRV ballots.
 #' @param candidates A character vector, with each element (must be unique) representing a single candidate.
 #' @param minDepth the minimum number of candidates to be specified for a valid ballot.
-#' @param alpha0 the prior parameter for the distribution.
+#' @param a0 the prior parameter for the distribution.
 #' @param vd a boolean value representing whether or not the prior should reduce to a vanilla Dirichlet distribution.
 #' @docType class
 #' @author Floyd Everest
 #' @import methods
 #' @return A Dirichlet Tree representing partial IRV ballots, as an Rcpp module of class `PIRVDirichletTree`.
 #' @export
-dirtree.pirv <- function(candidates, minDepth = 0, alpha0 = 1., vd = FALSE) {
+dirtree.pirv <- function(candidates, minDepth = 0, a0 = 1., vd = FALSE) {
   # Ensure nCandidates > 1
   if (class(candidates) != "character") {
     stop("`candidates` must be a character vector, with each element representing a single candidate.")
@@ -23,9 +23,9 @@ dirtree.pirv <- function(candidates, minDepth = 0, alpha0 = 1., vd = FALSE) {
   if (minDepth > length(candidates) || minDepth < 0) {
     stop("`minDepth` must be >= 0 and <= length(candidates).")
   }
-  # Ensure alpha0 >= 0
-  if (alpha0 < 0) {
-    stop("`alpha0` must be >= 0.")
+  # Ensure a0 >= 0
+  if (a0 < 0) {
+    stop("`a0` must be >= 0.")
   }
   # Ensure vd is a logical
   if (!is.logical(vd)) {
@@ -36,7 +36,7 @@ dirtree.pirv <- function(candidates, minDepth = 0, alpha0 = 1., vd = FALSE) {
     PIRVDirichletTree,
     candidates = candidates,
     minDepth = minDepth,
-    alpha0 = alpha0,
+    a0 = a0,
     vd= vd,
     seed = gseed()
   ))

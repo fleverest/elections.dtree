@@ -15,26 +15,26 @@
 
 /*! \brief Draws a sample from a Dirichlet Multinomial distribution.
  *
- *  Given the count, alpha parameters and dimension of the distribution, this
+ *  Given the count, `a` parameters and dimension of the distribution, this
  * method samples from the Dirichlet Multinomial distribution to obtain
  * appropriately distributed multinomial counts.
  *
  * \param count The total number of multinomial samples.
  *
- * \param alpha An array of alpha parameters to the Dirichlet distribution.
+ * \param a An array of `a` parameters to the Dirichlet distribution.
  *
- * \param d The dimension of alpha, which is equal to the number of categories.
+ * \param d The dimension of a, which is equal to the number of categories.
  *
  * \param engine A PRNG for sampling.
  *
  * \return An array of multinomial counts of dimension d.
  */
-unsigned *rDirichletMultinomial(unsigned count, float *alpha, unsigned d,
+unsigned *rDirichletMultinomial(unsigned count, float *a, unsigned d,
                                 std::mt19937 *engine);
 
 /*! \brief Draws samples from a Beta distribution.
  *
- *  Given the parameters alpha and beta, this function will draw a sample from a
+ *  Given the parameters a and b, this function will draw a sample from a
  * Beta(a, b) distributed random variable.
  *
  * \param a The a parameter to the Beta distribution
@@ -42,6 +42,6 @@ unsigned *rDirichletMultinomial(unsigned count, float *alpha, unsigned d,
  * \param *engine A PRNG for sampling.
  * \return A single sample from a Beta-distributed random variable.
  */
-float rBeta(float alpha, float beta, std::mt19937 *engine);
+float rBeta(float a, float b, std::mt19937 *engine);
 
 #endif /* DISTRIBUTIONS_H */

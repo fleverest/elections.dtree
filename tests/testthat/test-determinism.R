@@ -1,6 +1,6 @@
 seed <- runif(1, 0, 1000)
 
-dtree <- dirtree.pirv(candidates=LETTERS[1:10], alpha0=1., minDepth=0)
+dtree <- dirtree.pirv(candidates=LETTERS[1:10], a0=1., minDepth=0)
 
 test_that("`samplePredictive` is deterministic with specified seed", {
   set.seed(seed)
