@@ -20,7 +20,7 @@ context("Test Dirichlet-Multinomial samples sum to count.") {
 
   bool always_sums_to_count = true;
 
-  for (unsigned d = 1; d < 100; ++d) {
+  for (unsigned d = 1; d < 1000; ++d) {
     // Initialize a new a vector.
     a = new float[d];
     for (auto i = 0; i < d; ++i)
