@@ -16,9 +16,12 @@ RoxygenNote: 7.1.1
 LinkingTo:
     Rcpp,
     RcppThread,
-    testthat
+    testthat,
+    methods
 Imports:
-    Rcpp
+    Rcpp,
+    RcppThread,
+    methods
 Suggests:
     testthat (>= 3.0.0),
     xml2
