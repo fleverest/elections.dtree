@@ -9,7 +9,7 @@
 
 #include "distributions.hpp"
 
-unsigned *rDirichletMultinomial(unsigned count, float *alpha, unsigned d,
+unsigned *rDirichletMultinomial(unsigned count, float *a, unsigned d,
                                 std::mt19937 *engine) {
   unsigned *out = new unsigned[d];
 
@@ -19,7 +19,7 @@ unsigned *rDirichletMultinomial(unsigned count, float *alpha, unsigned d,
 
   // Sample the gamma variates for category i.
   for (unsigned i = 0; i < d; ++i) {
-    std::gamma_distribution<float> g(alpha[i], 1.0);
+    std::gamma_distribution<float> g(a[i], 1.0);
     gamma[i] = g(*engine);
     gamma_sum += gamma[i];
   }

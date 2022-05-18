@@ -4,14 +4,14 @@
 #' @description A Dirichlet Tree for modelling partially ordered IRV ballots.
 #' @param candidates A character vector, with each element (must be unique) representing a single candidate.
 #' @param minDepth the minimum number of candidates to be specified for a valid ballot.
-#' @param alpha0 the prior parameter for the distribution.
+#' @param a0 the prior parameter for the distribution.
 #' @param vd a boolean value representing whether or not the prior should reduce to a vanilla Dirichlet distribution.
 #' @docType class
 #' @author Floyd Everest
 #' @import methods
 #' @return A Dirichlet Tree representing partial IRV ballots, as an Rcpp module of class `PIRVDirichletTree`.
 #' @export
-dirtree.pirv <- function(candidates, minDepth = 0, alpha0 = 1., vd = FALSE) {
+dirtree.pirv <- function(candidates, minDepth = 0, a0 = 1., vd = FALSE) {
   # Ensure nCandidates > 1
   if (class(candidates) != "character") {
     stop("`candidates` must be a character vector, with each element representing a single candidate.")
@@ -23,9 +23,9 @@ dirtree.pirv <- function(candidates, minDepth = 0, alpha0 = 1., vd = FALSE) {
   if (minDepth > length(candidates) || minDepth < 0) {
     stop("`minDepth` must be >= 0 and <= length(candidates).")
   }
-  # Ensure alpha0 >= 0
-  if (alpha0 < 0) {
-    stop("`alpha0` must be >= 0.")
+  # Ensure a0 >= 0
+  if (a0 < 0) {
+    stop("`a0` must be >= 0.")
   }
   # Ensure vd is a logical
   if (!is.logical(vd)) {
@@ -36,8 +36,8 @@ dirtree.pirv <- function(candidates, minDepth = 0, alpha0 = 1., vd = FALSE) {
     PIRVDirichletTree,
     candidates = candidates,
     minDepth = minDepth,
-    alpha0 = alpha0,
-    vd= vd,
+    a0 = a0,
+    vd = vd,
     seed = gseed()
   ))
 }
@@ -52,10 +52,10 @@ dirtree.pirv <- function(candidates, minDepth = 0, alpha0 = 1., vd = FALSE) {
 samplePredictive <- function(dtree, nBallots) {
   stopifnot(class(dtree) %in% .dtree_classes)
   # Ensure nBallots > 0.
-  if (nBallots <=0 || !is.numeric(nBallots)) {
+  if (nBallots <= 0 || !is.numeric(nBallots)) {
     stop("nBallots must be an integer > 0")
   }
-  ballots = dtree$samplePredictive(as.integer(nBallots), gseed())
+  ballots <- dtree$samplePredictive(as.integer(nBallots), gseed())
   class(ballots) <- "PIRVBallots"
   attr(ballots, "candidates") <- dtree$candidates
   return(ballots)
@@ -69,14 +69,14 @@ samplePredictive <- function(dtree, nBallots) {
 #' @param nBallots An integer representing the number of ballots cast in total for each election.
 #' @return A NumericVector containing the probabilities for each candidate being elected.
 #' @export
-samplePosterior <- function(dtree, nElections, nBallots, nWinners=1) {
+samplePosterior <- function(dtree, nElections, nBallots, nWinners = 1) {
   stopifnot(class(dtree) %in% .dtree_classes)
   return(
     dtree$samplePosterior(
-      nElections=nElections,
-      nBallots=nBallots,
-      nWinners=nWinners,
-      nBatches=nElections/2,
+      nElections = nElections,
+      nBallots = nBallots,
+      nWinners = nWinners,
+      nBatches = nElections / 2,
       gseed()
     )
   )
@@ -104,7 +104,7 @@ sampleMPP <- function(dtree, n, ballot) {
 update.Rcpp_PIRVDirichletTree <- function(dtree, ballots) {
   stopifnot(class(dtree) %in% .dtree_classes)
   # TODO: Throw a warning?
-  #stopifnot(class(ballots) == 'PIRVBallots')
+  # stopifnot(class(ballots) == 'PIRVBallots')
   dtree$update(ballots)
 }
 
@@ -120,5 +120,5 @@ reset <- function(dtree) {
 
 # Helper function to get a random seed string to pass to CPP methods
 gseed <- function() {
-  return( paste(sample(LETTERS, 10), collapse="") )
+  return(paste(sample(LETTERS, 10), collapse = ""))
 }

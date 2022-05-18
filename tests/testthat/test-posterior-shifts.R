@@ -1,5 +1,5 @@
 test_that("Posterior distribution shifts after observing data", {
-  dtree <- dirtree.pirv(candidates=LETTERS[1:4])
+  dtree <- dirtree.pirv(candidates = LETTERS[1:4])
 
   prior.probs <- samplePosterior(dtree, 1000, 10)
 
