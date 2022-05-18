@@ -23,14 +23,14 @@ context("Test Dirichlet-Multinomial samples sum to count.") {
   for (unsigned d = 1; d < 1000; ++d) {
     // Initialize a new a vector.
     a = new float[d];
-    for (auto i = 0; i < d; ++i)
+    for (unsigned i = 0; i < d; ++i)
       a[i] = g(mte);
 
     result = rDirichletMultinomial(count, a, d, &mte);
 
     // Sum the result
     sum = 0;
-    for (auto i = 0; i < d; ++i)
+    for (unsigned i = 0; i < d; ++i)
       sum += result[i];
 
     if (sum != count)
