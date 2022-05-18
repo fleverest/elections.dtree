@@ -116,8 +116,8 @@ std::list<IRVBallotCount> PIRVDirichletTree::parseBallotList(Rcpp::List bs) {
 }
 
 PIRVDirichletTree::PIRVDirichletTree(Rcpp::CharacterVector candidates,
-                                     unsigned minDepth_, float alpha0_,
-                                     bool vd_, std::string seed_) {
+                                     unsigned minDepth_, float a0_, bool vd_,
+                                     std::string seed_) {
   // Parse the candidate strings.
   std::string cName;
   size_t cIndex = 0;
@@ -129,7 +129,7 @@ PIRVDirichletTree::PIRVDirichletTree(Rcpp::CharacterVector candidates,
   }
   // Initialize tree.
   IRVParameters *params =
-      new IRVParameters(candidates.size(), minDepth_, alpha0_, vd_);
+      new IRVParameters(candidates.size(), minDepth_, a0_, vd_);
   tree = new DirichletTree<IRVNode, IRVBallot, IRVParameters>(params, seed_);
 }
 
@@ -146,9 +146,7 @@ unsigned PIRVDirichletTree::getNCandidates() {
 unsigned PIRVDirichletTree::getMinDepth() {
   return tree->getParameters()->getMinDepth();
 }
-float PIRVDirichletTree::getAlpha0() {
-  return tree->getParameters()->getAlpha0();
-}
+float PIRVDirichletTree::getA0() { return tree->getParameters()->getA0(); }
 bool PIRVDirichletTree::getVD() { return tree->getParameters()->getVD(); }
 Rcpp::CharacterVector PIRVDirichletTree::getCandidates() {
   Rcpp::CharacterVector out{};
@@ -174,9 +172,7 @@ void PIRVDirichletTree::setMinDepth(unsigned minDepth_) {
   }
 }
 
-void PIRVDirichletTree::setAlpha0(float alpha0_) {
-  tree->getParameters()->setAlpha0(alpha0_);
-}
+void PIRVDirichletTree::setA0(float a0_) { tree->getParameters()->setA0(a0_); }
 
 void PIRVDirichletTree::setVD(bool vd_) {
   // If the tree represents a Dirichlet distribution,
@@ -358,12 +354,11 @@ Rcpp::NumericVector PIRVDirichletTree::sampleMarginalProbability(
 // The Rcpp module interface.
 RCPP_MODULE(pirv_dirichlet_tree_module) {
   Rcpp::class_<PIRVDirichletTree>("PIRVDirichletTree")
-      // Constructor needs nCandidates, minDepth, alpha0 and seed.
+      // Constructor needs nCandidates, minDepth, a0 and seed.
       .constructor<Rcpp::CharacterVector, unsigned, float, bool, std::string>()
       // Getter/Setter interface
       .property("nCandidates", &PIRVDirichletTree::getNCandidates)
-      .property("alpha0", &PIRVDirichletTree::getAlpha0,
-                &PIRVDirichletTree::setAlpha0)
+      .property("a0", &PIRVDirichletTree::getA0, &PIRVDirichletTree::setA0)
       .property("minDepth", &PIRVDirichletTree::getMinDepth,
                 &PIRVDirichletTree::setMinDepth)
       .property("vd", &PIRVDirichletTree::getVD, &PIRVDirichletTree::setVD)

@@ -1,4 +1,7 @@
 # Bayesian IRV Election Auditing with the Dirichlet-Tree Prior.
+  <!-- badges: start -->
+  [![R-CMD-check](https://github.com/fleverest/dirtree-elections/workflows/R-CMD-check/badge.svg)](https://github.com/fleverest/dirtree-elections/actions)
+  <!-- badges: end -->
 
 ## About the project.
 
@@ -6,7 +9,7 @@
 
 The work so far in Bayesian auditing literature has employed the Dirichlet prior to the multinomial ballot types. In the case of Ranked-choice voting systems, the ballot-space can grow factorially; in the case of the IRV election, which is used for the House of Representatives in Australia, the number of possible ballots is `n!`, with `n` candidates.
 
-Though the Dirichlet distribution is a simple and effective choice for fewer Ballot types, when this grows it is incredibly difficult to choose appropriate prior parameters. As `n` grows, you would need to select an initial `alpha0` parameter at the `1/n!` scale, which is _at best_ significantly limited numerically by floating-point precision and _on average_ an incredibly over-informative prior distribution.
+Though the Dirichlet distribution is a simple and effective choice for fewer Ballot types, when this grows it is incredibly difficult to choose appropriate prior parameters. As `n` grows, you would need to select an initial `a0` parameter at the `1/n!` scale, which is _at best_ significantly limited numerically by floating-point precision and _on average_ an incredibly over-informative prior distribution.
 
 The Dirichlet-Tree prior distribution introduces a hierarchical Dirichlet structure, consisting of nested Dirichlet distributions over the conditional probabilities on the next-preferences given the prior candidate selections. This improves the prior such that initial parameters need only be chosen at the scale of `1/n` in order to perform well.
 
@@ -27,7 +30,7 @@ To avoid loading all tree nodes into memory for sampling, I chose to implement a
 dtree <- dirtree.irv(
   candidates = LETTERS[1:10],
   minDepth = 9,
-  alpha0 = 5.
+  a0 = 5.
 )
 
 # Sample 1000 ballots from the prior.
@@ -42,7 +45,7 @@ update(dtree, ballots)
 samplePosterior(dtree, nElections = 100, nBallots = 2000)
 
 # Change the prior parameter and compare the posterior winning probabilities.
-dtree$alpha0 <- 1.
+dtree$a0 <- 1.
 samplePosterior(dtree, nElections = 100, nBallots = 2000)
 
 # Do it again, with a Dirichlet prior this time!

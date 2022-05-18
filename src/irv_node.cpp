@@ -8,7 +8,7 @@
  *****************************************************************************/
 #include "irv_node.hpp"
 
-// Calculates the factors with which to multiply alpha0 in order to obtain the
+// Calculates the factors with which to multiply a0 in order to obtain the
 // interior parameters which reduce to a Dirichlet distribution.
 void IRVParameters::calculateDepthFactors() {
   depthFactors = std::vector<float>(nCandidates - 1);
@@ -32,13 +32,13 @@ std::list<IRVBallotCount> lazyIRVBallots(IRVParameters *params, unsigned count,
   // Get parameters
   unsigned nCandidates = params->getNCandidates();
   float minDepth = params->getMinDepth();
-  float alpha0 = params->getAlpha0();
+  float a0 = params->getA0();
   if (params->getVD())
-    alpha0 = alpha0 * params->depthFactor(depth);
+    a0 = a0 * params->depthFactor(depth);
 
   std::list<IRVBallotCount> out = {};
 
-  float *alpha;
+  float *a;
   unsigned *mnomCounts;
 
   unsigned nChildren = nCandidates - depth;
@@ -57,11 +57,11 @@ std::list<IRVBallotCount> lazyIRVBallots(IRVParameters *params, unsigned count,
   // determine how many ballots we sample from each sub-tree (or how many
   // ballots terminate).
 
-  // We start by initializing alpha to the appropriate values.
-  alpha = new float[nOutcomes];
+  // We start by initializing a to the appropriate values.
+  a = new float[nOutcomes];
   for (unsigned i = 0; i < nOutcomes; ++i)
-    alpha[i] = alpha0;
-  mnomCounts = rDirichletMultinomial(count, alpha, nOutcomes, engine);
+    a[i] = a0;
+  mnomCounts = rDirichletMultinomial(count, a, nOutcomes, engine);
 
   // Add the ballots which terminate at this node.
   if (depth >= minDepth && mnomCounts[nOutcomes - 1] > 0) {
@@ -87,7 +87,7 @@ std::list<IRVBallotCount> lazyIRVBallots(IRVParameters *params, unsigned count,
   }
 
   delete[] mnomCounts;
-  delete[] alpha;
+  delete[] a;
 
   return out;
 }
@@ -97,9 +97,9 @@ IRVNode::IRVNode(unsigned depth_, IRVParameters *parameters_) {
   nChildren = parameters->getNCandidates() - depth_;
   depth = depth_;
 
-  alphas = new float[nChildren + 1]; // +1 for incomplete ballots
+  as = new float[nChildren + 1]; // +1 for incomplete ballots
   for (unsigned i = 0; i < nChildren + 1; ++i)
-    alphas[i] = 0.;
+    as[i] = 0.;
 
   children = new NodeP[nChildren]{nullptr};
 }
@@ -107,7 +107,7 @@ IRVNode::IRVNode(unsigned depth_, IRVParameters *parameters_) {
 IRVNode::~IRVNode() {
   // Destructor must delete the entire sub-tree. Hence, we need to delete any
   // initialized nodes in the sub-tree before removing the array.
-  delete[] alphas;
+  delete[] as;
   for (unsigned i = 0; i < nChildren; ++i) {
     if (children[i] != nullptr)
       delete children[i];
@@ -122,21 +122,21 @@ std::list<IRVBallotCount> IRVNode::sample(unsigned count,
   std::list<IRVBallotCount> out = {};
 
   unsigned minDepth = parameters->getMinDepth();
-  float alpha0 = parameters->getAlpha0();
+  float a0 = parameters->getA0();
   if (parameters->getVD())
-    alpha0 = alpha0 * parameters->depthFactor(depth);
+    a0 = a0 * parameters->depthFactor(depth);
 
   unsigned nOutcomes = nChildren + (depth >= minDepth);
 
-  float *alphasPost = new float[nOutcomes];
+  float *asPost = new float[nOutcomes];
   for (unsigned i = 0; i < nOutcomes; ++i)
-    alphasPost[i] = alphas[i] + alpha0;
+    asPost[i] = as[i] + a0;
 
   // Get Dirichlet-multinomial counts for next-preference selections below
   // current node.
   unsigned *mnomCounts =
-      rDirichletMultinomial(count, alphasPost, nOutcomes, engine);
-  delete[] alphasPost;
+      rDirichletMultinomial(count, asPost, nOutcomes, engine);
+  delete[] asPost;
 
   // Add any terminated ballots to the output.
   if (depth >= minDepth && mnomCounts[nChildren] > 0) {
@@ -211,7 +211,7 @@ void IRVNode::update(const IRVBallot &b, std::vector<unsigned> path,
   // If the next preference is not defined, then we increment the halting
   // parameter and stop traversing.
   if (depth == b.nPreferences()) {
-    alphas[nChildren] += count;
+    as[nChildren] += count;
     return;
   }
 
@@ -228,7 +228,7 @@ void IRVNode::update(const IRVBallot &b, std::vector<unsigned> path,
   while (path[i] != nextCandidate)
     ++i;
   unsigned next_idx = i - depth;
-  alphas[next_idx] += count;
+  as[next_idx] += count;
 
   // Stop traversing if the number of children is 2, since we don't need to
   // access the leaves.
@@ -249,9 +249,9 @@ void IRVNode::update(const IRVBallot &b, std::vector<unsigned> path,
 float IRVNode::marginalProbability(const IRVBallot &b,
                                    std::vector<unsigned> path,
                                    std::mt19937 *engine) {
-  float alpha0 = parameters->getAlpha0();
+  float a0 = parameters->getA0();
   if (parameters->getVD())
-    alpha0 = alpha0 * parameters->depthFactor(depth);
+    a0 = a0 * parameters->depthFactor(depth);
   unsigned minDepth = parameters->getMinDepth();
   unsigned nOutcomes = nChildren + (depth >= minDepth);
   unsigned nCandidates = parameters->getNCandidates();
@@ -274,13 +274,13 @@ float IRVNode::marginalProbability(const IRVBallot &b,
     ++i;
   unsigned next_idx = i - depth;
 
-  // Evaluate the alpha and beta parameters, and sample the next
+  // Evaluate the a and b parameters, and sample the next
   // marginal branch probability.
-  a_beta = alphas[next_idx] + alpha0;
+  a_beta = as[next_idx] + a0;
   b_beta = 0.;
   for (unsigned j = 0; j < nOutcomes; ++j)
     if (j != next_idx)
-      b_beta += alphas[j] + alpha0;
+      b_beta += as[j] + a0;
   branchProb = rBeta(a_beta, b_beta, engine);
 
   // Stop if the number of children is 2 or if no further preferences were
@@ -292,17 +292,17 @@ float IRVNode::marginalProbability(const IRVBallot &b,
   // sampling.
   if (children[next_idx] == nullptr) {
     // For each remaining preference, since we have not initialized the
-    // corresponding nodes we know that alpha'=(alpha0,...,alpha0)  (where
-    // alpha0 is multiplied by the appropriate factor is the tree is Dirichlet).
+    // corresponding nodes we know that a'=(a0,...,a0)  (where
+    // a0 is multiplied by the appropriate factor is the tree is Dirichlet).
     // Hence, the following branch probabilities will necessarily be distributed
-    // as Beta(alpha0, alpha0*(nChildren-1)). nChildren = nCandidates - i',
+    // as Beta(a0, a0*(nChildren-1)). nChildren = nCandidates - i',
     // where i ranges from depth+1 to b.nPreferences(), i'= i - 1(i>=minDepth).
     for (unsigned i = depth + 1; i < b.nPreferences() && i < nCandidates - 1;
          ++i) {
       unsigned nChildren = nCandidates - i + (i >= minDepth);
-      if (parameters->getVD()) // Update alpha if dirichlet.
-        alpha0 = parameters->getAlpha0() * parameters->depthFactor(i);
-      branchProb *= rBeta(alpha0, alpha0 * (nChildren - 1), engine);
+      if (parameters->getVD()) // Update a if dirichlet.
+        a0 = parameters->getA0() * parameters->depthFactor(i);
+      branchProb *= rBeta(a0, a0 * (nChildren - 1), engine);
     }
     return branchProb;
   }

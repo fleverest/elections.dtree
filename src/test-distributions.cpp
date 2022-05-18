@@ -9,10 +9,10 @@
 context("Test Dirichlet-Multinomial samples sum to count.") {
 
   unsigned *result, sum;
-  float *alpha;
+  float *a;
   std::mt19937 mte;
   mte.seed(time(NULL));
-  // We draw each alpha parameter from gamma(2,2)
+  // We draw each a parameter from gamma(2,2)
   std::gamma_distribution<float> g(2.0, 2.0);
 
   // Draw 1000 multinomial samples.
@@ -21,12 +21,12 @@ context("Test Dirichlet-Multinomial samples sum to count.") {
   bool always_sums_to_count = true;
 
   for (unsigned d = 1; d < 100; ++d) {
-    // Initialize a new alpha vector.
-    alpha = new float[d];
+    // Initialize a new a vector.
+    a = new float[d];
     for (auto i = 0; i < d; ++i)
-      alpha[i] = g(mte);
+      a[i] = g(mte);
 
-    result = rDirichletMultinomial(count, alpha, d, &mte);
+    result = rDirichletMultinomial(count, a, d, &mte);
 
     // Sum the result
     sum = 0;
@@ -36,8 +36,8 @@ context("Test Dirichlet-Multinomial samples sum to count.") {
     if (sum != count)
       always_sums_to_count = false;
 
-    // Delete alpha and mnom counts
-    delete[] alpha;
+    // Delete a and mnom counts
+    delete[] a;
     delete[] result;
   }
   test_that("Dirichlet-Multinomial sample sums to count.") {
