@@ -1,4 +1,7 @@
 # Bayesian IRV Election Auditing with the Dirichlet-Tree Prior.
+  <!-- badges: start -->
+  [![R-CMD-check](https://github.com/fleverest/dirtree-elections/workflows/R-CMD-check/badge.svg)](https://github.com/fleverest/dirtree-elections/actions)
+  <!-- badges: end -->
 
 ## About the project.
 
