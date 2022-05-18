@@ -71,10 +71,10 @@ Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners,
   Rcpp::CharacterVector elimination_order{};
   Rcpp::CharacterVector winners{};
 
-  for (auto i = 0; i < cNames.size() - nWinners; ++i) {
+  for (size_t i = 0; i < cNames.size() - nWinners; ++i) {
     elimination_order.push_back(cNames[elimination_order_idx[i]]);
   }
-  for (auto i = cNames.size() - nWinners; i < cNames.size(); ++i) {
+  for (size_t i = cNames.size() - nWinners; i < cNames.size(); ++i) {
     winners.push_back(cNames[elimination_order_idx[i]]);
   }
 
@@ -234,7 +234,7 @@ Rcpp::List PIRVDirichletTree::samplePredictive(unsigned nSamples,
   std::list<IRVBallotCount> samples = tree->sample(nSamples);
   for (auto &[b, count] : samples) {
     // Push count * b to the list.
-    for (auto i = 0; i < count; ++i) {
+    for (unsigned i = 0; i < count; ++i) {
       rBallot = Rcpp::CharacterVector::create();
       for (auto cIndex : b.preferences) {
         rBallot.push_back(candidateVector[cIndex]);
@@ -263,7 +263,7 @@ Rcpp::NumericVector PIRVDirichletTree::samplePosterior(unsigned nElections,
   // Generate nBatches PRNGs.
   std::mt19937 *treeGen = tree->getEnginePtr();
   std::vector<unsigned> seeds{};
-  for (auto i = 0; i <= nBatches; ++i) {
+  for (unsigned i = 0; i <= nBatches; ++i) {
     seeds.push_back((*treeGen)());
   }
   // TODO: Remove this?
@@ -316,7 +316,7 @@ Rcpp::NumericVector PIRVDirichletTree::samplePosterior(unsigned nElections,
   Rcpp::NumericVector out(nCandidates);
   out.names() = candidateVector;
 
-  for (auto j = 0; j <= nBatches; ++j) {
+  for (unsigned j = 0; j <= nBatches; ++j) {
     for (auto elimination_order_idx : results[j]) {
       for (auto i = nCandidates - nWinners; i < nCandidates; ++i)
         out[elimination_order_idx[i]] = out[elimination_order_idx[i]] + 1;
@@ -343,7 +343,7 @@ Rcpp::NumericVector PIRVDirichletTree::sampleMarginalProbability(
 
   IRVBallot b(preferences);
 
-  for (auto i = 0; i < nSamples; ++i) {
+  for (unsigned i = 0; i < nSamples; ++i) {
     prob = tree->marginalProbability(b, nullptr);
     out.push_back(prob);
   }
