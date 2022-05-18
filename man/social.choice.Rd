@@ -7,9 +7,9 @@
 social.choice(x, ...)
 }
 \arguments{
-\item{ballots}{The set of ballots for which to compute the outcome of the social choice function.}
+\item{x}{The set of ballots for which to compute the outcome of the social choice function.}
 
-\item{nWinners}{The number of candidates to elect.}
+\item{\\dots}{Additional parameters to pass to \code{social.choice}.}
 }
 \description{
 Reads a set of ballots, and computes the outcome of the election. The outcome is described by a vector of winning candidates, along with the elimination order of the losing candidates.

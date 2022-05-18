@@ -5,12 +5,14 @@
 \alias{update.Rcpp_PIRVDirichletTree}
 \title{Update a Dirichlet Tree with PIRV ballot data.}
 \usage{
-\method{update}{Rcpp_PIRVDirichletTree}(dtree, ballots)
+\method{update}{Rcpp_PIRVDirichletTree}(object, ballots, ...)
 }
 \arguments{
-\item{dtree}{a PIRV Dirichlet Tree object.}
+\item{object}{A PIRV Dirichlet Tree object.}
 
 \item{ballots}{a list of PIRV ballots.}
+
+\item{\\dots}{Unused.}
 }
 \description{
 Updates a Dirichlet Tree with observed ballots to obtain a new posterior.

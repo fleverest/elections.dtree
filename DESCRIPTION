@@ -16,8 +16,7 @@ RoxygenNote: 7.1.1
 LinkingTo:
     Rcpp,
     RcppThread,
-    testthat,
-    methods
+    testthat
 Imports:
     Rcpp,
     RcppThread,

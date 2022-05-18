@@ -115,11 +115,16 @@ read.ballots <- function(filename) {
 #' @name social.choice
 #' @title Computes the outcome of the appropriate social choice function.
 #' @description Reads a set of ballots, and computes the outcome of the election. The outcome is described by a vector of winning candidates, along with the elimination order of the losing candidates.
-#' @param ballots The set of ballots for which to compute the outcome of the social choice function.
-#' @param nWinners The number of candidates to elect.
+#' @param x The set of ballots for which to compute the outcome of the social choice function.
+#' @param \\dots Additional parameters to pass to \code{social.choice}.
 #' @export
 social.choice <- function(x, ...) UseMethod("social.choice", x)
 
+#' @name social.choice.PIRVBallots
+#' @title Computes the outcome of the IRV social choice function.
+#' @param x The set of ballots for which to compute the outcome of the IRV social choice function.
+#' @param nWinners The number of candidates to elect.
+#' @param \\dots Unused.
 #' @export
 social.choice.PIRVBallots <- function(x, nWinners = 1, ...) {
   if (is.null(attr(x, "candidates"))) {
