@@ -1,7 +1,7 @@
 # dirtree.elections-package.R
 
 ## usethis namespace: start
-#' @import Rcpp RcppThread
+#' @import Rcpp
 #' @useDynLib dirtree.elections, .registration = TRUE
 #' @export PIRVDirichletTree
 ## usethis namespace: end
