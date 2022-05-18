@@ -67,6 +67,7 @@ samplePredictive <- function(dtree, nBallots) {
 #' @param dtree A PIRV Dirichlet Tree object.
 #' @param nElections An integer representing the number of elections to generate. A higher number yields higher precision in the output probabilities.
 #' @param nBallots An integer representing the number of ballots cast in total for each election.
+#' @param nWinners The number of candidates elected in each election.
 #' @return A NumericVector containing the probabilities for each candidate being elected.
 #' @export
 samplePosterior <- function(dtree, nElections, nBallots, nWinners = 1) {
@@ -98,14 +99,15 @@ sampleMPP <- function(dtree, n, ballot) {
 #' @name update
 #' @title Update a Dirichlet Tree with PIRV ballot data.
 #' @description Updates a Dirichlet Tree with observed ballots to obtain a new posterior.
-#' @param dtree a PIRV Dirichlet Tree object.
+#' @param object A PIRV Dirichlet Tree object.
 #' @param ballots a list of PIRV ballots.
+#' @param \\dots Unused.
 #' @export
-update.Rcpp_PIRVDirichletTree <- function(dtree, ballots) {
-  stopifnot(class(dtree) %in% .dtree_classes)
+update.Rcpp_PIRVDirichletTree <- function(object, ballots, ...) {
+  stopifnot(class(object) %in% .dtree_classes)
   # TODO: Throw a warning?
   # stopifnot(class(ballots) == 'PIRVBallots')
-  dtree$update(ballots)
+  object$update(ballots)
 }
 
 #' @name reset

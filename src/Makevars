@@ -1,10 +1,1 @@
-# Makevars
-
-CC=/usr/bin/gcc
-CXX=/usr/bin/g++
-CXXFLAGS= -g0 -O2 -Wall
-MAKE=make -j4
-PKG_LIBS = `"$(R_HOME)/bin/Rscript" -e "RcppThread::LdFlags()"`
-PKG_CXXFLAGS=-std=c++17
-CPLUS_INCLUDE_PATH=/usr/local/include/:$CPLUS_INCLUDE_PATH
-LD_LIBRARY_PATH=/usr/local/lib/:$LD_LIBRARY_PATH
+CXX_STD=CXX17

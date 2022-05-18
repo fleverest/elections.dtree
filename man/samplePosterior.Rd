@@ -12,6 +12,8 @@ samplePosterior(dtree, nElections, nBallots, nWinners = 1)
 \item{nElections}{An integer representing the number of elections to generate. A higher number yields higher precision in the output probabilities.}
 
 \item{nBallots}{An integer representing the number of ballots cast in total for each election.}
+
+\item{nWinners}{The number of candidates elected in each election.}
 }
 \value{
 A NumericVector containing the probabilities for each candidate being elected.
