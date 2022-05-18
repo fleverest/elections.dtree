@@ -37,7 +37,7 @@ dirtree.pirv <- function(candidates, minDepth = 0, a0 = 1., vd = FALSE) {
     candidates = candidates,
     minDepth = minDepth,
     a0 = a0,
-    vd= vd,
+    vd = vd,
     seed = gseed()
   ))
 }
@@ -52,10 +52,10 @@ dirtree.pirv <- function(candidates, minDepth = 0, a0 = 1., vd = FALSE) {
 samplePredictive <- function(dtree, nBallots) {
   stopifnot(class(dtree) %in% .dtree_classes)
   # Ensure nBallots > 0.
-  if (nBallots <=0 || !is.numeric(nBallots)) {
+  if (nBallots <= 0 || !is.numeric(nBallots)) {
     stop("nBallots must be an integer > 0")
   }
-  ballots = dtree$samplePredictive(as.integer(nBallots), gseed())
+  ballots <- dtree$samplePredictive(as.integer(nBallots), gseed())
   class(ballots) <- "PIRVBallots"
   attr(ballots, "candidates") <- dtree$candidates
   return(ballots)
@@ -69,14 +69,14 @@ samplePredictive <- function(dtree, nBallots) {
 #' @param nBallots An integer representing the number of ballots cast in total for each election.
 #' @return A NumericVector containing the probabilities for each candidate being elected.
 #' @export
-samplePosterior <- function(dtree, nElections, nBallots, nWinners=1) {
+samplePosterior <- function(dtree, nElections, nBallots, nWinners = 1) {
   stopifnot(class(dtree) %in% .dtree_classes)
   return(
     dtree$samplePosterior(
-      nElections=nElections,
-      nBallots=nBallots,
-      nWinners=nWinners,
-      nBatches=nElections/2,
+      nElections = nElections,
+      nBallots = nBallots,
+      nWinners = nWinners,
+      nBatches = nElections / 2,
       gseed()
     )
   )
@@ -104,7 +104,7 @@ sampleMPP <- function(dtree, n, ballot) {
 update.Rcpp_PIRVDirichletTree <- function(dtree, ballots) {
   stopifnot(class(dtree) %in% .dtree_classes)
   # TODO: Throw a warning?
-  #stopifnot(class(ballots) == 'PIRVBallots')
+  # stopifnot(class(ballots) == 'PIRVBallots')
   dtree$update(ballots)
 }
 
@@ -120,5 +120,5 @@ reset <- function(dtree) {
 
 # Helper function to get a random seed string to pass to CPP methods
 gseed <- function() {
-  return( paste(sample(LETTERS, 10), collapse="") )
+  return(paste(sample(LETTERS, 10), collapse = ""))
 }
