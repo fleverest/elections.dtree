@@ -6,7 +6,7 @@
  * Description:      This file implements the IRVNode class as outlined in
  *                   `irv_node.hpp`.
  *****************************************************************************/
-#include "irv_node.hpp"
+#include "irv_node.h"
 
 // Calculates the factors with which to multiply a0 in order to obtain the
 // interior parameters which reduce to a Dirichlet distribution.

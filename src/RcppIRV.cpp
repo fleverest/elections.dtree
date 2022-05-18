@@ -8,7 +8,7 @@
  *                   function.
  *****************************************************************************/
 
-#include "RcppIRV.hpp"
+#include "RcppIRV.h"
 
 // [[Rcpp::plugins("cpp17")]]
 // [[Rcpp::depends(RcppThread)]]

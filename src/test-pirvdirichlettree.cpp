@@ -4,7 +4,7 @@
 
 #include <testthat.h>
 
-#include "RcppIRV.hpp"
+#include "RcppIRV.h"
 
 void createAndDeleteTree(Rcpp::CharacterVector candidates, unsigned minDepth,
                          float a0, bool vd, std::string seed) {

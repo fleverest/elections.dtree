@@ -4,7 +4,7 @@
 
 #include <testthat.h>
 
-#include "distributions.hpp"
+#include "distributions.h"
 
 context("Test Dirichlet-Multinomial samples sum to count.") {
 

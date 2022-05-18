@@ -7,7 +7,7 @@
  *                   in `irv_ballot.hpp`.
  *****************************************************************************/
 
-#include "irv_ballot.hpp"
+#include "irv_ballot.h"
 
 IRVBallot::IRVBallot(std::list<unsigned> preferences_) {
   preferences = std::move(preferences_);
