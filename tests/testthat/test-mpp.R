@@ -14,7 +14,7 @@ test_that("Prior marginal probabilities are approximately `1/N!` with fully spec
     dtree$vd <- T
     ps.D <- sampleMPP(dtree, n = 5000, LETTERS[1:nCandidates])
 
-    expect_equal(mean(abs(ps.DT / ps.mean)), 1, tolerance = 0.25)
-    expect_equal(mean(abs(ps.D / ps.mean)), 1, tolerance = 0.25)
+    expect_equal(mean(abs(ps.DT / ps.mean)), 1, tolerance = 0.33)
+    expect_equal(mean(abs(ps.D / ps.mean)), 1, tolerance = 0.33)
   }
 })
