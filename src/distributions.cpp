@@ -7,7 +7,7 @@
  *                   outlined in `distributions.hpp`.
  *****************************************************************************/
 
-#include "distributions.hpp"
+#include "distributions.h"
 
 unsigned *rDirichletMultinomial(unsigned count, float *a, unsigned d,
                                 std::mt19937 *engine) {
