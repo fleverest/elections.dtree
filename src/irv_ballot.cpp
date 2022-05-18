@@ -44,7 +44,7 @@ std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> &ballots,
                                       std::mt19937 *engine) {
 
   unsigned firstPref;
-  bool isEmpty;
+  bool isEmpty = false;
 
   // For tie-breaking
   std::uniform_int_distribution<> rand_int_distr;
