@@ -1,5 +1,18 @@
 .ballot.types <- c("PIRVBallots")
 
+#' @name `[.PIRVBallots`
+#' @title Access Subsets of Ballots.
+#' @description Extract subsets of ballots by index.
+#' @param x PIRVBallots.
+#' @param i The index, or vector of indices corresponding to each extracted ballot.
+#' @export
+`[.PIRVBallots` <- function(x, i=NULL) {
+    subset <- unclass(x)[i]
+    attr(subset, "class") <- attr(x, "class")
+    attr(subset, "candidates") <- attr(x, "candidates")
+    subset
+}
+
 #' @name write.ballots
 #' @title Write PIRV ballots to a file.
 #' @description Writes a set of ballots to a new file. This follows the ballot:count standard, with a header describing candidates.
@@ -8,8 +21,7 @@
 #' @export
 write.ballots <- function(ballots, filename = "") {
 
-  # TODO: Warning once we fully implement ballot classes
-  # stopifnot(class(ballots) %in% .ballot.types)
+  stopifnot(class(ballots) %in% .ballot.types)
 
   if (filename == "") {
     cout <- T

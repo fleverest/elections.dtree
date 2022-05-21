@@ -89,9 +89,12 @@ samplePosterior <- function(dtree, nElections, nBallots, nWinners = 1) {
 #' @param dtree A PIRV Dirichlet Tree object.
 #' @param n The number of samples to draw from the posterior.
 #' @param ballot The ballot to sample posterior probabilities for.
-#' @return A NumericVector of \code{n} probabilities, each corresponding to a probability of observing \code{b} under an independent realisation of the posterior distribution.
+#' @return A list of NumericVectors with \code{n} probabilities, each corresponding to a probability of observing \code{b} under an independent realisation of the posterior distribution.
 #' @export
 sampleMPP <- function(dtree, n, ballot) {
+  stopifnot(class(ballot) %in% .ballot.types)
+  if (length(ballot)!=1)
+    stop("Sampling marginal probabilities is only implemented for one ballot at a time.")
   stopifnot(class(dtree) %in% .dtree_classes)
   return(dtree$sampleMarginalProbability(n, ballot, gseed()))
 }
@@ -105,8 +108,7 @@ sampleMPP <- function(dtree, n, ballot) {
 #' @export
 update.Rcpp_PIRVDirichletTree <- function(object, ballots, ...) {
   stopifnot(class(object) %in% .dtree_classes)
-  # TODO: Throw a warning?
-  # stopifnot(class(ballots) == 'PIRVBallots')
+  stopifnot(class(ballots) %in% .ballot.types)
   object$update(ballots)
 }
 

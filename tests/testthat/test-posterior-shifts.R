@@ -3,7 +3,13 @@ test_that("Posterior distribution shifts after observing data", {
 
   prior.probs <- samplePosterior(dtree, 1000, 10)
 
-  for (i in 1:5) update(dtree, list(LETTERS[1:4]))
+  ballot <- structure(
+    list(LETTERS[1:4]),
+    class = "PIRVBallots",
+    candidates = LETTERS[1:4]
+  )
+
+  for (i in 1:5) update(dtree, ballot)
 
   post.probs.DT <- samplePosterior(dtree, 1000, 10)
   dtree$vd <- T
