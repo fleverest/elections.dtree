@@ -7,10 +7,14 @@ test_that("Update and reset have an effect.", {
     prior.mean.expected <- 1 / factorial(nCandidates)
 
     # The ballot we'll be assessing probabilities for.
-    b <- LETTERS[1:nCandidates]
+    b <- structure(
+      list(LETTERS[1:nCandidates]),
+      class = "PIRVBallots",
+      candidates = LETTERS[1:nCandidates]
+    )
 
     # Get the mean posterior marginal probability.
-    update(dtree, list(b))
+    update(dtree, b)
     ps <- sampleMPP(dtree, n = 5000, b)
     post.mean <- mean(ps)
 

@@ -14,7 +14,7 @@ sampleMPP(dtree, n, ballot)
 \item{ballot}{The ballot to sample posterior probabilities for.}
 }
 \value{
-A NumericVector of \code{n} probabilities, each corresponding to a probability of observing \code{b} under an independent realisation of the posterior distribution.
+A list of NumericVectors with \code{n} probabilities, each corresponding to a probability of observing \code{b} under an independent realisation of the posterior distribution.
 }
 \description{
 Draws marginal probabilities for observing a given ballot under the posterior distribution.
