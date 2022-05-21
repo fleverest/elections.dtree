@@ -26,7 +26,7 @@ unsigned *rDirichletMultinomial(unsigned count, float *a, unsigned d,
 
   // Sample from Multinomial distribution with pi=gamma/gamma_sum.
   sum_ps = 1.0;
-  for (unsigned i = 0; i < d; ++i) {
+  for (unsigned i = 0; i < d - 1; ++i) {
     // Calculate marginal probability p.
     if (gamma_sum == 0) {
       p = 1.;
@@ -40,6 +40,7 @@ unsigned *rDirichletMultinomial(unsigned count, float *a, unsigned d,
     // Renormalise ps for next categories.
     sum_ps -= p;
   }
+  out[d - 1] = count;
 
   delete[] gamma;
 
