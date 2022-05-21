@@ -28,7 +28,7 @@ To avoid loading all tree nodes into memory for sampling, I chose to implement a
 # Initialize a new Dirichlet Tree for IRV elections with
 # 10 candidates (named A through J), requiring all candidates to be
 # specified for a valid ballot, and using a prior parameter of 5.
-dtree <- dirtree.irv(
+dtree <- dirtree.pirv(
   candidates = LETTERS[1:10],
   minDepth = 9,
   a0 = 5.
