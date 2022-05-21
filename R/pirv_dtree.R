@@ -96,7 +96,7 @@ sampleMPP <- function(dtree, n, ballot) {
   if (length(ballot)!=1)
     stop("Sampling marginal probabilities is only implemented for one ballot at a time.")
   stopifnot(class(dtree) %in% .dtree_classes)
-  return(dtree$sampleMarginalProbability(n, ballot, gseed()))
+  return(dtree$sampleMarginalProbability(n, ballot[[1]], gseed()))
 }
 
 #' @name update
