@@ -7,7 +7,7 @@ test_that("Social choice works on one basic example", {
 
   ballots <- structure(ballots, class = "PIRVBallots", candidates = LETTERS[1:3])
 
-  result <- social.choice.PIRVBallots(ballots)
+  result <- social.choice(ballots)
   expect_equal(result$elimination_order, c("C", "B"))
   expect_equal(result$winner, "A")
 })

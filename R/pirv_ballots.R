@@ -139,12 +139,8 @@ social.choice <- function(x, ...) UseMethod("social.choice", x)
 #' @param \\dots Unused.
 #' @export
 social.choice.PIRVBallots <- function(x, nWinners = 1, ...) {
-  if (is.null(attr(x, "candidates"))) {
-    candidates <- character()
-  } else {
-    candidates <- attr(x, "candidates")
-  }
-  RSocialChoiceIRV(x, nWinners, candidates, gseed())
+  stopifnot(class(x) %in% .ballot.types)
+  RSocialChoiceIRV(x, nWinners, attr(x,"candidates"), gseed())
 }
 
 # Helper function to get a random seed string to pass to CPP methods
