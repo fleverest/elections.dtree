@@ -175,19 +175,21 @@ void PIRVDirichletTree::setMinDepth(unsigned minDepth_) {
 void PIRVDirichletTree::setA0(float a0_) { tree->getParameters()->setA0(a0_); }
 
 void PIRVDirichletTree::setVD(bool vd_) {
-  // If the tree represents a Dirichlet distribution,
-  // we need to check that no observed ballots had length >=
-  // the minDepth of the tree, otherwise the posterior tree
-  // will not be reducible to a Dirichlet distribution.
-  unsigned minDepth = tree->getParameters()->getMinDepth();
-  for (const auto &d : observedDepths) {
-    if (d < minDepth) {
-      Rcpp::warning(
-          "Updating the parameter structure to represent a Dirichlet "
-          "distribution, however ballots with fewer than `minDepth` "
-          "preferences specified have been observed. Hence, the resulting "
-          "posterior does not represent a true Dirichlet distribution.");
-      break;
+  if (vd_) {
+    // If the tree represents a Dirichlet distribution,
+    // we need to check that no observed ballots had length >=
+    // the minDepth of the tree, otherwise the posterior tree
+    // will not be reducible to a Dirichlet distribution.
+    unsigned minDepth = tree->getParameters()->getMinDepth();
+    for (const auto &d : observedDepths) {
+      if (d < minDepth) {
+        Rcpp::warning(
+            "Updating the parameter structure to represent a Dirichlet "
+            "distribution, however ballots with fewer than `minDepth` "
+            "preferences specified have been observed. Hence, the resulting "
+            "posterior can not represent a Dirichlet distribution.");
+        break;
+      }
     }
   }
   tree->getParameters()->setVD(vd_);
@@ -212,7 +214,7 @@ void PIRVDirichletTree::update(Rcpp::List ballots) {
     // the minDepth of the tree, otherwise the posterior tree
     // will no longer be reducible to a Dirichlet distribution.
     depth = bc.first.nPreferences();
-    if (depth < minDepth && depth > 0)
+    if (depth < minDepth && tree->getParameters()->getVD())
       Rcpp::warning("Updating a Dirichlet distribution with a ballot "
                     "specifying fewer than `minDepth` preferences. The "
                     "resulting posterior is no longer Dirichlet.");
