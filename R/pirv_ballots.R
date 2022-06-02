@@ -31,6 +31,7 @@ write.ballots <- function(ballots, filename = "") {
   }
   lines <- c()
 
+  candidates <- attr(ballots, "candidates")
   ballot.counts <- count.ballots(ballots, candidates = candidates)
 
   candidates <- attr(ballot.counts, "candidates")
