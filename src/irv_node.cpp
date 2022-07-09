@@ -16,7 +16,7 @@ void IRVParameters::calculateDepthFactors() {
   unsigned nChildren;
   // For each depth, nCandidates-2 through 0, we calculate the factors.
   float f = 1.;
-  for (int depth = nCandidates - 2; depth >= 0; --depth) {
+  for (int depth = maxDepth - 1; depth >= 0; --depth) {
     nChildren = nCandidates - depth;
     if (depth >= minDepth)
       ++nChildren;
@@ -32,6 +32,7 @@ std::list<IRVBallotCount> lazyIRVBallots(IRVParameters *params, unsigned count,
   // Get parameters
   unsigned nCandidates = params->getNCandidates();
   float minDepth = params->getMinDepth();
+  float maxDepth = params->getMaxDepth();
   float a0 = params->getA0();
   if (params->getVD())
     a0 = a0 * params->depthFactor(depth);
@@ -44,7 +45,7 @@ std::list<IRVBallotCount> lazyIRVBallots(IRVParameters *params, unsigned count,
   unsigned nChildren = nCandidates - depth;
   unsigned nOutcomes = nChildren + (depth >= minDepth);
 
-  if (depth == nCandidates - 1) {
+  if (depth == nCandidates - 1 || depth == maxDepth) {
     // If the ballot is completely specified, return count * the specified
     // ballot.
     IRVBallot b(
@@ -122,6 +123,8 @@ std::list<IRVBallotCount> IRVNode::sample(unsigned count,
   std::list<IRVBallotCount> out = {};
 
   unsigned minDepth = parameters->getMinDepth();
+  unsigned maxDepth = parameters->getMaxDepth();
+  unsigned nCandidates = parameters->getNCandidates();
   float a0 = parameters->getA0();
   if (parameters->getVD())
     a0 = a0 * parameters->depthFactor(depth);
@@ -148,7 +151,7 @@ std::list<IRVBallotCount> IRVNode::sample(unsigned count,
 
   // If nChildren is 2, stop recursing and add the completely specified ballots
   // to the output.
-  if (nChildren == 2) {
+  if (depth == nCandidates - 1 || depth == maxDepth) {
     for (unsigned i = 0; i < 2; ++i) {
       // Skip if there the sampled count for the ballot is zero.
       // if (mnomCounts[i] == 0)
@@ -253,6 +256,7 @@ float IRVNode::marginalProbability(const IRVBallot &b,
   if (parameters->getVD())
     a0 = a0 * parameters->depthFactor(depth);
   unsigned minDepth = parameters->getMinDepth();
+  unsigned maxDepth = parameters->getMaxDepth();
   unsigned nOutcomes = nChildren + (depth >= minDepth);
   unsigned nCandidates = parameters->getNCandidates();
   float a_beta, b_beta, branchProb;
@@ -297,8 +301,7 @@ float IRVNode::marginalProbability(const IRVBallot &b,
     // Hence, the following branch probabilities will necessarily be distributed
     // as Beta(a0, a0*(nChildren-1)). nChildren = nCandidates - i',
     // where i ranges from depth+1 to b.nPreferences(), i'= i - 1(i>=minDepth).
-    for (unsigned i = depth + 1; i < b.nPreferences() && i < nCandidates - 1;
-         ++i) {
+    for (unsigned i = depth + 1; i < b.nPreferences() && i < maxDepth; ++i) {
       unsigned nChildren = nCandidates - i + (i >= minDepth);
       if (parameters->getVD()) // Update a if dirichlet.
         a0 = parameters->getA0() * parameters->depthFactor(i);

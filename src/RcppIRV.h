@@ -81,7 +81,7 @@ private:
 public:
   // Constructor
   PIRVDirichletTree(Rcpp::CharacterVector candidates, unsigned minDepth_,
-                    float a0_, bool vd_, std::string seed_);
+                    unsigned maxDepth_, float a0_, bool vd_, std::string seed_);
 
   // Destructor.
   ~PIRVDirichletTree();
@@ -91,12 +91,14 @@ public:
   // Getters
   unsigned getNCandidates();
   unsigned getMinDepth();
+  unsigned getMaxDepth();
   float getA0();
   bool getVD();
   Rcpp::CharacterVector getCandidates();
 
   // Setters
   void setMinDepth(unsigned minDepth_);
+  void setMaxDepth(unsigned maxDepth_);
   void setA0(float a0_);
   void setSeed(std::string seed_);
   void setVD(bool vd_);

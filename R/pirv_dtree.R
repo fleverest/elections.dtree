@@ -4,6 +4,7 @@
 #' @description A Dirichlet Tree for modelling partially ordered IRV ballots.
 #' @param candidates A character vector, with each element (must be unique) representing a single candidate.
 #' @param minDepth the minimum number of candidates to be specified for a valid ballot.
+#' @param maxDepth the maximum number of candidates which can be specified for a valid ballot.
 #' @param a0 the prior parameter for the distribution.
 #' @param vd a boolean value representing whether or not the prior should reduce to a vanilla Dirichlet distribution.
 #' @docType class
@@ -11,7 +12,7 @@
 #' @import methods
 #' @return A Dirichlet Tree representing partial IRV ballots, as an Rcpp module of class `PIRVDirichletTree`.
 #' @export
-dirtree.pirv <- function(candidates, minDepth = 0, a0 = 1., vd = FALSE) {
+dirtree.pirv <- function(candidates, minDepth = 0, maxDepth = length(candidates), a0 = 1., vd = FALSE) {
   # Ensure nCandidates > 1
   if (class(candidates) != "character") {
     stop("`candidates` must be a character vector, with each element representing a single candidate.")
@@ -19,9 +20,13 @@ dirtree.pirv <- function(candidates, minDepth = 0, a0 = 1., vd = FALSE) {
   if (length(unique(candidates)) != length(candidates)) {
     stop("All `candidates` must be unique.")
   }
-  # Ensure 0 <= minDepth <= nCandidates.
-  if (minDepth > length(candidates) || minDepth < 0) {
-    stop("`minDepth` must be >= 0 and <= length(candidates).")
+  # Ensure 0 <= minDepth <= maxDepth <= nCandidates.
+  if (!(
+    minDepth >= 0
+    && maxDepth >= minDepth
+    && length(candidates) >= maxDepth
+  )) {
+    stop("minDepth and maxDepth must satisfy: 0 <= minDepth <= maxDepth <= nCandidates")
   }
   # Ensure a0 >= 0
   if (a0 < 0) {
@@ -36,6 +41,7 @@ dirtree.pirv <- function(candidates, minDepth = 0, a0 = 1., vd = FALSE) {
     PIRVDirichletTree,
     candidates = candidates,
     minDepth = minDepth,
+    maxDepth = maxDepth,
     a0 = a0,
     vd = vd,
     seed = gseed()
