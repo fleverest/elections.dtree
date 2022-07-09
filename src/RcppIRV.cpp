@@ -135,6 +135,7 @@ PIRVDirichletTree::PIRVDirichletTree(Rcpp::CharacterVector candidates,
 
 // Destructor.
 PIRVDirichletTree::~PIRVDirichletTree() {
+  IRVParameters *p = tree->getParameters();
   delete tree->getParameters();
   delete tree;
 }
@@ -181,18 +182,6 @@ void PIRVDirichletTree::setMaxDepth(unsigned maxDepth_) {
   if (maxDepth_ < tree->getParameters()->getMinDepth())
     Rcpp::stop("Cannot set `maxDepth` to a value less than `minDepth`.");
   tree->getParameters()->setMaxDepth(maxDepth_);
-  // If the tree is reducible to a Dirichlet distribution,
-  // we need to check that the ballots observed so far do not
-  // violate len(ballot) > maxDepth - otherwise the resulting
-  // posterior will not be Dirichlet.
-  for (const auto &d : observedDepths) {
-    if (d > maxDepth_) {
-      Rcpp::warning("Ballots with more than `maxDepth` preferences specified "
-                    "have been observed. Hence, the resulting posterior does "
-                    "not represent a true Dirichlet distribution.");
-      break;
-    }
-  }
 }
 
 void PIRVDirichletTree::setA0(float a0_) { tree->getParameters()->setA0(a0_); }

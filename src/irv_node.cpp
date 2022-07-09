@@ -11,10 +11,10 @@
 // Calculates the factors with which to multiply a0 in order to obtain the
 // interior parameters which reduce to a Dirichlet distribution.
 void IRVParameters::calculateDepthFactors() {
-  depthFactors = std::vector<float>(nCandidates - 1);
+  depthFactors = std::vector<float>(maxDepth);
   // The number of children to a node for a given depth in the tree.
   unsigned nChildren;
-  // For each depth, nCandidates-2 through 0, we calculate the factors.
+  // For each depth, maxDepth-1 through 0, we calculate the factors.
   float f = 1.;
   for (int depth = maxDepth - 1; depth >= 0; --depth) {
     nChildren = nCandidates - depth;
@@ -141,30 +141,30 @@ std::list<IRVBallotCount> IRVNode::sample(unsigned count,
       rDirichletMultinomial(count, asPost, nOutcomes, engine);
   delete[] asPost;
 
-  // Add any terminated ballots to the output.
-  if (depth >= minDepth && mnomCounts[nChildren] > 0) {
-
-    IRVBallot b(
-        std::move(std::list<unsigned>(path.begin(), path.begin() + depth)));
-    out.emplace_back(std::move(b), mnomCounts[nChildren]);
-  }
-
-  // If nChildren is 2, stop recursing and add the completely specified ballots
+  // If the ballot is almost completely specified, add the completed ballots
   // to the output.
-  if (depth == nCandidates - 1 || depth == maxDepth) {
-    for (unsigned i = 0; i < 2; ++i) {
+  if (depth == maxDepth - 1) {
+    for (unsigned i = 0; i < nOutcomes; ++i) {
       // Skip if there the sampled count for the ballot is zero.
-      // if (mnomCounts[i] == 0)
-      //  continue;
+      if (mnomCounts[i] == 0)
+        continue;
 
-      std::swap(path[depth], path[depth + i]);
+      // For early-termination
+      if (i == nChildren) {
+        IRVBallot b(
+            std::move(std::list<unsigned>(path.begin(), path.begin() + depth)));
 
-      IRVBallot b(std::move(
-          std::list<unsigned>(path.begin(), path.begin() + depth + 1)));
+        out.emplace_back(std::move(b), mnomCounts[i]);
+      } else {
+        std::swap(path[depth], path[depth + i]);
 
-      out.emplace_back(std::move(b), mnomCounts[i]);
+        IRVBallot b(std::move(
+            std::list<unsigned>(path.begin(), path.begin() + depth + 1)));
 
-      std::swap(path[depth], path[depth + i]);
+        out.emplace_back(std::move(b), mnomCounts[i]);
+
+        std::swap(path[depth], path[depth + i]);
+      }
     }
     // Return early since there are no child nodes to sample from.
     delete[] mnomCounts;
@@ -301,7 +301,13 @@ float IRVNode::marginalProbability(const IRVBallot &b,
     // Hence, the following branch probabilities will necessarily be distributed
     // as Beta(a0, a0*(nChildren-1)). nChildren = nCandidates - i',
     // where i ranges from depth+1 to b.nPreferences(), i'= i - 1(i>=minDepth).
-    for (unsigned i = depth + 1; i < b.nPreferences() && i < maxDepth; ++i) {
+    for (unsigned i = depth + 1; i < b.nPreferences(); ++i) {
+      // If we exceed maxDepth, p=0.
+      if (i > maxDepth)
+        return 0;
+      // Return early if nPreferences is maxDepth, since this branchProb=1.
+      if (i == maxDepth && b.nPreferences() == maxDepth)
+        return branchProb;
       unsigned nChildren = nCandidates - i + (i >= minDepth);
       if (parameters->getVD()) // Update a if dirichlet.
         a0 = parameters->getA0() * parameters->depthFactor(i);

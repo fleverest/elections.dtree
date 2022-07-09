@@ -33,7 +33,7 @@ private:
   // vanilla Dirichlet distribution.
   bool vd = false;
   // For storing factor calculations for each depth level in the tree.
-  std::vector<float> depthFactors;
+  std::vector<float> depthFactors = std::vector<float>(0);
 
 public:
   // Canonical constructor
