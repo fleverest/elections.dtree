@@ -141,30 +141,30 @@ std::list<IRVBallotCount> IRVNode::sample(unsigned count,
       rDirichletMultinomial(count, asPost, nOutcomes, engine);
   delete[] asPost;
 
-  // If the ballot is almost completely specified, add the completed ballots
-  // to the output.
+  // Add terminal node ballots
+  if (depth >= minDepth && mnomCounts[nChildren] > 0) {
+    IRVBallot b(
+        std::move(std::list<unsigned>(path.begin(), path.begin() + depth)));
+
+    out.emplace_back(std::move(b), mnomCounts[nChildren]);
+  }
+
+  // If the ballot is one preference from being completely specified, add the
+  // completed ballots to the output.
   if (depth == maxDepth - 1) {
-    for (unsigned i = 0; i < nOutcomes; ++i) {
+    for (unsigned i = 0; i < nChildren; ++i) {
       // Skip if there the sampled count for the ballot is zero.
       if (mnomCounts[i] == 0)
         continue;
 
-      // For early-termination
-      if (i == nChildren) {
-        IRVBallot b(
-            std::move(std::list<unsigned>(path.begin(), path.begin() + depth)));
+      std::swap(path[depth], path[depth + i]);
 
-        out.emplace_back(std::move(b), mnomCounts[i]);
-      } else {
-        std::swap(path[depth], path[depth + i]);
+      IRVBallot b(std::move(
+          std::list<unsigned>(path.begin(), path.begin() + depth + 1)));
 
-        IRVBallot b(std::move(
-            std::list<unsigned>(path.begin(), path.begin() + depth + 1)));
+      out.emplace_back(std::move(b), mnomCounts[i]);
 
-        out.emplace_back(std::move(b), mnomCounts[i]);
-
-        std::swap(path[depth], path[depth + i]);
-      }
+      std::swap(path[depth], path[depth + i]);
     }
     // Return early since there are no child nodes to sample from.
     delete[] mnomCounts;

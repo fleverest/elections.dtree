@@ -170,9 +170,11 @@ void PIRVDirichletTree::setMinDepth(unsigned minDepth_) {
   // posterior will not be Dirichlet.
   for (const auto &d : observedDepths) {
     if (d < minDepth_) {
-      Rcpp::warning("Ballots with fewer than `minDepth` preferences specified "
-                    "have been observed. Hence, the resulting posterior does "
-                    "not truly represent a true Dirichlet distribution.");
+      Rcpp::warning(
+          "Ballots with fewer than `minDepth` preferences specified "
+          "have been observed. Some sampling techniques now exhibit undefined "
+          "behaviour. A Dirichlet Posterior can no longer reduce to a tree of "
+          "height 1.");
       break;
     }
   }
@@ -226,10 +228,13 @@ void PIRVDirichletTree::update(Rcpp::List ballots) {
     // the minDepth of the tree, otherwise the posterior tree
     // will no longer be reducible to a Dirichlet distribution.
     depth = bc.first.nPreferences();
-    if (depth < minDepth && tree->getParameters()->getVD())
-      Rcpp::warning("Updating a Dirichlet distribution with a ballot "
-                    "specifying fewer than `minDepth` preferences. The "
-                    "resulting posterior is no longer Dirichlet.");
+    if (depth < minDepth)
+      Rcpp::warning(
+          "Updating a Dirichlet distribution with a ballot "
+          "specifying fewer than `minDepth` preferences. This introduces "
+          "undefined behaviour to the sampling methods, and the "
+          "resulting posterior can no longer reduce to a Dirichlet "
+          "distribution when using the `vd` option.");
     // Update the tree with count * the ballot.
     nObserved += bc.second;
     tree->update(bc);
