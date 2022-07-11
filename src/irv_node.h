@@ -4,7 +4,7 @@
  * Author:           Floyd Everest <me@floydeverest.com>
  * Created:          02/22/22
  * Description:      This file declares an IRV TreeNode representing the
- *                   unsignedernal states of a stochastic process which produces
+ *                   internal states of a stochastic process which produces
  *                   valid, partially specified IRV ballots with some minimum
  *                   number of candidates selected.
  *****************************************************************************/
@@ -134,14 +134,14 @@ public:
 /*! \brief Simulate random ballots from a uniform Dirichlet Tree starting from
  * an incomplete ballot.
  *
- *  Simulates random ballots, starting from an unsignedernal state in the IRV
+ *  Simulates random ballots, starting from an internal state in the IRV
  * stochastic process.
  *
  * \param params The IRVParameters for the election.
  *
  * \param count The number of ballots to sample.
  *
- * \param path The path to the unsignedernal node representing the incomplete
+ * \param path The path to the internal node representing the incomplete
  * ballot.
  *
  * \param depth The current depth in the Dirichlet Tree.
@@ -161,7 +161,7 @@ public:
 
   /*! \brief Constructs a new IRVNode.
    *
-   *  Constructs an IRVNode representing an unsignedernal state of the
+   *  Constructs an IRVNode representing an internal state of the
    * stochastic process which yields valid IRV ballots by selecting candidates
    * one-by-one.
    *
@@ -171,7 +171,7 @@ public:
    *
    * \param depth_ The depth of this node in the tree.
    *
-   * \param parameters A pounsigneder to the object containing the IRV
+   * \param parameters A pointer to the object containing the IRV
    * distribution parameters.
    *
    * \return Returns a new IRV node.
@@ -185,7 +185,7 @@ public:
   /*! \brief Samples valid ballots from the sub-tree.
    *
    *  An IRVNode represents an incompleted ballot. This method provides an
-   * unsignederface for sampling completed ballots from the starting pounsigned
+   * interface for sampling completed ballots from the starting point
    * represented by this node.
    *
    * \param count The number of ballots to sample.
