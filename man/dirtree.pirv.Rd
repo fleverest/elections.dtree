@@ -6,12 +6,20 @@
 \alias{PIRVDirichletTree}
 \title{Dirichlet Tree for Partial IRV ballots}
 \usage{
-dirtree.pirv(candidates, minDepth = 0, a0 = 1, vd = FALSE)
+dirtree.pirv(
+  candidates,
+  minDepth = 0,
+  maxDepth = length(candidates),
+  a0 = 1,
+  vd = FALSE
+)
 }
 \arguments{
 \item{candidates}{A character vector, with each element (must be unique) representing a single candidate.}
 
 \item{minDepth}{the minimum number of candidates to be specified for a valid ballot.}
+
+\item{maxDepth}{the maximum number of candidates which can be specified for a valid ballot.}
 
 \item{a0}{the prior parameter for the distribution.}
 
