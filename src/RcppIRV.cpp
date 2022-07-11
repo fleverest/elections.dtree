@@ -135,7 +135,6 @@ PIRVDirichletTree::PIRVDirichletTree(Rcpp::CharacterVector candidates,
 
 // Destructor.
 PIRVDirichletTree::~PIRVDirichletTree() {
-  IRVParameters *p = tree->getParameters();
   delete tree->getParameters();
   delete tree;
 }
