@@ -116,8 +116,8 @@ std::list<IRVBallotCount> PIRVDirichletTree::parseBallotList(Rcpp::List bs) {
 }
 
 PIRVDirichletTree::PIRVDirichletTree(Rcpp::CharacterVector candidates,
-                                     unsigned minDepth_, float a0_, bool vd_,
-                                     std::string seed_) {
+                                     unsigned minDepth_, unsigned maxDepth_,
+                                     float a0_, bool vd_, std::string seed_) {
   // Parse the candidate strings.
   std::string cName;
   size_t cIndex = 0;
@@ -129,7 +129,7 @@ PIRVDirichletTree::PIRVDirichletTree(Rcpp::CharacterVector candidates,
   }
   // Initialize tree.
   IRVParameters *params =
-      new IRVParameters(candidates.size(), minDepth_, a0_, vd_);
+      new IRVParameters(candidates.size(), minDepth_, maxDepth_, a0_, vd_);
   tree = new DirichletTree<IRVNode, IRVBallot, IRVParameters>(params, seed_);
 }
 
@@ -146,6 +146,9 @@ unsigned PIRVDirichletTree::getNCandidates() {
 unsigned PIRVDirichletTree::getMinDepth() {
   return tree->getParameters()->getMinDepth();
 }
+unsigned PIRVDirichletTree::getMaxDepth() {
+  return tree->getParameters()->getMaxDepth();
+}
 float PIRVDirichletTree::getA0() { return tree->getParameters()->getA0(); }
 bool PIRVDirichletTree::getVD() { return tree->getParameters()->getVD(); }
 Rcpp::CharacterVector PIRVDirichletTree::getCandidates() {
@@ -157,19 +160,30 @@ Rcpp::CharacterVector PIRVDirichletTree::getCandidates() {
 
 // Setters
 void PIRVDirichletTree::setMinDepth(unsigned minDepth_) {
+  if (minDepth_ > tree->getParameters()->getMaxDepth())
+    Rcpp::stop("Cannot set `minDepth` to a value larger than `maxDepth`.");
   tree->getParameters()->setMinDepth(minDepth_);
   // If the tree is reducible to a Dirichlet distribution,
   // we need to check that the ballots observed so far do not
   // violate len(ballot) < minDepth - otherwise the resulting
   // posterior will not be Dirichlet.
   for (const auto &d : observedDepths) {
-    if (d < minDepth_) {
-      Rcpp::warning("Ballots with fewer than `minDepth` preferences specified "
-                    "have been observed. Hence, the resulting posterior does "
-                    "not truly represent a true Dirichlet distribution.");
+    if (d < minDepth_ && d > 0) {
+      Rcpp::warning(
+          "Ballots with fewer than `minDepth` preferences specified "
+          "have been observed. Some sampling techniques could now exhibit "
+          "undefined behaviour. A Dirichlet Posterior can no longer reduce to "
+          "a tree of height 1. Consider setting `minDepth` to a value lower "
+          "than the length of the smallest ballot.");
       break;
     }
   }
+}
+
+void PIRVDirichletTree::setMaxDepth(unsigned maxDepth_) {
+  if (maxDepth_ < tree->getParameters()->getMinDepth())
+    Rcpp::stop("Cannot set `maxDepth` to a value less than `minDepth`.");
+  tree->getParameters()->setMaxDepth(maxDepth_);
 }
 
 void PIRVDirichletTree::setA0(float a0_) { tree->getParameters()->setA0(a0_); }
@@ -182,12 +196,14 @@ void PIRVDirichletTree::setVD(bool vd_) {
     // will not be reducible to a Dirichlet distribution.
     unsigned minDepth = tree->getParameters()->getMinDepth();
     for (const auto &d : observedDepths) {
-      if (d < minDepth) {
+      if (d < minDepth && d > 0) {
         Rcpp::warning(
             "Updating the parameter structure to represent a Dirichlet "
             "distribution, however ballots with fewer than `minDepth` "
             "preferences specified have been observed. Hence, the resulting "
-            "posterior can not represent a Dirichlet distribution.");
+            "posterior can not represent a Dirichlet distribution. Consider "
+            "setting `minDepth` to a value smaller than the length of the "
+            "smallest ballot.");
         break;
       }
     }
@@ -213,11 +229,18 @@ void PIRVDirichletTree::update(Rcpp::List ballots) {
     // we need to check that the observed ballot length is >=
     // the minDepth of the tree, otherwise the posterior tree
     // will no longer be reducible to a Dirichlet distribution.
+    // This does not apply if the ballot has length zero, since
+    // it will be essentially ignored whenever minDepth > 0.
     depth = bc.first.nPreferences();
-    if (depth < minDepth && tree->getParameters()->getVD())
-      Rcpp::warning("Updating a Dirichlet distribution with a ballot "
-                    "specifying fewer than `minDepth` preferences. The "
-                    "resulting posterior is no longer Dirichlet.");
+    if (depth < minDepth && depth > 0)
+      Rcpp::warning(
+          "Updating a Dirichlet-Tree distribution with a ballot "
+          "specifying fewer than `minDepth` preferences. This introduces "
+          "undefined behaviour to the sampling methods, and the "
+          "resulting posterior can no longer reduce to a Dirichlet "
+          "distribution when using the `vd` option. Consider setting "
+          "`minDepth` to a value lower than the length of the smallest "
+          "ballot.");
     // Update the tree with count * the ballot.
     nObserved += bc.second;
     tree->update(bc);
@@ -329,47 +352,24 @@ Rcpp::NumericVector PIRVDirichletTree::samplePosterior(unsigned nElections,
   return out;
 }
 
-Rcpp::NumericVector PIRVDirichletTree::sampleMarginalProbability(
-    unsigned nSamples, Rcpp::CharacterVector ballot, std::string seed) {
-  tree->setSeed(seed);
-
-  float prob;
-  Rcpp::NumericVector out = {};
-  std::string name;
-
-  std::list<unsigned> preferences = {};
-  for (auto i = 0; i < ballot.size(); ++i) {
-    name = ballot[i];
-    preferences.push_back(candidateMap[name]);
-  }
-
-  IRVBallot b(preferences);
-
-  for (unsigned i = 0; i < nSamples; ++i) {
-    prob = tree->marginalProbability(b, nullptr);
-    out.push_back(prob);
-  }
-
-  return out;
-}
-
 // The Rcpp module interface.
 RCPP_MODULE(pirv_dirichlet_tree_module) {
   Rcpp::class_<PIRVDirichletTree>("PIRVDirichletTree")
       // Constructor needs nCandidates, minDepth, a0 and seed.
-      .constructor<Rcpp::CharacterVector, unsigned, float, bool, std::string>()
+      .constructor<Rcpp::CharacterVector, unsigned, unsigned, float, bool,
+                   std::string>()
       // Getter/Setter interface
       .property("nCandidates", &PIRVDirichletTree::getNCandidates)
       .property("a0", &PIRVDirichletTree::getA0, &PIRVDirichletTree::setA0)
       .property("minDepth", &PIRVDirichletTree::getMinDepth,
                 &PIRVDirichletTree::setMinDepth)
+      .property("maxDepth", &PIRVDirichletTree::getMaxDepth,
+                &PIRVDirichletTree::setMaxDepth)
       .property("vd", &PIRVDirichletTree::getVD, &PIRVDirichletTree::setVD)
       .property("candidates", &PIRVDirichletTree::getCandidates)
       // Methods
       .method("reset", &PIRVDirichletTree::reset)
       .method("update", &PIRVDirichletTree::update)
       .method("samplePredictive", &PIRVDirichletTree::samplePredictive)
-      .method("samplePosterior", &PIRVDirichletTree::samplePosterior)
-      .method("sampleMarginalProbability",
-              &PIRVDirichletTree::sampleMarginalProbability);
+      .method("samplePosterior", &PIRVDirichletTree::samplePosterior);
 }

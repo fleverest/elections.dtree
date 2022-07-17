@@ -25,19 +25,22 @@ private:
   unsigned nCandidates;
   // The minimum number of ballots that must be specified for an IRV election.
   unsigned minDepth = 0;
+  // The maximum number of ballots that must be specified for an IRV election.
+  unsigned maxDepth = 0;
   // The prior parameter for a uniform Dirichlet Tree.
   float a0 = 1.;
   // A flag indicating whether or not the parameter structure reduces to a
   // vanilla Dirichlet distribution.
   bool vd = false;
   // For storing factor calculations for each depth level in the tree.
-  std::vector<float> depthFactors;
+  std::vector<float> depthFactors = std::vector<float>(0);
 
 public:
   // Canonical constructor
-  IRVParameters(unsigned nCandidates_, unsigned minDepth_ = 0, float a0_ = 1.,
-                bool vd_ = false)
-      : nCandidates(nCandidates_), minDepth(minDepth_), a0(a0_), vd(vd_) {
+  IRVParameters(unsigned nCandidates_, unsigned minDepth_ = 0,
+                unsigned maxDepth_ = 0, float a0_ = 1., bool vd_ = false)
+      : nCandidates(nCandidates_), minDepth(minDepth_), maxDepth(maxDepth_),
+        a0(a0_), vd(vd_) {
     calculateDepthFactors();
   }
 
@@ -94,6 +97,13 @@ public:
    */
   unsigned getMinDepth() { return minDepth; }
 
+  /*! \brief Gets the maximum depth.
+   *
+   * \return Returns the maximum number of candidates which can be specified
+   * for a valid IRV Ballot.
+   */
+  unsigned getMaxDepth() { return maxDepth; }
+
   /*! \brief Gets the prior uniform-Dirichlet-Tree parameter a0.
    *
    * \return a0, the prior parameter of the uniform Dirichlet Tree.
@@ -113,6 +123,16 @@ public:
    * valid IRV ballot.
    */
   void setMinDepth(unsigned minDepth_) { minDepth = minDepth_; }
+
+  /*! \brief Sets the maximum depth for the election.
+   *
+   * \param minDepth_ The new maximum number of candidates to be specified for a
+   * valid IRV ballot.
+   */
+  void setMaxDepth(unsigned maxDepth_) {
+    maxDepth = maxDepth_;
+    calculateDepthFactors();
+  }
 
   /*! \brief Sets the uniform Dirichlet Tree prior parameter a0.
    *
@@ -214,23 +234,6 @@ public:
    */
   void update(const IRVBallot &b, std::vector<unsigned> path,
               unsigned count = 1);
-
-  /*! \brief Samples a probability of observing a ballot from the posterior.
-   *
-   *  Given the ballot below the current node in the tree, this method samples a
-   * probability for observing this ballot given the current state, from the
-   * posterior Dirichlet Tree.
-   *
-   * \param b See `IRVNode::update`.
-   *
-   * \param path The path to this node.
-   *
-   * \param engine A PRNG for sampling.
-   *
-   * \return Return parameter description
-   */
-  float marginalProbability(const IRVBallot &b, std::vector<unsigned> path,
-                            std::mt19937 *engine);
 };
 
 #endif /* IRV_NODE_H */

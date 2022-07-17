@@ -32,16 +32,16 @@
 unsigned *rDirichletMultinomial(unsigned count, float *a, unsigned d,
                                 std::mt19937 *engine);
 
-/*! \brief Draws samples from a Beta distribution.
+/*! \brief Draws a sample from a Dirichlet distribution.
  *
- *  Given the parameters a and b, this function will draw a sample from a
- * Beta(a, b) distributed random variable.
+ *  Given the parameter vector a, this function will draw a sample from a
+ * Dirichlet(a) random variable.
  *
- * \param a The a parameter to the Beta distribution
- * \param b The b parameter to the Beta distribution
+ * \param a The a parameter to the Dirichlet distribution
+ * \param d The dimension of a.
  * \param *engine A PRNG for sampling.
- * \return A single sample from a Beta-distributed random variable.
+ * \return A single sample from a Dirichlet(a) random variable.
  */
-float rBeta(float a, float b, std::mt19937 *engine);
+float *rDirichlet(float *a, unsigned d, std::mt19937 *engine);
 
 #endif /* DISTRIBUTIONS_H */

@@ -26,24 +26,31 @@ To avoid loading all tree nodes into memory for sampling, I chose to implement a
 
 ```R
 # Initialize a new Dirichlet Tree for IRV elections with
-# 10 candidates (named A through J), requiring all candidates to be
-# specified for a valid ballot, and using a prior parameter of 5.
+# 26 candidates (named A through Z), requiring exactly 3 preferences
+# specified for a valid ballot, and using a prior parameter of 1.5.
 dtree <- dirtree.pirv(
-  candidates = LETTERS[1:10],
-  minDepth = 9,
-  a0 = 5.
+  candidates = LETTERS,
+  minDepth = 3,
+  maxDepth = 3,
+  a0 = 1.5
 )
 
 # Sample 1000 ballots from the prior.
 ballots <- samplePredictive(dtree, 1000)
 
-# Observe the 1000 ballots to obtain a posterior Dirichlet Tree.
-update(dtree, ballots)
+# Shuffle the ballots
+ballots <- sample(ballots)
+
+# Check which candidate wins the election:
+social.choice(ballots)
+
+# Observe the first 100 ballots to obtain a posterior Dirichlet Tree.
+update(dtree, ballots[1:100])
 
 # Evaluate 100 random election outcomes by:
-#  1. sampling 1000 ballots from the posterior predictive distribution, and
-#  2. evaluating the outcome of the 1000 sampled ballots, plus the 1000 observed.
-samplePosterior(dtree, nElections = 100, nBallots = 2000)
+#  1. sampling 900 ballots from the posterior predictive distribution, and
+#  2. evaluating the outcome of the 900 total sampled ballots, plus the 100 observed.
+samplePosterior(dtree, nElections = 100, nBallots = 1000)
 
 # Change the prior parameter and compare the posterior winning probabilities.
 dtree$a0 <- 1.
@@ -53,11 +60,7 @@ samplePosterior(dtree, nElections = 100, nBallots = 2000)
 dtree$vd <- TRUE
 samplePosterior(dtree, nElections = 100, nBallots = 2000)
 
-# Sample posterior probabilities of observing a given ballot under the posterior.
-b <- ballots[1]
-sampleMPP(dtree, n=100, ballot=b)
-
-# Reset to the prior, removing observed data. This is equivalent to creating
-# a new tree with the same parameters.
+# Reset the distribution to the prior, removing observed data. This is equivalent to
+# creating a new tree with the same parameters.
 reset(dtree)
 ```

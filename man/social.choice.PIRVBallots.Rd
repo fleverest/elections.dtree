@@ -2,7 +2,7 @@
 % Please edit documentation in R/pirv_ballots.R
 \name{social.choice.PIRVBallots}
 \alias{social.choice.PIRVBallots}
-\title{Computes the outcome of the IRV social choice function.}
+\title{Compute the outcome of the IRV social choice function.}
 \usage{
 \method{social.choice}{PIRVBallots}(x, nWinners = 1, ...)
 }
@@ -14,5 +14,5 @@
 \item{\\dots}{Unused.}
 }
 \description{
-Computes the outcome of the IRV social choice function.
+Compute the outcome of the IRV social choice function.
 }
