@@ -85,23 +85,6 @@ public:
    */
   void update(const std::pair<Outcome, unsigned> &oc);
 
-  /*! \brief Sample from the marginal posterior distribution for a specific
-   * outcome.
-   *
-   *  This function samples marginal probabilities for observing a specific
-   * outcome under the posterior Dirichlet Tree.
-   *
-   * \param o The outcome for which we sample posterior observation
-   * probabilities.
-   *
-   * \param engine Optionally, a (warmed-up) mt19937 PRNG for
-   * randomness.
-   *
-   * \return A probability of observing the outcome, drawn from the posterior
-   * Dirichlet Tree.
-   */
-  float marginalProbability(const Outcome &o, std::mt19937 *engine = nullptr);
-
   /*! \brief Sample outcomes from the posterior predictive distribution.
    *
    *  Samples a specified number of outcomes from one realisation of the
@@ -209,20 +192,6 @@ void DirichletTree<NodeType, Outcome, Parameters>::update(
   nObserved += oc.second;
   std::vector<unsigned> path = parameters->defaultPath();
   root->update(oc.first, path, oc.second);
-}
-
-template <typename NodeType, typename Outcome, typename Parameters>
-float DirichletTree<NodeType, Outcome, Parameters>::marginalProbability(
-    const Outcome &o, std::mt19937 *engine_) {
-
-  // Use the default engine unless one is passed to the method.
-  if (engine_ == nullptr) {
-    engine_ = &engine;
-  }
-
-  // Pass straight to the root node.
-  std::vector<unsigned> path = parameters->defaultPath();
-  return root->marginalProbability(o, path, engine_);
 }
 
 template <typename NodeType, typename Outcome, typename Parameters>

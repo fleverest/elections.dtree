@@ -15,5 +15,12 @@ samplePredictive(dtree, nBallots)
 A list with each element corresponding to a drawn ballot.
 }
 \description{
-Draws ballots from a single realization of the Dirichlet Tree posterior.
+\code{samplePredictive} draws ballots from a multinomial distribution with probabilities obtained from a single realization of the Dirichlet Tree posterior.
 }
+\section{References}{
+
+\itemize{
+  \item F. Everest, M. Blom, P.B. Stark, P.J. Stuckey, V. Teague and D. Vukcevic. (2022). Auditing Ranked Voting Elections with Dirichlet-Tree Models: First Steps.
+}
+}
+

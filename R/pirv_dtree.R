@@ -1,9 +1,15 @@
 #' @name dirtree.pirv
 #' @aliases PIRVDirichletTree
 #' @title Dirichlet Tree for Partial IRV ballots
-#' @description A Dirichlet Tree for modelling partially ordered IRV ballots.
+#' @description \code{dirtree.pirv} is used to create a Dirichlet Tree for modelling partially ordered IRV ballots.
+#' @keywords dirichlet tree irv election ballot
+#' @section References:
+#' \itemize{
+#'   \item F. Everest, M. Blom, P.B. Stark, P.J. Stuckey, V. Teague and D. Vukcevic. (2022). Auditing Ranked Voting Elections with Dirichlet-Tree Models: First Steps.
+#' }
 #' @param candidates A character vector, with each element (must be unique) representing a single candidate.
-#' @param minDepth the minimum number of candidates to be specified for a valid ballot.
+#' @param minDepth the minimum number of candidates which must be specified for a valid ballot.
+#' @param maxDepth the maximum number of candidates which can be specified for a valid ballot.
 #' @param a0 the prior parameter for the distribution.
 #' @param vd a boolean value representing whether or not the prior should reduce to a vanilla Dirichlet distribution.
 #' @docType class
@@ -11,7 +17,7 @@
 #' @import methods
 #' @return A Dirichlet Tree representing partial IRV ballots, as an Rcpp module of class `PIRVDirichletTree`.
 #' @export
-dirtree.pirv <- function(candidates, minDepth = 0, a0 = 1., vd = FALSE) {
+dirtree.pirv <- function(candidates, minDepth = 0, maxDepth = length(candidates), a0 = 1., vd = FALSE) {
   # Ensure nCandidates > 1
   if (class(candidates) != "character") {
     stop("`candidates` must be a character vector, with each element representing a single candidate.")
@@ -19,9 +25,13 @@ dirtree.pirv <- function(candidates, minDepth = 0, a0 = 1., vd = FALSE) {
   if (length(unique(candidates)) != length(candidates)) {
     stop("All `candidates` must be unique.")
   }
-  # Ensure 0 <= minDepth <= nCandidates.
-  if (minDepth > length(candidates) || minDepth < 0) {
-    stop("`minDepth` must be >= 0 and <= length(candidates).")
+  # Ensure 0 <= minDepth <= maxDepth <= nCandidates.
+  if (!(
+    minDepth >= 0
+    && maxDepth >= minDepth
+    && length(candidates) >= maxDepth
+  )) {
+    stop("minDepth and maxDepth must satisfy: 0 <= minDepth <= maxDepth <= nCandidates")
   }
   # Ensure a0 >= 0
   if (a0 < 0) {
@@ -36,6 +46,7 @@ dirtree.pirv <- function(candidates, minDepth = 0, a0 = 1., vd = FALSE) {
     PIRVDirichletTree,
     candidates = candidates,
     minDepth = minDepth,
+    maxDepth = maxDepth,
     a0 = a0,
     vd = vd,
     seed = gseed()
@@ -44,7 +55,11 @@ dirtree.pirv <- function(candidates, minDepth = 0, a0 = 1., vd = FALSE) {
 
 #' @name samplePredictive
 #' @title Draw PIRV ballots from the posterior predictive distribution.
-#' @description Draws ballots from a single realization of the Dirichlet Tree posterior.
+#' @description \code{samplePredictive} draws ballots from a multinomial distribution with probabilities obtained from a single realization of the Dirichlet Tree posterior.
+#' @section References:
+#' \itemize{
+#'   \item F. Everest, M. Blom, P.B. Stark, P.J. Stuckey, V. Teague and D. Vukcevic. (2022). Auditing Ranked Voting Elections with Dirichlet-Tree Models: First Steps.
+#' }
 #' @param dtree a PIRV Dirichlet Tree object.
 #' @param nBallots an integer representing the number of ballots to draw.
 #' @return A list with each element corresponding to a drawn ballot.
@@ -63,7 +78,11 @@ samplePredictive <- function(dtree, nBallots) {
 
 #' @name samplePosterior
 #' @title Draw election outcomes from the posterior distribution.
-#' @description Draws ballots from a realizations of the Dirichlet Tree posterior, and determines the probability for each candidate being elected by aggregating the results.
+#' @description \code{samplePosterior} draws sets of ballots from independent realizations of the Dirichlet Tree posterior, then determines the probability for each candidate being elected by aggregating the results of the social choice function.
+#' @section References:
+#' \itemize{
+#'   \item F. Everest, M. Blom, P.B. Stark, P.J. Stuckey, V. Teague and D. Vukcevic. (2022). Auditing Ranked Voting Elections with Dirichlet-Tree Models: First Steps.
+#' }
 #' @param dtree A PIRV Dirichlet Tree object.
 #' @param nElections An integer representing the number of elections to generate. A higher number yields higher precision in the output probabilities.
 #' @param nBallots An integer representing the number of ballots cast in total for each election.
@@ -83,25 +102,13 @@ samplePosterior <- function(dtree, nElections, nBallots, nWinners = 1) {
   )
 }
 
-#' @name sampleMPP
-#' @title Sample marginal posterior probabilities for a ballot.
-#' @description Draws marginal probabilities for observing a given ballot under the posterior distribution.
-#' @param dtree A PIRV Dirichlet Tree object.
-#' @param n The number of samples to draw from the posterior.
-#' @param ballot The ballot to sample posterior probabilities for.
-#' @return A list of NumericVectors with \code{n} probabilities, each corresponding to a probability of observing \code{b} under an independent realisation of the posterior distribution.
-#' @export
-sampleMPP <- function(dtree, n, ballot) {
-  stopifnot(class(ballot) %in% .ballot.types)
-  if (length(ballot)!=1)
-    stop("Sampling marginal probabilities is only implemented for one ballot at a time.")
-  stopifnot(class(dtree) %in% .dtree_classes)
-  return(dtree$sampleMarginalProbability(n, ballot[[1]], gseed()))
-}
-
 #' @name update
 #' @title Update a Dirichlet Tree with PIRV ballot data.
-#' @description Updates a Dirichlet Tree with observed ballots to obtain a new posterior.
+#' @description \code{update} updates a Dirichlet Tree with observations to obtain a posterior distribution.
+#' @section References:
+#' \itemize{
+#'   \item F. Everest, M. Blom, P.B. Stark, P.J. Stuckey, V. Teague and D. Vukcevic. (2022). Auditing Ranked Voting Elections with Dirichlet-Tree Models: First Steps.
+#' }
 #' @param object A PIRV Dirichlet Tree object.
 #' @param ballots a list of PIRV ballots.
 #' @param \\dots Unused.

@@ -1,5 +1,15 @@
 .ballot.types <- c("PIRVBallots")
 
+# Helper ensures a set of PIRVBallots are all valid
+isvalid.PIRVBallots <- function(ballots, ...) {
+  for (b in ballots) {
+    # No Repetitions
+    if (length(b) != length(unique(b)))
+      stop(paste("Ballot ", paste(b, collapse=","), " contains duplicate entries.", sep=""))
+    # TODO: add other checks.
+  }
+}
+
 #' @name `[.PIRVBallots`
 #' @title Access Subsets of Ballots.
 #' @description Extract subsets of ballots by index.
@@ -11,6 +21,32 @@
     attr(subset, "class") <- attr(x, "class")
     attr(subset, "candidates") <- attr(x, "candidates")
     subset
+}
+
+#' @name PIRVBallots
+#' @title Construct a set of PIRV ballots.
+#' @description \code{PIRVBallots} is used to easily construct a set of PIRV ballots.
+#' @examples
+#' PIRVBallots(LETTERS[1:5])
+#' PIRVBallots(list(LETTERS[1:5], LETTERS[6:1]))
+#' @param x A character vector representing a single ballot, or a list of character vectors representing multiple ballots.
+#' @return A \code{PIRVBallots} object representing the ballot(s).
+#' @export
+PIRVBallots <- function(x, ...) {
+
+  # If a single vector is passed, add it to a singleton list.
+  if (typeof(x)=="character")
+    x <- list(x)
+
+  # Check ballots are valid
+  isvalid.PIRVBallots(x)
+
+  # Return the PIRVBallots object
+  return(structure(
+    x,
+    class = "PIRVBallots",
+    candidates = unique(unlist(x))
+  ))
 }
 
 #' @name write.ballots
@@ -57,35 +93,18 @@ write.ballots <- function(ballots, filename = "") {
 
 # Helper function to count ballots by type.
 count.ballots <- function(ballots, candidates) {
-  ballot.counts <- list()
-  if (is.null(candidates)) {
-    candidates <- c()
-  }
 
-  for (b in ballots) {
-    # Check for any unseen candidates
-    candidates <- unique(c(candidates, b))
+  candidates <- sort(unique(unlist(ballots)))
 
-    l <- length(ballot.counts)
+  # Count number of occurances for each ballot using the stackoverflow user
+  # 2414948/alexis-laz answer to ttps://stackoverflow.com/questions/39372372
+  ballots.unq <- unique(ballots)
+  counts <- tabulate(match(ballots, ballots.unq))
+  ballot.counts <- lapply(
+    1:length(counts),
+    function(i) list(ballot=ballots.unq[[i]], count=counts[i])
+  )
 
-    # Check if it has been seen before.
-    seen <- F
-    for (i in 1:l) {
-      if (l > 0 &&
-        length(ballot.counts[[i]]$ballot) == length(b) &&
-        all(ballot.counts[[i]]$ballot == b)
-      ) {
-        # If it is seen, increment the counter
-        seen <- T
-        ballot.counts[[i]]$count <- ballot.counts[[i]]$count + 1
-        break
-      }
-    }
-    # If it was not seen, add it to our collection.
-    if (!seen) {
-      ballot.counts <- c(ballot.counts, list(list(ballot = b, count = 1)))
-    }
-  }
   attr(ballot.counts, "candidates") <- candidates
   return(ballot.counts)
 }
@@ -126,15 +145,15 @@ read.ballots <- function(filename) {
 }
 
 #' @name social.choice
-#' @title Computes the outcome of the appropriate social choice function.
-#' @description Reads a set of ballots, and computes the outcome of the election. The outcome is described by a vector of winning candidates, along with the elimination order of the losing candidates.
+#' @title Computes the outcome of an election.
+#' @description \code{social.choice} reads a set of ballots, and computes the outcome of the election. The outcome is described by a vector of winning candidates, along with the elimination order of the losing candidates.
 #' @param x The set of ballots for which to compute the outcome of the social choice function.
 #' @param \\dots Additional parameters to pass to \code{social.choice}.
 #' @export
 social.choice <- function(x, ...) UseMethod("social.choice", x)
 
 #' @name social.choice.PIRVBallots
-#' @title Computes the outcome of the IRV social choice function.
+#' @title Compute the outcome of the IRV social choice function.
 #' @param x The set of ballots for which to compute the outcome of the IRV social choice function.
 #' @param nWinners The number of candidates to elect.
 #' @param \\dots Unused.

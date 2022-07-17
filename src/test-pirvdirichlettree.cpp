@@ -7,9 +7,10 @@
 #include "RcppIRV.h"
 
 void createAndDeleteTree(Rcpp::CharacterVector candidates, unsigned minDepth,
-                         float a0, bool vd, std::string seed) {
+                         unsigned maxDepth, float a0, bool vd,
+                         std::string seed) {
   PIRVDirichletTree *tree;
-  tree = new PIRVDirichletTree(candidates, minDepth, a0, vd, seed);
+  tree = new PIRVDirichletTree(candidates, minDepth, maxDepth, a0, vd, seed);
   delete tree;
 }
 
@@ -17,6 +18,7 @@ context("Test PIRVDirichletTree constructor and destructor.") {
 
   Rcpp::CharacterVector candidates{"A", "B", "C", "D"};
   unsigned minDepth = 3;
+  unsigned maxDepth = 3;
   float a0 = 1.;
   bool vd = true;
   std::string seed = "123";
@@ -24,6 +26,6 @@ context("Test PIRVDirichletTree constructor and destructor.") {
 
   test_that("We can create and destroy tree.") {
     CATCH_CHECK_NOTHROW(
-        createAndDeleteTree(candidates, minDepth, a0, vd, seed));
+        createAndDeleteTree(candidates, minDepth, maxDepth, a0, vd, seed));
   }
 }

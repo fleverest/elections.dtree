@@ -99,25 +99,6 @@ public:
    */
   virtual void update(const Outcome &o, std::vector<unsigned> path,
                       unsigned count) = 0;
-
-  /*! \brief Samples a marginal probability of observing an outcome under the
-   * posterior.
-   *
-   *  Given an outcome below the current node, this method will
-   * sample a probability of observing the ballot from this position from the
-   * posterior Dirichlet Tree.
-   *
-   * \param o The outcome for which to sample observation probabilities for.
-   *
-   * \param path See `TreeNode::sample`.
-   *
-   * \param engine A PRNG used for sampling.
-   *
-   * \return A probability (in [0, 1]) of observing the given outcome.
-   */
-  virtual float marginalProbability(const Outcome &o,
-                                    std::vector<unsigned> path,
-                                    std::mt19937 *engine) = 0;
 };
 
 #endif /* NODE_H */

@@ -14,6 +14,13 @@ test_that("Can update minDepth", {
   expect_equal(dtree$minDepth, 1)
 })
 
+test_that("Can update maxDepth", {
+  dtree$maxDepth <- 1
+  expect_equal(dtree$maxDepth, 1)
+  dtree$maxDepth <- 2
+  expect_equal(dtree$maxDepth, 2)
+})
+
 test_that("Can update vd", {
   expect_equal(dtree$vd, F)
   dtree$vd <- T

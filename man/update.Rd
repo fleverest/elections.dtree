@@ -15,5 +15,12 @@
 \item{\\dots}{Unused.}
 }
 \description{
-Updates a Dirichlet Tree with observed ballots to obtain a new posterior.
+\code{update} updates a Dirichlet Tree with observations to obtain a posterior distribution.
 }
+\section{References}{
+
+\itemize{
+  \item F. Everest, M. Blom, P.B. Stark, P.J. Stuckey, V. Teague and D. Vukcevic. (2022). Auditing Ranked Voting Elections with Dirichlet-Tree Models: First Steps.
+}
+}
+

@@ -19,5 +19,12 @@ samplePosterior(dtree, nElections, nBallots, nWinners = 1)
 A NumericVector containing the probabilities for each candidate being elected.
 }
 \description{
-Draws ballots from a realizations of the Dirichlet Tree posterior, and determines the probability for each candidate being elected by aggregating the results.
+\code{samplePosterior} draws sets of ballots from independent realizations of the Dirichlet Tree posterior, then determines the probability for each candidate being elected by aggregating the results of the social choice function.
 }
+\section{References}{
+
+\itemize{
+  \item F. Everest, M. Blom, P.B. Stark, P.J. Stuckey, V. Teague and D. Vukcevic. (2022). Auditing Ranked Voting Elections with Dirichlet-Tree Models: First Steps.
+}
+}
+
