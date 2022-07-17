@@ -30,6 +30,7 @@ isvalid.PIRVBallots <- function(ballots, ...) {
 #' PIRVBallots(LETTERS[1:5])
 #' PIRVBallots(list(LETTERS[1:5], LETTERS[6:1]))
 #' @param x A character vector representing a single ballot, or a list of character vectors representing multiple ballots.
+#' @param \\dots Additional parameters to pass to \code{PIRVBallots}.
 #' @return A \code{PIRVBallots} object representing the ballot(s).
 #' @export
 PIRVBallots <- function(x, ...) {
