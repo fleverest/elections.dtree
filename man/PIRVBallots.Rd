@@ -8,6 +8,8 @@ PIRVBallots(x, ...)
 }
 \arguments{
 \item{x}{A character vector representing a single ballot, or a list of character vectors representing multiple ballots.}
+
+\item{\\dots}{Additional parameters to pass to \code{PIRVBallots}.}
 }
 \value{
 A \code{PIRVBallots} object representing the ballot(s).
