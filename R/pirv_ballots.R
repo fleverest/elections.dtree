@@ -93,35 +93,18 @@ write.ballots <- function(ballots, filename = "") {
 
 # Helper function to count ballots by type.
 count.ballots <- function(ballots, candidates) {
-  ballot.counts <- list()
-  if (is.null(candidates)) {
-    candidates <- c()
-  }
 
-  for (b in ballots) {
-    # Check for any unseen candidates
-    candidates <- unique(c(candidates, b))
+  candidates <- sort(unique(unlist(ballots)))
 
-    l <- length(ballot.counts)
+  # Count number of occurances for each ballot using the stackoverflow user
+  # 2414948/alexis-laz answer to ttps://stackoverflow.com/questions/39372372
+  ballots.unq <- unique(ballots)
+  counts <- tabulate(match(ballots, ballots.unq))
+  ballot.counts <- lapply(
+    1:length(counts),
+    function(i) list(ballot=ballots.unq[[i]], count=counts[i])
+  )
 
-    # Check if it has been seen before.
-    seen <- F
-    for (i in 1:l) {
-      if (l > 0 &&
-        length(ballot.counts[[i]]$ballot) == length(b) &&
-        all(ballot.counts[[i]]$ballot == b)
-      ) {
-        # If it is seen, increment the counter
-        seen <- T
-        ballot.counts[[i]]$count <- ballot.counts[[i]]$count + 1
-        break
-      }
-    }
-    # If it was not seen, add it to our collection.
-    if (!seen) {
-      ballot.counts <- c(ballot.counts, list(list(ballot = b, count = 1)))
-    }
-  }
   attr(ballot.counts, "candidates") <- candidates
   return(ballot.counts)
 }
