@@ -234,23 +234,6 @@ public:
    */
   void update(const IRVBallot &b, std::vector<unsigned> path,
               unsigned count = 1);
-
-  /*! \brief Samples a probability of observing a ballot from the posterior.
-   *
-   *  Given the ballot below the current node in the tree, this method samples a
-   * probability for observing this ballot given the current state, from the
-   * posterior Dirichlet Tree.
-   *
-   * \param b See `IRVNode::update`.
-   *
-   * \param path The path to this node.
-   *
-   * \param engine A PRNG for sampling.
-   *
-   * \return Return parameter description
-   */
-  float marginalProbability(const IRVBallot &b, std::vector<unsigned> path,
-                            std::mt19937 *engine);
 };
 
 #endif /* IRV_NODE_H */

@@ -17,7 +17,7 @@ dirtree.pirv(
 \arguments{
 \item{candidates}{A character vector, with each element (must be unique) representing a single candidate.}
 
-\item{minDepth}{the minimum number of candidates to be specified for a valid ballot.}
+\item{minDepth}{the minimum number of candidates which must be specified for a valid ballot.}
 
 \item{maxDepth}{the maximum number of candidates which can be specified for a valid ballot.}
 

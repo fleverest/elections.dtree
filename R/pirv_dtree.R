@@ -3,7 +3,7 @@
 #' @title Dirichlet Tree for Partial IRV ballots
 #' @description A Dirichlet Tree for modelling partially ordered IRV ballots.
 #' @param candidates A character vector, with each element (must be unique) representing a single candidate.
-#' @param minDepth the minimum number of candidates to be specified for a valid ballot.
+#' @param minDepth the minimum number of candidates which must be specified for a valid ballot.
 #' @param maxDepth the maximum number of candidates which can be specified for a valid ballot.
 #' @param a0 the prior parameter for the distribution.
 #' @param vd a boolean value representing whether or not the prior should reduce to a vanilla Dirichlet distribution.
@@ -87,22 +87,6 @@ samplePosterior <- function(dtree, nElections, nBallots, nWinners = 1) {
       gseed()
     )
   )
-}
-
-#' @name sampleMPP
-#' @title Sample marginal posterior probabilities for a ballot.
-#' @description Draws marginal probabilities for observing a given ballot under the posterior distribution.
-#' @param dtree A PIRV Dirichlet Tree object.
-#' @param n The number of samples to draw from the posterior.
-#' @param ballot The ballot to sample posterior probabilities for.
-#' @return A list of NumericVectors with \code{n} probabilities, each corresponding to a probability of observing \code{b} under an independent realisation of the posterior distribution.
-#' @export
-sampleMPP <- function(dtree, n, ballot) {
-  stopifnot(class(ballot) %in% .ballot.types)
-  if (length(ballot)!=1)
-    stop("Sampling marginal probabilities is only implemented for one ballot at a time.")
-  stopifnot(class(dtree) %in% .dtree_classes)
-  return(dtree$sampleMarginalProbability(n, ballot[[1]], gseed()))
 }
 
 #' @name update

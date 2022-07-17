@@ -345,30 +345,6 @@ Rcpp::NumericVector PIRVDirichletTree::samplePosterior(unsigned nElections,
   return out;
 }
 
-Rcpp::NumericVector PIRVDirichletTree::sampleMarginalProbability(
-    unsigned nSamples, Rcpp::CharacterVector ballot, std::string seed) {
-  tree->setSeed(seed);
-
-  float prob;
-  Rcpp::NumericVector out = {};
-  std::string name;
-
-  std::list<unsigned> preferences = {};
-  for (auto i = 0; i < ballot.size(); ++i) {
-    name = ballot[i];
-    preferences.push_back(candidateMap[name]);
-  }
-
-  IRVBallot b(preferences);
-
-  for (unsigned i = 0; i < nSamples; ++i) {
-    prob = tree->marginalProbability(b, nullptr);
-    out.push_back(prob);
-  }
-
-  return out;
-}
-
 // The Rcpp module interface.
 RCPP_MODULE(pirv_dirichlet_tree_module) {
   Rcpp::class_<PIRVDirichletTree>("PIRVDirichletTree")
@@ -388,7 +364,5 @@ RCPP_MODULE(pirv_dirichlet_tree_module) {
       .method("reset", &PIRVDirichletTree::reset)
       .method("update", &PIRVDirichletTree::update)
       .method("samplePredictive", &PIRVDirichletTree::samplePredictive)
-      .method("samplePosterior", &PIRVDirichletTree::samplePosterior)
-      .method("sampleMarginalProbability",
-              &PIRVDirichletTree::sampleMarginalProbability);
+      .method("samplePosterior", &PIRVDirichletTree::samplePosterior);
 }

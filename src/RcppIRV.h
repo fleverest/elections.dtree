@@ -110,9 +110,6 @@ public:
   Rcpp::NumericVector samplePosterior(unsigned nElections, unsigned nBallots,
                                       unsigned nWinners, unsigned nBatches,
                                       std::string seed);
-  Rcpp::NumericVector sampleMarginalProbability(unsigned nSamples,
-                                                Rcpp::CharacterVector ballot,
-                                                std::string seed);
 };
 
 #endif /* RCPP_TREE_H */

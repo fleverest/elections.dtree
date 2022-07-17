@@ -220,7 +220,6 @@ void IRVNode::update(const IRVBallot &b, std::vector<unsigned> path,
 
   // Determine the next candidate preference.
   auto it = b.preferences.begin();
-  // TODO: make this O(1) somehow, although this doesn't need to be efficient.
   for (unsigned i = 0; i < depth; ++i)
     ++it;
   unsigned nextCandidate = *it;
@@ -247,75 +246,4 @@ void IRVNode::update(const IRVBallot &b, std::vector<unsigned> path,
   // path as we go.
   std::swap(path[depth], path[i]);
   children[next_idx]->update(b, path);
-}
-
-float IRVNode::marginalProbability(const IRVBallot &b,
-                                   std::vector<unsigned> path,
-                                   std::mt19937 *engine) {
-  float a0 = parameters->getA0();
-  if (parameters->getVD())
-    a0 = a0 * parameters->depthFactor(depth);
-  unsigned minDepth = parameters->getMinDepth();
-  unsigned maxDepth = parameters->getMaxDepth();
-  unsigned nOutcomes = nChildren + (depth >= minDepth);
-  unsigned nCandidates = parameters->getNCandidates();
-  float a_beta, b_beta, branchProb;
-
-  // Return 0. if the ballot is invalid.
-  if (b.nPreferences() < minDepth)
-    return 0.;
-
-  // See update method for traversal.
-  auto it = b.preferences.begin();
-  // TODO: make this O(1) somehow, although this doesn't need to be efficient.
-  for (unsigned i = 0; i < depth; ++i)
-    ++it;
-  unsigned nextCandidate = *it;
-
-  // Otherwise determine the next candidate index.
-  unsigned i = depth;
-  while (i < nCandidates && path[i] != nextCandidate)
-    ++i;
-  unsigned next_idx = i - depth;
-
-  // Evaluate the a and b parameters, and sample the next
-  // marginal branch probability.
-  a_beta = as[next_idx] + a0;
-  b_beta = 0.;
-  for (unsigned j = 0; j < nOutcomes; ++j)
-    if (j != next_idx)
-      b_beta += as[j] + a0;
-  branchProb = rBeta(a_beta, b_beta, engine);
-
-  // Stop if the number of children is 2 or if no further preferences were
-  // specified.
-  if (nChildren == 2 || next_idx == nChildren)
-    return branchProb;
-
-  // If the next node is uninitialized, calculate beta parameters lazily for
-  // sampling.
-  if (children[next_idx] == nullptr) {
-    // For each remaining preference, since we have not initialized the
-    // corresponding nodes we know that a'=(a0,...,a0)  (where
-    // a0 is multiplied by the appropriate factor is the tree is Dirichlet).
-    // Hence, the following branch probabilities will necessarily be distributed
-    // as Beta(a0, a0*(nChildren-1)). nChildren = nCandidates - i',
-    // where i ranges from depth+1 to b.nPreferences(), i'= i - 1(i>=minDepth).
-    for (unsigned i = depth + 1; i < b.nPreferences(); ++i) {
-      // If we exceed maxDepth, p=0.
-      if (i > maxDepth)
-        return 0;
-      // Return early if nPreferences is maxDepth, since this branchProb=1.
-      if (i == maxDepth && b.nPreferences() == maxDepth)
-        return branchProb;
-      unsigned nChildren = nCandidates - i + (i >= minDepth);
-      if (parameters->getVD()) // Update a if dirichlet.
-        a0 = parameters->getA0() * parameters->depthFactor(i);
-      branchProb *= rBeta(a0, a0 * (nChildren - 1), engine);
-    }
-    return branchProb;
-  }
-  // Otherwise continue recursively evaluating branch probabilities.
-  std::swap(path[depth], path[i]);
-  return branchProb * children[next_idx]->marginalProbability(b, path, engine);
 }
