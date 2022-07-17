@@ -3,6 +3,7 @@
 S3method("[",PIRVBallots)
 S3method(social.choice,PIRVBallots)
 S3method(update,Rcpp_PIRVDirichletTree)
+export(PIRVBallots)
 export(PIRVDirichletTree)
 export(dirtree.pirv)
 export(read.ballots)

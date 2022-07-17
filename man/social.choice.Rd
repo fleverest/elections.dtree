@@ -2,7 +2,7 @@
 % Please edit documentation in R/pirv_ballots.R
 \name{social.choice}
 \alias{social.choice}
-\title{Computes the outcome of the appropriate social choice function.}
+\title{Computes the outcome of an election.}
 \usage{
 social.choice(x, ...)
 }
@@ -12,5 +12,5 @@ social.choice(x, ...)
 \item{\\dots}{Additional parameters to pass to \code{social.choice}.}
 }
 \description{
-Reads a set of ballots, and computes the outcome of the election. The outcome is described by a vector of winning candidates, along with the elimination order of the losing candidates.
+\code{social.choice} reads a set of ballots, and computes the outcome of the election. The outcome is described by a vector of winning candidates, along with the elimination order of the losing candidates.
 }

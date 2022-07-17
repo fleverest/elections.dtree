@@ -29,8 +29,20 @@ dirtree.pirv(
 A Dirichlet Tree representing partial IRV ballots, as an Rcpp module of class `PIRVDirichletTree`.
 }
 \description{
-A Dirichlet Tree for modelling partially ordered IRV ballots.
+\code{dirtree.pirv} is used to create a Dirichlet Tree for modelling partially ordered IRV ballots.
 }
+\section{References}{
+
+\itemize{
+  \item F. Everest, M. Blom, P.B. Stark, P.J. Stuckey, V. Teague and D. Vukcevic. (2022). Auditing Ranked Voting Elections with Dirichlet-Tree Models: First Steps.
+}
+}
+
 \author{
 Floyd Everest
 }
+\keyword{ballot}
+\keyword{dirichlet}
+\keyword{election}
+\keyword{irv}
+\keyword{tree}

@@ -1,7 +1,12 @@
 #' @name dirtree.pirv
 #' @aliases PIRVDirichletTree
 #' @title Dirichlet Tree for Partial IRV ballots
-#' @description A Dirichlet Tree for modelling partially ordered IRV ballots.
+#' @description \code{dirtree.pirv} is used to create a Dirichlet Tree for modelling partially ordered IRV ballots.
+#' @keywords dirichlet tree irv election ballot
+#' @section References:
+#' \itemize{
+#'   \item F. Everest, M. Blom, P.B. Stark, P.J. Stuckey, V. Teague and D. Vukcevic. (2022). Auditing Ranked Voting Elections with Dirichlet-Tree Models: First Steps.
+#' }
 #' @param candidates A character vector, with each element (must be unique) representing a single candidate.
 #' @param minDepth the minimum number of candidates which must be specified for a valid ballot.
 #' @param maxDepth the maximum number of candidates which can be specified for a valid ballot.
@@ -50,7 +55,11 @@ dirtree.pirv <- function(candidates, minDepth = 0, maxDepth = length(candidates)
 
 #' @name samplePredictive
 #' @title Draw PIRV ballots from the posterior predictive distribution.
-#' @description Draws ballots from a single realization of the Dirichlet Tree posterior.
+#' @description \code{samplePredictive} draws ballots from a multinomial distribution with probabilities obtained from a single realization of the Dirichlet Tree posterior.
+#' @section References:
+#' \itemize{
+#'   \item F. Everest, M. Blom, P.B. Stark, P.J. Stuckey, V. Teague and D. Vukcevic. (2022). Auditing Ranked Voting Elections with Dirichlet-Tree Models: First Steps.
+#' }
 #' @param dtree a PIRV Dirichlet Tree object.
 #' @param nBallots an integer representing the number of ballots to draw.
 #' @return A list with each element corresponding to a drawn ballot.
@@ -69,7 +78,11 @@ samplePredictive <- function(dtree, nBallots) {
 
 #' @name samplePosterior
 #' @title Draw election outcomes from the posterior distribution.
-#' @description Draws ballots from a realizations of the Dirichlet Tree posterior, and determines the probability for each candidate being elected by aggregating the results.
+#' @description \code{samplePosterior} draws sets of ballots from independent realizations of the Dirichlet Tree posterior, then determines the probability for each candidate being elected by aggregating the results of the social choice function.
+#' @section References:
+#' \itemize{
+#'   \item F. Everest, M. Blom, P.B. Stark, P.J. Stuckey, V. Teague and D. Vukcevic. (2022). Auditing Ranked Voting Elections with Dirichlet-Tree Models: First Steps.
+#' }
 #' @param dtree A PIRV Dirichlet Tree object.
 #' @param nElections An integer representing the number of elections to generate. A higher number yields higher precision in the output probabilities.
 #' @param nBallots An integer representing the number of ballots cast in total for each election.
@@ -91,7 +104,11 @@ samplePosterior <- function(dtree, nElections, nBallots, nWinners = 1) {
 
 #' @name update
 #' @title Update a Dirichlet Tree with PIRV ballot data.
-#' @description Updates a Dirichlet Tree with observed ballots to obtain a new posterior.
+#' @description \code{update} updates a Dirichlet Tree with observations to obtain a posterior distribution.
+#' @section References:
+#' \itemize{
+#'   \item F. Everest, M. Blom, P.B. Stark, P.J. Stuckey, V. Teague and D. Vukcevic. (2022). Auditing Ranked Voting Elections with Dirichlet-Tree Models: First Steps.
+#' }
 #' @param object A PIRV Dirichlet Tree object.
 #' @param ballots a list of PIRV ballots.
 #' @param \\dots Unused.

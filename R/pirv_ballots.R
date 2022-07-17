@@ -1,5 +1,15 @@
 .ballot.types <- c("PIRVBallots")
 
+# Helper ensures a set of PIRVBallots are all valid
+isvalid.PIRVBallots <- function(ballots, ...) {
+  for (b in ballots) {
+    # No Repetitions
+    if (length(b) != length(unique(b)))
+      stop(paste("Ballot ", paste(b, collapse=","), " contains duplicate entries.", sep=""))
+    # TODO: add other checks.
+  }
+}
+
 #' @name `[.PIRVBallots`
 #' @title Access Subsets of Ballots.
 #' @description Extract subsets of ballots by index.
@@ -11,6 +21,32 @@
     attr(subset, "class") <- attr(x, "class")
     attr(subset, "candidates") <- attr(x, "candidates")
     subset
+}
+
+#' @name PIRVBallots
+#' @title Construct a set of PIRV ballots.
+#' @description \code{PIRVBallots} is used to easily construct a set of PIRV ballots.
+#' @examples
+#' PIRVBallots(LETTERS[1:5])
+#' PIRVBallots(list(LETTERS[1:5], LETTERS[6:1]))
+#' @param x A character vector representing a single ballot, or a list of character vectors representing multiple ballots.
+#' @return A \code{PIRVBallots} object representing the ballot(s).
+#' @export
+PIRVBallots <- function(x, ...) {
+
+  # If a single vector is passed, add it to a singleton list.
+  if (typeof(x)=="character")
+    x <- list(x)
+
+  # Check ballots are valid
+  isvalid.PIRVBallots(x)
+
+  # Return the PIRVBallots object
+  return(structure(
+    x,
+    class = "PIRVBallots",
+    candidates = unique(unlist(x))
+  ))
 }
 
 #' @name write.ballots
@@ -126,15 +162,15 @@ read.ballots <- function(filename) {
 }
 
 #' @name social.choice
-#' @title Computes the outcome of the appropriate social choice function.
-#' @description Reads a set of ballots, and computes the outcome of the election. The outcome is described by a vector of winning candidates, along with the elimination order of the losing candidates.
+#' @title Computes the outcome of an election.
+#' @description \code{social.choice} reads a set of ballots, and computes the outcome of the election. The outcome is described by a vector of winning candidates, along with the elimination order of the losing candidates.
 #' @param x The set of ballots for which to compute the outcome of the social choice function.
 #' @param \\dots Additional parameters to pass to \code{social.choice}.
 #' @export
 social.choice <- function(x, ...) UseMethod("social.choice", x)
 
 #' @name social.choice.PIRVBallots
-#' @title Computes the outcome of the IRV social choice function.
+#' @title Compute the outcome of the IRV social choice function.
 #' @param x The set of ballots for which to compute the outcome of the IRV social choice function.
 #' @param nWinners The number of candidates to elect.
 #' @param \\dots Unused.

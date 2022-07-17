@@ -6,12 +6,7 @@ test_that("Bayesian bootstrap posterior can sample truncated ballots with maxDep
     maxDepth = 3,
     vd = F
   )
-  bs <- structure(list(
-      c("C", "B", "A", "D", "E")
-    ),
-    candidates = LETTERS[1:5],
-    class = "PIRVBallots"
-  )
+  bs <- PIRVBallots(c("C", "B", "A", "D", "E"))
 
   update(dtree, bs)
 
