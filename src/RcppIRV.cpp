@@ -227,7 +227,7 @@ void PIRVDirichletTree::update(Rcpp::List ballots) {
     // the minDepth of the tree, otherwise the posterior tree
     // will no longer be reducible to a Dirichlet distribution.
     depth = bc.first.nPreferences();
-    if (depth < minDepth)
+    if (0 < depth < minDepth) // Not harmful if nPreferences is zero.
       Rcpp::warning(
           "Updating a Dirichlet distribution with a ballot "
           "specifying fewer than `minDepth` preferences. This introduces "
