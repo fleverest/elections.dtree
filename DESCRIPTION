@@ -10,7 +10,7 @@ Authors@R: c(
 Version: 0.4.1
 Depends: R (>= 4.0.0)
 SystemRequirements: C++17
-License: MIT
+License: GPL-3
 LazyData: TRUE
 RoxygenNote: 7.2.0
 LinkingTo:
