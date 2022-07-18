@@ -4,12 +4,16 @@
 \alias{write.ballots}
 \title{Write PIRV ballots to a file.}
 \usage{
-write.ballots(ballots, filename = "")
+write.ballots(ballots, filename = "", returnLines = FALSE, suppress = FALSE)
 }
 \arguments{
 \item{ballots}{The IRVBallots to write to a file.}
 
 \item{filename}{The name of the file to write to, or \code{""} to print to stdout.}
+
+\item{returnLines}{A flag which determines whether or not the output should be returned as a character vector}
+
+\item{suppress}{A flag which, when True, suppresses any output to stdout.}
 }
 \description{
 Writes a set of ballots to a new file. This follows the ballot:count standard, with a header describing candidates.
