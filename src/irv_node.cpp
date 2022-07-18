@@ -124,7 +124,6 @@ std::list<IRVBallotCount> IRVNode::sample(unsigned count,
 
   unsigned minDepth = parameters->getMinDepth();
   unsigned maxDepth = parameters->getMaxDepth();
-  unsigned nCandidates = parameters->getNCandidates();
   float a0 = parameters->getA0();
   if (parameters->getVD())
     a0 = a0 * parameters->depthFactor(depth);
