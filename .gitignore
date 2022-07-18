@@ -13,3 +13,4 @@ compile_commands.json
 Makefile
 *.png
 /..RCHECK
+/..Rcheck
