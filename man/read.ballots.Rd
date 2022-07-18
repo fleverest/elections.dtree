@@ -4,10 +4,10 @@
 \alias{read.ballots}
 \title{Read PIRV ballots from a file.}
 \usage{
-read.ballots(filename)
+read.ballots(file)
 }
 \arguments{
-\item{filename}{The name of the file to read from.}
+\item{file}{The name of the file to read from, or a vector of strings containing file data.}
 }
 \description{
 Reads a set of partial IRV ballots from a file. The file is expected to follow the ballot:count standard, with a header describing all participating candidates.
