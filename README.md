@@ -1,6 +1,6 @@
 # Bayesian IRV Election Auditing with the Dirichlet-Tree Prior.
   <!-- badges: start -->
-  [![R-CMD-check](https://github.com/fleverest/dirtree-elections/workflows/R-CMD-check/badge.svg)](https://github.com/fleverest/dirtree-elections/actions/workflows/R-CMD-check.yaml)
+  [![R-CMD-check](https://github.com/fleverest/dirtree-elections/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/fleverest/dirtree-elections/actions/workflows/R-CMD-check.yaml)
   [![codecov](https://codecov.io/gh/fleverest/dirtree-elections/branch/master/graph/badge.svg?token=V36WLNA1BY)](https://codecov.io/gh/fleverest/dirtree-elections)
   <!-- badges: end -->
 
