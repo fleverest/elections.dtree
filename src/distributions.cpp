@@ -35,7 +35,6 @@ unsigned *rDirichletMultinomial(unsigned count, float *a, unsigned d,
 }
 
 float *rDirichlet(float *a, unsigned d, std::mt19937 *engine) {
-  float sum_ps, p;
   float *gamma = new float[d];
   float gamma_sum = 0.;
 
@@ -52,14 +51,14 @@ float *rDirichlet(float *a, unsigned d, std::mt19937 *engine) {
     // p_j=0.
     std::uniform_int_distribution<unsigned> rint(0, d - 1);
     unsigned idx = rint(*engine);
-    for (auto i = 0; i < d; ++i)
+    for (unsigned i = 0; i < d; ++i)
       gamma[i] = 0.;
     gamma[idx] = 1.;
     return gamma;
   }
 
   // Otherwise normalize the gamma variates and return.
-  for (auto i = 0; i < d; ++i) {
+  for (unsigned i = 0; i < d; ++i) {
     gamma[i] = gamma[i] / gamma_sum;
   }
   return gamma;
