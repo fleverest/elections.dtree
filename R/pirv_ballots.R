@@ -55,8 +55,10 @@ PIRVBallots <- function(x, ...) {
 #' @description Writes a set of ballots to a new file. This follows the ballot:count standard, with a header describing candidates.
 #' @param ballots The IRVBallots to write to a file.
 #' @param filename The name of the file to write to, or \code{""} to print to stdout.
+#' @param returnLines A flag which determines whether or not the output should be returned as a character vector
+#' @param suppress A flag which, when True, suppresses any output to stdout.
 #' @export
-write.ballots <- function(ballots, filename = "") {
+write.ballots <- function(ballots, filename = "", returnLines = FALSE, suppress = FALSE) {
 
   stopifnot(class(ballots) %in% .ballot.types)
 
@@ -85,10 +87,15 @@ write.ballots <- function(ballots, filename = "") {
   }
 
   if (cout) {
-    cat(lines, sep = "\n")
+    if (!suppress)
+      cat(lines, sep = "\n")
+    if (returnLines)
+      return(lines)
   } else {
     writeLines(lines, f)
     close(f)
+    if (returnLines)
+      return(lines)
   }
 }
 
@@ -114,34 +121,46 @@ count.ballots <- function(ballots, candidates) {
 #' @name read.ballots
 #' @title Read PIRV ballots from a file.
 #' @description Reads a set of partial IRV ballots from a file. The file is expected to follow the ballot:count standard, with a header describing all participating candidates.
-#' @param filename The name of the file to read from.
+#' @param file The name of the file to read from, or a vector of strings containing file data.
 #' @export
-read.ballots <- function(filename) {
+read.ballots <- function(file) {
   ballots <- list()
 
   # Read the file.
-  lines <- readLines(filename)
-
-  # First 2 or 3 lines are the header, we only use the first of those.
-  candidates <- strsplit(gsub(" ", "", lines[1]), ",")[[1]]
-
-  # Check if the header contains the affiliated parties or not.
-  if (gsub("[-+]*", "", lines[2]) == "") {
-    final.header.line <- 2
+  if (length(file) == 1 && file.exists(file)) {
+    lines <- readLines(file)
   } else {
-    final.header.line <- 3
+    lines <- file
   }
 
-  # Process the ballots.
-  lines.body <- gsub("[() ]", "", lines[-(1:final.header.line)])
-  lines.body <- strsplit(lines.body, ":")
-  ballot.types <- strsplit(sapply(lines.body, "[", 1), ",")
-  counts <- strtoi(sapply(lines.body, "[", 2))
-  ballots <- rep(ballot.types, counts)
+  ballots <- tryCatch({
+    # First 2 or 3 lines are the header, we only use the first of those.
+    candidates <- strsplit(gsub(" ", "", lines[1]), ",")[[1]]
 
-  # Package them up and return.
-  class(ballots) <- "PIRVBallots"
-  attr(ballots, "candidates") <- candidates
+    # Check if the header contains the affiliated parties or not.
+    if (gsub("[-+]*", "", lines[2]) == "") {
+      final.header.line <- 2
+    } else {
+      final.header.line <- 3
+    }
+
+    # Process the ballots.
+    lines.body <- gsub("[() ]", "", lines[-(1:final.header.line)])
+    lines.body <- strsplit(lines.body, ":")
+    ballot.types <- strsplit(sapply(lines.body, "[", 1), ",")
+    counts <- strtoi(sapply(lines.body, "[", 2))
+    ballots <- rep(ballot.types, counts)
+
+    # Package them up and return.
+    class(ballots) <- "PIRVBallots"
+    attr(ballots, "candidates") <- candidates
+    ballots
+  },
+  error = function(msg) {
+    stop(paste0("An error was encountered while reading ballots from ",
+                "file or data:\n", msg))
+  })
+
   return(ballots)
 }
 
