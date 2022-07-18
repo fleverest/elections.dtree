@@ -34,10 +34,7 @@ context("Test Dirichlet-Multinomial samples sum to count.") {
       for (unsigned i = 0; i < d; ++i)
         sum += result[i];
 
-      if (sum != count) {
-        always_sums_to_count = false;
-        break;
-      }
+      always_sums_to_count = always_sums_to_count && (sum == count);
 
       // Delete a and mnom counts
       delete[] a;

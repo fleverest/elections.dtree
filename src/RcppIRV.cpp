@@ -9,6 +9,7 @@
  *****************************************************************************/
 
 #include "RcppIRV.h"
+#include "R.h"
 
 // [[Rcpp::plugins("cpp17")]]
 // [[Rcpp::depends(RcppThread)]]
@@ -36,22 +37,33 @@ Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners,
 
   Rcpp::CharacterVector bNames;
   std::list<unsigned> bIndices;
+  bool newBallot = true;
 
   for (auto i = 0; i < bs.size(); ++i) {
-    bNames = bs[i];
-    if (bNames.size() == 0) // Skip empty ballots
+    if (bs[i] == R_NilValue) // Skip empty ballots
       continue;
+    bNames = bs[i];
     bIndices = {};
     for (auto j = 0; j < bNames.size(); ++j) {
       cName = bNames[j];
-      // If candidate has not yet been seen, add it to our map and vector.
-      if (c2Index.count(cName) == 0) {
-        c2Index[cName] = cNames.size();
-        cNames.push_back(cName);
-      }
+      // If candidate has not yet been seen, raise an error.
+      if (c2Index.count(cName) == 0)
+        Rcpp::stop("Invalid candidate found during social-choice evaluation.");
       bIndices.push_back(c2Index[cName]);
     }
-    scInput.emplace_back(std::move(bIndices), 1);
+
+    // Search for the same ballot already in the social choice input.
+    IRVBallot b(bIndices);
+    newBallot = true;
+    for (auto &bc : scInput) {
+      if (b == bc.first) {
+        bc.second = bc.second + 1;
+        newBallot = false;
+      }
+    }
+    // If it's not already there, add it to the back of the list with count 1.
+    if (newBallot)
+      scInput.emplace_back(std::move(b), 1);
   }
 
   if (nWinners < 1 || nWinners >= cNames.size())
@@ -64,6 +76,8 @@ Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners,
   std::seed_seq ss(seed.begin(), seed.end());
   std::mt19937 e(ss);
   e.discard(e.state_size * 100);
+
+  // Group all equal ballots
 
   std::vector<unsigned> elimination_order_idx =
       socialChoiceIRV(scInput, cNames.size(), &e);
@@ -188,28 +202,7 @@ void PIRVDirichletTree::setMaxDepth(unsigned maxDepth_) {
 
 void PIRVDirichletTree::setA0(float a0_) { tree->getParameters()->setA0(a0_); }
 
-void PIRVDirichletTree::setVD(bool vd_) {
-  if (vd_) {
-    // If the tree represents a Dirichlet distribution,
-    // we need to check that no observed ballots had length >=
-    // the minDepth of the tree, otherwise the posterior tree
-    // will not be reducible to a Dirichlet distribution.
-    unsigned minDepth = tree->getParameters()->getMinDepth();
-    for (const auto &d : observedDepths) {
-      if (d < minDepth && d > 0) {
-        Rcpp::warning(
-            "Updating the parameter structure to represent a Dirichlet "
-            "distribution, however ballots with fewer than `minDepth` "
-            "preferences specified have been observed. Hence, the resulting "
-            "posterior can not represent a Dirichlet distribution. Consider "
-            "setting `minDepth` to a value smaller than the length of the "
-            "smallest ballot.");
-        break;
-      }
-    }
-  }
-  tree->getParameters()->setVD(vd_);
-}
+void PIRVDirichletTree::setVD(bool vd_) { tree->getParameters()->setVD(vd_); }
 
 // Other methods
 void PIRVDirichletTree::reset() {

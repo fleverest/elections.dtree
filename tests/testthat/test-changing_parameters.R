@@ -1,4 +1,9 @@
-dtree <- dirtree.pirv(candidates = LETTERS[1:3], a0 = 1, minDepth = 0, vd = F)
+dtree <- dirtree.pirv(
+  candidates = LETTERS[1:3],
+  a0 = 1,
+  minDepth = 0,
+  vd = FALSE
+)
 
 test_that("Can update a0", {
   dtree$a0 <- 0
@@ -22,9 +27,9 @@ test_that("Can update maxDepth", {
 })
 
 test_that("Can update vd", {
-  expect_equal(dtree$vd, F)
-  dtree$vd <- T
-  expect_equal(dtree$vd, T)
-  dtree$vd <- F
-  expect_equal(dtree$vd, F)
+  expect_equal(dtree$vd, FALSE)
+  dtree$vd <- TRUE
+  expect_equal(dtree$vd, TRUE)
+  dtree$vd <- FALSE
+  expect_equal(dtree$vd, FALSE)
 })
