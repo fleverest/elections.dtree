@@ -54,11 +54,11 @@ samplePosterior(dtree, nElections = 100, nBallots = 1000)
 
 # Change the prior parameter and compare the posterior winning probabilities.
 dtree$a0 <- 1.
-samplePosterior(dtree, nElections = 100, nBallots = 2000)
+samplePosterior(dtree, nElections = 100, nBallots = 1000)
 
 # Do it again, with a Dirichlet prior this time!
 dtree$vd <- TRUE
-samplePosterior(dtree, nElections = 100, nBallots = 2000)
+samplePosterior(dtree, nElections = 100, nBallots = 1000)
 
 # Reset the distribution to the prior, removing observed data. This is equivalent to
 # creating a new tree with the same parameters.
