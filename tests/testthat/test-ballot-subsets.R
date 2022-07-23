@@ -1,12 +1,12 @@
-dtree <- dirtree.pirv(
+dtree <- dirtree(
   candidates = LETTERS[1:3],
   a0 = 1,
-  minDepth = 0,
+  min_depth = 0,
   vd = FALSE
 )
 
 test_that("Subsets of ballots have same attributes.", {
-  ballots <- samplePredictive(dtree, 100)
+  ballots <- sample_predictive(dtree, 100)
   subset <- ballots[1:10]
   expect_true(
     identical(

@@ -5,7 +5,7 @@ social_choice_irv <- function(bs, nWinners, candidates, seed) {
     .Call(`_dirtree_elections_social_choice_irv`, bs, nWinners, candidates, seed)
 }
 
-RSocialChoiceIRV <- function(bs, nWinners, candidates, seed) {
-    .Call(`_dirtree_elections_RSocialChoiceIRV`, bs, nWinners, candidates, seed)
+rDirichlet <- function(alpha, seed) {
+    .Call(`_dirtree_elections_rDirichlet`, alpha, seed)
 }
 

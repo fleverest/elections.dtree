@@ -1,65 +1,65 @@
 test_that(paste0("Bayesian bootstrap posterior can sample truncated ballots ",
-                "with maxDepth preferences"), {
-  dtree <- dirtree.pirv(
+                "with max_depth preferences"), {
+  dtree <- dirtree(
     candidates = LETTERS[1:5],
     a0 = 0,
-    minDepth = 0,
-    maxDepth = 3,
+    min_depth = 0,
+    max_depth = 3,
     vd = FALSE
   )
-  bs <- PIRVBallots(c("C", "B", "A", "D", "E"))
+  bs <- ranked_ballots(c("C", "B", "A", "D", "E"))
 
   update(dtree, bs)
 
-  test_sample <- samplePredictive(dtree, 1)
+  test_sample <- sample_predictive(dtree, 1)
 
   expect_true(all(test_sample[[1]][1:3] == bs[[1]][1:3]))
 })
 
-test_that("samplePredictive produces valid ballots", {
-  dtree <- dirtree.pirv(
+test_that("sample_predictive produces valid ballots", {
+  dtree <- dirtree(
     candidates = LETTERS[1:10],
     a0 = 1.,
-    minDepth = 2,
-    maxDepth = 8,
+    min_depth = 2,
+    max_depth = 8,
     vd = FALSE
   )
 
-  test_samples <- samplePredictive(dtree, 1000)
+  test_samples <- sample_predictive(dtree, 1000)
 
   expect_true(all(lapply(test_samples, length) >= 2))
   expect_true(all(lapply(test_samples, length) <= 8))
 })
 
-test_that("samplePredictive produces the correct number of ballots when a0=0", {
-  dtree <- dirtree.pirv(
+test_that("sample_predictive produces correct number of ballots when a0=0", {
+  dtree <- dirtree(
     candidates = LETTERS[1:10],
     a0 = 1.,
-    minDepth = 3,
+    min_depth = 3,
     vd = FALSE
   )
 
-  initial_samples <- samplePredictive(dtree, 1000)
+  initial_samples <- sample_predictive(dtree, 1000)
 
   update(dtree, initial_samples)
   dtree$a0 <- 0
-  dtree$maxDepth <- 7
+  dtree$max_depth <- 7
 
-  expect_equal(length(samplePredictive(dtree, 1000)), 1000)
+  expect_equal(length(sample_predictive(dtree, 1000)), 1000)
 })
 
-test_that("minDepth cannot be less than maxDepth.", {
+test_that("min_depth cannot be less than max_depth.", {
   expect_error({
-    dtree <- dirtree.pirv(candidates = LETTERS, minDepth = 4, maxDepth = 3)
+    dtree <- dirtree(candidates = LETTERS, min_depth = 4, max_depth = 3)
   })
 
-  dtree_min3 <- dirtree.pirv(candidates = LETTERS, minDepth = 3)
+  dtree_min3 <- dirtree(candidates = LETTERS, min_depth = 3)
   expect_error({
-    dtree_min3$maxDepth <- 2
+    dtree_min3$max_depth <- 2
   })
 
-  dtree_max3 <- dirtree.pirv(candidates = LETTERS, maxDepth = 3)
+  dtree_max3 <- dirtree(candidates = LETTERS, max_depth = 3)
   expect_error({
-    dtree_max3$minDepth <- 4
+    dtree_max3$min_depth <- 4
   })
 })
