@@ -3,9 +3,9 @@
 #' @description
 #' A \code{dirichlet_tree} object represents a Dirichlet-Tree distribution
 #' on ballots. By specifying the tree structure for the ranked ballots,
-#' the Dirichlet Tree is initialized as the prior as described by
+#' the Dirichlet-Tree is initialized with the same prior structure described by
 #' \insertCite{dtree_evoteid;textual}{dirtree.elections}. There are
-#' methods available for observing data to obtain a posterior distribution
+#' methods provided for observing data (to obtain a posterior distribution)
 #' along with methods to sample election outcomes and sets of ballots from
 #' the posterior predictive distribution.
 #'
@@ -170,7 +170,7 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
       }
       # Set the observations attribute.
       private$observations <- ranked_ballots(list(), candidates = candidates)
-      # Return Dirichlet Tree
+      # Return Dirichlet-Tree
       private$.Rcpp_tree <- new(
         RDirichletTree,
         candidates = candidates,
@@ -332,10 +332,10 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
 #' @aliases dtree
 #'
 #' @title
-#' Create a Dirichlet Tree object
+#' Create a Dirichlet-Tree object
 #'
 #' @description
-#' \code{dirtree} is used to create a Dirichlet Tree for modelling ballots,
+#' \code{dirtree} is used to create a Dirichlet-Tree for modelling ballots,
 #' as described by \insertCite{dtree_evoteid;textual}{dirtree.elections}.
 #'
 #' @keywords dirichlet tree irv election ballot
@@ -363,7 +363,7 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
 #' @import methods
 #'
 #' @return
-#' A Dirichlet Tree representing partial IRV ballots, as an object of class
+#' A Dirichlet-Tree representing ranked ballots, as an object of class
 #' \code{dirichlet_tree}.
 #'
 #' @references
@@ -389,7 +389,7 @@ dirtree <- function(
 #' @name sample_predictive
 #'
 #' @title
-#' Draw PIRV ballots from the posterior predictive distribution.
+#' Draw ballots from the posterior predictive distribution.
 #'
 #' @description
 #' \code{sample_predictive} draws ballots from a multinomial distribution with
@@ -398,7 +398,7 @@ dirtree <- function(
 #' \insertCite{dtree_evoteid;textual}{dirtree.elections} for details.
 #'
 #' @param dtree
-#' A PIRV Dirichlet Tree object.
+#' A \code{dirichlet_tree} object.
 #'
 #' @param n_ballots
 #' An integer representing the number of ballots to draw.
@@ -423,7 +423,7 @@ sample_predictive <- function(dtree, n_ballots) {
 #'
 #' @description
 #' \code{sample_posterior} draws sets of ballots from independent realizations
-#' of the Dirichlet Tree posterior, then determines the probability for each
+#' of the Dirichlet-Tree posterior, then determines the probability for each
 #' candidate being elected by aggregating the results of the social choice
 #' function. See \insertCite{dtree_evoteid;textual}{dirtree.elections} for
 #' details.
@@ -470,9 +470,9 @@ sample_posterior <- function(dtree, n_elections, n_ballots, n_winners = 1) {
 #' \insertCite{dtree_evoteid;textual}{dirtree.elections} for implementation
 #' details.
 #'
-#' @param object A PIRV Dirichlet Tree object.
+#' @param object A \code{dirichlet_tree} object.
 #'
-#' @param ballots a list of PIRV ballots.
+#' @param ballots A set of ballots - must be of type \code{ranked_ballots}.
 #'
 #' @param \\dots Unused.
 #'
@@ -492,7 +492,7 @@ update.dirichlet_tree <- function(object, ballots, ...) {
 #' @name reset
 #'
 #' @title
-#' Clear the internal state of a PIRV Dirichlet Tree
+#' Clear the internal state of a \code{dirichlet_tree} object.
 #'
 #' @description
 #' Destroy the Tree's internal state and revert back to the prior.
