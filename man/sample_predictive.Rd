@@ -2,12 +2,12 @@
 % Please edit documentation in R/dtree.R
 \name{sample_predictive}
 \alias{sample_predictive}
-\title{Draw PIRV ballots from the posterior predictive distribution.}
+\title{Draw ballots from the posterior predictive distribution.}
 \usage{
 sample_predictive(dtree, n_ballots)
 }
 \arguments{
-\item{dtree}{A PIRV Dirichlet Tree object.}
+\item{dtree}{A \code{dirichlet_tree} object.}
 
 \item{n_ballots}{An integer representing the number of ballots to draw.}
 }

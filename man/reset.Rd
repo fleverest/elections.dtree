@@ -2,7 +2,7 @@
 % Please edit documentation in R/dtree.R
 \name{reset}
 \alias{reset}
-\title{Clear the internal state of a PIRV Dirichlet Tree}
+\title{Clear the internal state of a \code{dirichlet_tree} object.}
 \usage{
 reset(dtree)
 }

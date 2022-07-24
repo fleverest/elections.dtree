@@ -10,9 +10,9 @@ An \code{\link{R6Class}} generator object.
 \description{
 A \code{dirichlet_tree} object represents a Dirichlet-Tree distribution
 on ballots. By specifying the tree structure for the ranked ballots,
-the Dirichlet Tree is initialized as the prior as described by
+the Dirichlet-Tree is initialized with the same prior structure described by
 \insertCite{dtree_evoteid;textual}{dirtree.elections}. There are
-methods available for observing data to obtain a posterior distribution
+methods provided for observing data (to obtain a posterior distribution)
 along with methods to sample election outcomes and sets of ballots from
 the posterior predictive distribution.
 }

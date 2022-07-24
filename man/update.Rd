@@ -8,9 +8,9 @@
 \method{update}{dirichlet_tree}(object, ballots, ...)
 }
 \arguments{
-\item{object}{A PIRV Dirichlet Tree object.}
+\item{object}{A \code{dirichlet_tree} object.}
 
-\item{ballots}{a list of PIRV ballots.}
+\item{ballots}{A set of ballots - must be of type \code{ranked_ballots}.}
 
 \item{\\dots}{Unused.}
 }
