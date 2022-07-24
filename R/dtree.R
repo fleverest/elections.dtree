@@ -192,7 +192,7 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
       cat(
         "  Candidates: ",
         paste(
-          private$.Rcpp_tree$candidates,
+          sort(private$.Rcpp_tree$candidates),
           collapse = " "
         ),
         "\n\n",
