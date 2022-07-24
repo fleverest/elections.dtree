@@ -54,7 +54,7 @@ context("Test uniform dirichlet distribution has mean 1/n.") {
   unsigned n = 100;
   unsigned n_trials = 1000;
 
-  float alpha[n] = {};
+  float *alpha = new float[n];
   for (auto i = 0; i < n; ++i)
     alpha[i] = 1.;
 
@@ -65,6 +65,8 @@ context("Test uniform dirichlet distribution has mean 1/n.") {
     sum_p_n += p[n - 1];
     delete[] p;
   }
+
+  delete[] alpha;
 
   test_that("Last Dirichlet probability has mean approximately 1/n.") {
     expect_true(sum_p_n <
