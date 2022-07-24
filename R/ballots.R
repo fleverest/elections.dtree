@@ -58,6 +58,10 @@ validate_rankedballots <- function(ballots, candidates = NULL, ...) {
 #' A character vector representing a single ballot, or a list of
 #' character vectors representing multiple ballots.
 #'
+#' @param candidates
+#' A character vector of names corresponding to the candidates running in
+#' the election.
+#'
 #' @param \\dots
 #' Additional parameters to pass to \code{ranked_ballots}.
 #'
