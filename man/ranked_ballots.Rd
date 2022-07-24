@@ -10,6 +10,9 @@ ranked_ballots(x, candidates = NULL, ...)
 \item{x}{A character vector representing a single ballot, or a list of
 character vectors representing multiple ballots.}
 
+\item{candidates}{A character vector of names corresponding to the candidates running in
+the election.}
+
 \item{\\dots}{Additional parameters to pass to \code{ranked_ballots}.}
 }
 \value{
