@@ -2,10 +2,10 @@
 % Please edit documentation in R/dtree.R
 \name{update}
 \alias{update}
-\alias{update.Rcpp_RDirichletTree}
+\alias{update.dirichlet_tree}
 \title{Update a \code{dirichlet_tree} model by observing some ranked ballots.}
 \usage{
-\method{update}{Rcpp_RDirichletTree}(object, ballots, ...)
+\method{update}{dirichlet_tree}(object, ballots, ...)
 }
 \arguments{
 \item{object}{A PIRV Dirichlet Tree object.}

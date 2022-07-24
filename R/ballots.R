@@ -1,6 +1,3 @@
-# Character vector of implemented ballot types
-.ballot_types <- c("ranked_ballots")
-
 # Helper ensures a set of ranked_ballots are all valid
 validate_rankedballots <- function(ballots, ...) {
   for (b in ballots) {

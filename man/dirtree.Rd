@@ -3,9 +3,8 @@
 \docType{class}
 \name{dirtree}
 \alias{dirtree}
-\alias{dirichlet_tree}
 \alias{dtree}
-\title{Create a Dirichlet Tree model}
+\title{Create a Dirichlet Tree object}
 \usage{
 dirtree(
   candidates,
