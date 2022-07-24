@@ -19,7 +19,9 @@ LinkingTo:
     testthat
 Imports:
     Rcpp,
-    methods
+    methods,
+    Rdpack
+RdMacros: Rdpack
 Suggests:
     testthat (>= 3.0.0),
     xml2
