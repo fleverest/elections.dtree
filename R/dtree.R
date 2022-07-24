@@ -48,7 +48,8 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
   cloneable = FALSE,
 
   private = list(
-    .Rcpp_tree = NULL
+    .Rcpp_tree = NULL,
+    observations = NULL
   ),
 
   active = list(
@@ -156,6 +157,8 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
       if (!is.logical(vd)) {
         stop("`vd` must be a logical.")
       }
+      # Set the observations attribute.
+      private$observations <- ranked_ballots(list(), candidates = candidates)
       # Return Dirichlet Tree
       private$.Rcpp_tree <- new(
         RDirichletTree,
@@ -166,6 +169,45 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
         vd = vd,
         seed = gseed()
       )
+      invisible(self)
+    },
+
+    #' @description
+    #' \code{print} shows some details of the distribution and its parameters.
+    #'
+    #' @usage
+    #' dtree$print()
+    #'
+    #' @return The \code{dirichlet_tree} object.
+    print = function() {
+      cat("Dirichlet-Tree:\n")
+      cat(
+        "  Candidates: ",
+        paste(
+          private$.Rcpp_tree$candidates,
+          collapse = " "
+        ),
+        "\n\n",
+        sep = ""
+      )
+      cat("  `a0`: ", private$.Rcpp_tree$a0, "\n\n", sep = "")
+      cat("  `min_depth`: ", private$.Rcpp_tree$min_depth, "\n\n", sep = "")
+      cat("  `max_depth`: ", private$.Rcpp_tree$max_depth, "\n\n", sep = "")
+      cat("  `vd`: ", private$.Rcpp_tree$vd, "\n\n", sep = "")
+      # Summarize observations
+      n_observations <- length(private$observations)
+      cat("  observations: ", n_observations, "\n", sep = "")
+      # count first preferences
+      cat("    first preference distribution:\n")
+      first_prefs <- table(factor(
+        sapply(
+          private$observations,
+          function(b) if (is.na(b[1])) "EMPTY" else b[1]
+        ),
+        levels = c(sort(private$.Rcpp_tree$candidates), "EMPTY")
+      ))
+      print(first_prefs, quote = FALSE)
+      # Return self
       invisible(self)
     },
 
@@ -193,6 +235,10 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
       if (!any(class(ballots) %in% .ballot_types))
         stop("`ballots` must be an object of class `ranked_ballots`.")
       private$.Rcpp_tree$update(ballots = ballots)
+      private$observations = ranked_ballots(
+        c(private$observations, ballots),
+        candidates = private$.Rcpp_tree$candidates
+      )
       invisible(self)
     },
 

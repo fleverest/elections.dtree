@@ -1,5 +1,5 @@
 # Helper ensures a set of ranked_ballots are all valid
-validate_rankedballots <- function(ballots, ...) {
+validate_rankedballots <- function(ballots, candidates = NULL, ...) {
   for (b in ballots) {
     # No Repetitions
     if (length(b) != length(unique(b)))
@@ -8,6 +8,14 @@ validate_rankedballots <- function(ballots, ...) {
         paste(b, collapse = ","),
         " contains duplicate entries.")
       )
+    if (!is.null(candidates)) {
+      if (any(!b %in% candidates))
+        stop(paste0(
+          "Ballot ",
+          paste(b, collapse = ","),
+          " contains a candidate not in `candidates`."
+        ))
+    }
     # TODO: add other checks.
   }
 }
@@ -56,20 +64,23 @@ validate_rankedballots <- function(ballots, ...) {
 #' @return A \code{ranked_ballots} object representing the ballot(s).
 #'
 #' @export
-ranked_ballots <- function(x, ...) {
+ranked_ballots <- function(x, candidates = NULL, ...) {
 
   # If a single vector is passed, add it to a singleton list.
   if (typeof(x) == "character")
     x <- list(x)
 
   # Check ballots are valid
-  validate_rankedballots(x)
+  validate_rankedballots(x, candidates)
+
+  if (is.null(candidates))
+    candidates = sort(unique(unlist(x)))
 
   # Return the ranked_ballots object
   return(structure(
     x,
     class = "ranked_ballots",
-    candidates = unique(unlist(x))
+    candidates = candidates
   ))
 }
 

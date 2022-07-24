@@ -10,6 +10,8 @@ An \code{\link{R6Class}} generator object.
 \usage{
 dtree <- dirichlet_tree$new(candidates = LETTERS)
 
+dtree$print()
+
 dtree$update(ballots)
 
 dtree$reset()
@@ -119,6 +121,7 @@ Dirichlet-Tree.}
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-dirichlet_tree-new}{\code{dirichlet_tree$new()}}
+\item \href{#method-dirichlet_tree-print}{\code{dirichlet_tree$print()}}
 \item \href{#method-dirichlet_tree-update}{\code{dirichlet_tree$update()}}
 \item \href{#method-dirichlet_tree-reset}{\code{dirichlet_tree$reset()}}
 \item \href{#method-dirichlet_tree-sample_posterior}{\code{dirichlet_tree$sample_posterior()}}
@@ -174,6 +177,19 @@ A new \code{dirichlet_tree} prior.
 
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dirichlet_tree-print"></a>}}
+\if{latex}{\out{\hypertarget{method-dirichlet_tree-print}{}}}
+\subsection{Method \code{print()}}{
+\code{print} shows some details of the distribution and its parameters.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dirichlet_tree$print()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+The \code{dirichlet_tree} object.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-dirichlet_tree-update"></a>}}

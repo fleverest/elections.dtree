@@ -4,7 +4,7 @@
 \alias{ranked_ballots}
 \title{Construct a set of ranked ballots.}
 \usage{
-ranked_ballots(x, ...)
+ranked_ballots(x, candidates = NULL, ...)
 }
 \arguments{
 \item{x}{A character vector representing a single ballot, or a list of
