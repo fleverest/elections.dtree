@@ -7,9 +7,6 @@
 \format{
 An \code{\link{R6Class}} generator object.
 }
-\usage{
-dirichlet_tree$new(candidates = LETTERS)
-}
 \description{
 A \code{dirichlet_tree} object represents a Dirichlet-Tree distribution
 on ballots. By specifying the tree structure for the ranked ballots,

@@ -42,8 +42,6 @@
 #' @param n_winners
 #' The number of candidates elected in each election.
 #'
-#' @usage dirichlet_tree$new(candidates = LETTERS)
-#'
 #' @keywords dirichlet tree irv election ballot
 #'
 #' @format An \code{\link{R6Class}} generator object.
