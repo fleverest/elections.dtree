@@ -54,3 +54,13 @@ test_that("Update fails with invalid ballot.", {
     update(dtree, ranked_ballots(LETTERS[4]))
   })
 })
+
+test_that("Updating with incorrect structure results in error", {
+  dtree <- dirtree(candidates = LETTERS[1:3])
+  expect_error({
+    update(dtree, list(c("A"), c("B", "A")))
+  })
+  expect_error({
+    dtree$update(list(c("A"), c("B", "A")))
+  })
+})

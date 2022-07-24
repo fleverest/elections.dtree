@@ -5,6 +5,15 @@ dtree <- dirtree(
   vd = FALSE
 )
 
+test_that("ranked_ballots raises error on invalid input", {
+  expect_error({
+    ranked_ballots(list(c("A", "B"), c("C", "D")), candidates = LETTERS[1:3])
+  })
+  expect_error({
+    ranked_ballots(c("A", "A"), candidates = c("A"))
+  })
+})
+
 test_that("Subsets of ballots have same attributes.", {
   ballots <- sample_predictive(dtree, 100)
   subset <- ballots[1:10]

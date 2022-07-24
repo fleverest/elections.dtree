@@ -5,6 +5,14 @@ test_that("read_ballots and write_ballots are inverse.", {
     read_ballots(write_ballots(bs, return_lines = TRUE, suppress = TRUE))
   ))
 
+  # Ensure all candidates show in the output
+  for (l in LETTERS[1:5]) {
+    expect_output(
+      write_ballots(bs),
+      l
+    )
+  }
+
   lines <- c(
     "A, B, C, D, E",
     "A, B, C, D, E",

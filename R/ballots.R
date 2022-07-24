@@ -2,19 +2,19 @@
 validate_rankedballots <- function(ballots, candidates = NULL, ...) {
   for (b in ballots) {
     # No Repetitions
-    if (length(b) != length(unique(b)))
+    if (length(b) != length(unique(b))) {
       stop(paste0(
         "Ballot ",
         paste(b, collapse = ","),
         " contains duplicate entries.")
       )
-    if (!is.null(candidates)) {
-      if (any(!b %in% candidates))
-        stop(paste0(
-          "Ballot ",
-          paste(b, collapse = ","),
-          " contains a candidate not in `candidates`."
-        ))
+    }
+    if (!is.null(candidates) && any(!b %in% candidates)) {
+      stop(paste0(
+        "Ballot ",
+        paste(b, collapse = ","),
+        " contains a candidate not in `candidates`."
+      ))
     }
     # TODO: add other checks.
   }

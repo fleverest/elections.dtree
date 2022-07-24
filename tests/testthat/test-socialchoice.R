@@ -39,3 +39,10 @@ test_that("Social choice gives error when conditions don't make sense.", {
     social_choice(ballots)
   })
 })
+
+test_that("Calling with undefined social choice function raises error", {
+  ballots <- ranked_ballots(c("A", "B"))
+  expect_error({
+    social_choice(ballots, n_winners = 1, fn = "undefined")
+  })
+})
