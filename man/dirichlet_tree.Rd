@@ -12,6 +12,8 @@ dtree <- dirichlet_tree$new(candidates = LETTERS)
 
 dtree$update(ballots)
 
+dtree$reset()
+
 dtree$sample_posterior(n_elections = 100, n_ballots = 1000)
 
 dtree$sample_predictive(n_ballots = 10)
@@ -43,6 +45,17 @@ dirichlet_tree$new(
 )$update(
   ranked_ballots(c("A", "B", "C"))
 )
+
+
+## ------------------------------------------------
+## Method `dirichlet_tree$reset`
+## ------------------------------------------------
+
+dirichlet_tree$new(
+  candidates = LETTERS
+)$update(
+  ranked_ballots(c("A", "B", "C"))
+)$reset()
 
 
 ## ------------------------------------------------
@@ -107,6 +120,7 @@ Dirichlet-Tree.}
 \itemize{
 \item \href{#method-dirichlet_tree-new}{\code{dirichlet_tree$new()}}
 \item \href{#method-dirichlet_tree-update}{\code{dirichlet_tree$update()}}
+\item \href{#method-dirichlet_tree-reset}{\code{dirichlet_tree$reset()}}
 \item \href{#method-dirichlet_tree-sample_posterior}{\code{dirichlet_tree$sample_posterior()}}
 \item \href{#method-dirichlet_tree-sample_predictive}{\code{dirichlet_tree$sample_predictive()}}
 }
@@ -190,6 +204,33 @@ The \code{dirichlet_tree} object.
 )$update(
   ranked_ballots(c("A", "B", "C"))
 )
+
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-dirichlet_tree-reset"></a>}}
+\if{latex}{\out{\hypertarget{method-dirichlet_tree-reset}{}}}
+\subsection{Method \code{reset()}}{
+Resets the \code{dirichlet_tree} observations to revert the
+parameter structure back to the originally specified prior.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{dirichlet_tree$reset()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+The \code{dirichlet_tree} object.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{dirichlet_tree$new(
+  candidates = LETTERS
+)$update(
+  ranked_ballots(c("A", "B", "C"))
+)$reset()
 
 }
 \if{html}{\out{</div>}}

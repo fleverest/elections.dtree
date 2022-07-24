@@ -9,6 +9,9 @@ reset(dtree)
 \arguments{
 \item{dtree}{A \code{dirichlet_tree} object.}
 }
+\value{
+The \code{dirichlet_tree} object.
+}
 \description{
 Destroy the Tree's internal state and revert back to the prior.
 }

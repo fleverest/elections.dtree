@@ -2,6 +2,7 @@
 
 ## usethis namespace: start
 #' @import Rcpp
+#' @importFrom Rdpack reprompt
 #' @useDynLib dirtree.elections, .registration = TRUE
 #' @export RDirichletTree
 ## usethis namespace: end
