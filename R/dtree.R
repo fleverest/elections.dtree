@@ -29,7 +29,20 @@
 #' reduces to a regular Dirichlet distribution as described by
 #' \insertCite{dtree_evoteid;textual}{dirtree.elections}.
 #'
-#' @usage dtree <- dirichlet_tree$new(candidates = LETTERS)
+#' @param ballots
+#' A set of ballots to observe - must be of class \code{ranked_ballots}.
+#'
+#' @param n_elections
+#' An integer representing the number of elections to generate. A higher
+#' number yields higher precision in the output probabilities.
+#'
+#' @param n_ballots
+#' An integer representing the total number of ballots cast in the election.
+#'
+#' @param n_winners
+#' The number of candidates elected in each election.
+#'
+#' @usage dirichlet_tree$new(candidates = LETTERS)
 #'
 #' @keywords dirichlet tree irv election ballot
 #'
@@ -175,9 +188,6 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #' @description
     #' \code{print} shows some details of the distribution and its parameters.
     #'
-    #' @usage
-    #' dtree$print()
-    #'
     #' @return The \code{dirichlet_tree} object.
     print = function() {
       cat("Dirichlet-Tree:\n")
@@ -217,12 +227,6 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #' Dirichlet-Tree, as described in
     #' \insertCite{dtree_evoteid;textual}{dirtree.elections}.
     #'
-    #' @param ballots
-    #' A set of ballots to observe - must be of class \code{ranked_ballots}.
-    #'
-    #' @usage
-    #' dtree$update(ballots)
-    #'
     #' @examples
     #' dirichlet_tree$new(
     #'   candidates = LETTERS
@@ -246,9 +250,6 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #' Resets the \code{dirichlet_tree} observations to revert the
     #' parameter structure back to the originally specified prior.
     #'
-    #' @usage
-    #' dtree$reset()
-    #'
     #' @examples
     #' dirichlet_tree$new(
     #'   candidates = LETTERS
@@ -267,19 +268,6 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #' posterior, then determines the probability for each candidate being
     #' elected by aggregating the results of the social choice function. See
     #' \insertCite{dtree_evoteid;textual}{dirtree.elections} for details.
-    #'
-    #' @param n_elections
-    #' An integer representing the number of elections to generate. A higher
-    #' number yields higher precision in the output probabilities.
-    #'
-    #' @param n_ballots
-    #' An integer representing the total number of ballots cast in the election.
-    #'
-    #' @param n_winners
-    #' The number of candidates elected in each election.
-    #'
-    #' @usage
-    #' dtree$sample_posterior(n_elections = 100, n_ballots = 1000)
     #'
     #' @examples
     #' dirichlet_tree$new(
@@ -312,15 +300,6 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #' with ballot probabilities obtained from a single realization of the
     #' Dirichlet-Tree posterior on the ranked ballots. See
     #' \insertCite{dtree_evoteid;textual}{dirtree.elections} for details.
-    #'
-    #' @param n_ballots
-    #' An integer representing the number of ballots to draw per election.
-    #'
-    #' @param n_elections
-    #' An integer representing the number of elections to draw.
-    #'
-    #' @usage
-    #' dtree$sample_predictive(n_ballots = 10)
     #'
     #' @examples
     #' dirichlet_tree$new(

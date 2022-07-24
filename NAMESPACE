@@ -3,7 +3,6 @@
 S3method("[",ranked_ballots)
 S3method(social_choice,ranked_ballots)
 S3method(update,dirichlet_tree)
-export(RDirichletTree)
 export(dirichlet_tree)
 export(dirtree)
 export(ranked_ballots)

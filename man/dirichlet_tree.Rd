@@ -8,17 +8,7 @@
 An \code{\link{R6Class}} generator object.
 }
 \usage{
-dtree <- dirichlet_tree$new(candidates = LETTERS)
-
-dtree$print()
-
-dtree$update(ballots)
-
-dtree$reset()
-
-dtree$sample_posterior(n_elections = 100, n_ballots = 1000)
-
-dtree$sample_predictive(n_ballots = 10)
+dirichlet_tree$new(candidates = LETTERS)
 }
 \description{
 A \code{dirichlet_tree} object represents a Dirichlet-Tree distribution
@@ -318,9 +308,7 @@ Dirichlet-Tree posterior on the ranked ballots. See
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n_ballots}}{An integer representing the number of ballots to draw per election.}
-
-\item{\code{n_elections}}{An integer representing the number of elections to draw.}
+\item{\code{n_ballots}}{An integer representing the total number of ballots cast in the election.}
 }
 \if{html}{\out{</div>}}
 }
