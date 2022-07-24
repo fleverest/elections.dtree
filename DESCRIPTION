@@ -20,7 +20,8 @@ LinkingTo:
 Imports:
     Rcpp,
     methods,
-    Rdpack
+    Rdpack,
+    R6
 RdMacros: Rdpack
 Suggests:
     testthat (>= 3.0.0),
