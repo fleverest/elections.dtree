@@ -6,8 +6,8 @@ validate_rankedballots <- function(ballots, candidates = NULL, ...) {
       stop(paste0(
         "Ballot ",
         paste(b, collapse = ","),
-        " contains duplicate entries.")
-      )
+        " contains duplicate entries."
+      ))
     }
     if (!is.null(candidates) && any(!b %in% candidates)) {
       stop(paste0(
@@ -16,7 +16,6 @@ validate_rankedballots <- function(ballots, candidates = NULL, ...) {
         " contains a candidate not in `candidates`."
       ))
     }
-    # TODO: add other checks.
   }
 }
 
@@ -36,10 +35,10 @@ validate_rankedballots <- function(ballots, candidates = NULL, ...) {
 #'
 #' @export
 `[.ranked_ballots` <- function(x, i = NULL) {
-    subset <- unclass(x)[i]
-    attr(subset, "class") <- attr(x, "class")
-    attr(subset, "candidates") <- attr(x, "candidates")
-    subset
+  subset <- unclass(x)[i]
+  attr(subset, "class") <- attr(x, "class")
+  attr(subset, "candidates") <- attr(x, "candidates")
+  subset
 }
 
 #' @name ranked_ballots
@@ -69,16 +68,17 @@ validate_rankedballots <- function(ballots, candidates = NULL, ...) {
 #'
 #' @export
 ranked_ballots <- function(x, candidates = NULL, ...) {
-
   # If a single vector is passed, add it to a singleton list.
-  if (typeof(x) == "character")
+  if (typeof(x) == "character") {
     x <- list(x)
+  }
 
   # Check ballots are valid
   validate_rankedballots(x, candidates)
 
-  if (is.null(candidates))
-    candidates = sort(unique(unlist(x)))
+  if (is.null(candidates)) {
+    candidates <- sort(unique(unlist(x)))
+  }
 
   # Return the ranked_ballots object
   return(structure(
@@ -115,13 +115,10 @@ ranked_ballots <- function(x, candidates = NULL, ...) {
 #' A flag which, when True, suppresses any output to stdout.
 #'
 #' @export
-write_ballots <- function(
-  ballots,
-  filename = "",
-  return_lines = FALSE,
-  suppress = FALSE
-) {
-
+write_ballots <- function(ballots,
+                          filename = "",
+                          return_lines = FALSE,
+                          suppress = FALSE) {
   stopifnot(class(ballots) %in% .ballot_types)
 
   if (filename == "") {
@@ -149,21 +146,23 @@ write_ballots <- function(
   }
 
   if (cout) {
-    if (!suppress)
+    if (!suppress) {
       cat(lines, sep = "\n")
-    if (return_lines)
+    }
+    if (return_lines) {
       return(lines)
+    }
   } else {
     writeLines(lines, f)
     close(f)
-    if (return_lines)
+    if (return_lines) {
       return(lines)
+    }
   }
 }
 
 # Helper function to count ballots by type.
 count_ballots <- function(ballots, candidates) {
-
   candidates <- sort(unique(unlist(ballots)))
 
   # Count number of occurances for each ballot using the stackoverflow user
@@ -204,33 +203,37 @@ read_ballots <- function(file) {
     lines <- file
   }
 
-  ballots <- tryCatch({
-    # First 2 or 3 lines are the header, we only use the first of those.
-    candidates <- strsplit(gsub(" ", "", lines[1]), ",")[[1]]
+  ballots <- tryCatch(
+    {
+      # First 2 or 3 lines are the header, we only use the first of those.
+      candidates <- strsplit(gsub(" ", "", lines[1]), ",")[[1]]
 
-    # Check if the header contains the affiliated parties or not.
-    if (gsub("[-+]*", "", lines[2]) == "") {
-      final_header_line <- 2
-    } else {
-      final_header_line <- 3
+      # Check if the header contains the affiliated parties or not.
+      if (gsub("[-+]*", "", lines[2]) == "") {
+        final_header_line <- 2
+      } else {
+        final_header_line <- 3
+      }
+
+      # Process the ballots.
+      lines_body <- gsub("[() ]", "", lines[-(1:final_header_line)])
+      lines_body <- strsplit(lines_body, ":")
+      ballot_types <- strsplit(sapply(lines_body, "[", 1), ",")
+      counts <- strtoi(sapply(lines_body, "[", 2))
+      ballots <- rep(ballot_types, counts)
+
+      # Package them up and return.
+      class(ballots) <- "ranked_ballots"
+      attr(ballots, "candidates") <- candidates
+      ballots
+    },
+    error = function(msg) {
+      stop(paste0(
+        "An error was encountered while reading ballots from ",
+        "file or data:\n", msg
+      ))
     }
-
-    # Process the ballots.
-    lines_body <- gsub("[() ]", "", lines[-(1:final_header_line)])
-    lines_body <- strsplit(lines_body, ":")
-    ballot_types <- strsplit(sapply(lines_body, "[", 1), ",")
-    counts <- strtoi(sapply(lines_body, "[", 2))
-    ballots <- rep(ballot_types, counts)
-
-    # Package them up and return.
-    class(ballots) <- "ranked_ballots"
-    attr(ballots, "candidates") <- candidates
-    ballots
-  },
-  error = function(msg) {
-    stop(paste0("An error was encountered while reading ballots from ",
-                "file or data:\n", msg))
-  })
+  )
 
   return(ballots)
 }
@@ -277,12 +280,10 @@ social_choice <- function(x, ...) UseMethod("social_choice", x)
 #' @param \\dots Unused.
 #'
 #' @export
-social_choice.ranked_ballots <- function(
-  x,
-  n_winners = 1,
-  fn = "irv",
-  ...
-) {
+social_choice.ranked_ballots <- function(x,
+                                         n_winners = 1,
+                                         fn = "irv",
+                                         ...) {
   stopifnot(class(x) %in% .ballot_types)
   if (fn == "irv") {
     return(social_choice_irv(x, n_winners, attr(x, "candidates"), gseed()))

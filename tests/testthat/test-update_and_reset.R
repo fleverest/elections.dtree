@@ -25,9 +25,11 @@ test_that("Update and reset have an effect.", {
   }
 })
 
-test_that(paste0("Presented with warnings when observing ballots",
-                " with fewer preferences than min_depth, but greater",
-                " than zero."), {
+test_that(paste0(
+  "Presented with warnings when observing ballots",
+  " with fewer preferences than min_depth, but greater",
+  " than zero."
+), {
   dtree <- dirtree(
     candidates = LETTERS,
     min_depth = 3,

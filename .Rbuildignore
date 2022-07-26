@@ -1,3 +1,4 @@
-^\.github$
 ^LICENSE$
-^test\.txt$
+^\.github$
+^\.lintr$
+^\.pre-commit-config\.yaml$

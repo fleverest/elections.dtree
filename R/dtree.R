@@ -1,3 +1,5 @@
+# nolint start
+
 #' Create a Dirichlet-Tree for modelling ranked ballots
 #'
 #' @description
@@ -57,12 +59,10 @@
 dirichlet_tree <- R6::R6Class("dirichlet_tree",
   class = TRUE,
   cloneable = FALSE,
-
   private = list(
     .Rcpp_tree = NULL,
     observations = NULL
   ),
-
   active = list(
     #' @field a0
     #' Gets or sets the \code{a0} parameter for the Dirichlet-Tree.
@@ -70,8 +70,9 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
       if (missing(a0)) {
         return(private$.Rcpp_tree$a0)
       } else {
-        if (!is.numeric(a0) || a0 < 0)
+        if (!is.numeric(a0) || a0 < 0) {
           stop("The `a0` parameter must be a numeric >= 0.")
+        }
         private$.Rcpp_tree$a0 <- a0
         invisible(self)
       }
@@ -83,10 +84,12 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
       if (missing(min_depth)) {
         return(private$.Rcpp_tree$min_depth)
       } else {
-        if (!is.numeric(min_depth) || min_depth < 0)
+        if (!is.numeric(min_depth) || min_depth < 0) {
           stop("`min_depth` must be an integer >= 0.")
-        if (min_depth > private$.Rcpp_tree$max_depth)
+        }
+        if (min_depth > private$.Rcpp_tree$max_depth) {
           stop("`min_depth` must be <= `max_depth`.")
+        }
         private$.Rcpp_tree$min_depth <- min_depth
         invisible(self)
       }
@@ -99,13 +102,15 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
       if (missing(max_depth)) {
         return(private$.Rcpp_tree$max_depth)
       } else {
-        if (!is.numeric(max_depth)
-          || max_depth < 0
-          || max_depth >= length(private$.Rcpp_tree$candidates)
-        )
+        if (!is.numeric(max_depth) ||
+          max_depth < 0 ||
+          max_depth >= length(private$.Rcpp_tree$candidates)
+        ) {
           stop("`max_depth` must be an integer >= 0 and <= #candidates.")
-        if (max_depth < private$.Rcpp_tree$min_depth)
+        }
+        if (max_depth < private$.Rcpp_tree$min_depth) {
           stop("`max_depth` must be >= `min_depth`.")
+        }
         private$.Rcpp_tree$max_depth <- max_depth
         invisible(self)
       }
@@ -117,14 +122,14 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
       if (missing(vd)) {
         return(private$.Rcpp_tree$vd)
       } else {
-        if (!is.logical(vd))
+        if (!is.logical(vd)) {
           stop("`vd` must be a logical value.")
+        }
         private$.Rcpp_tree$vd <- vd
         invisible(self)
       }
     }
   ),
-
   public = list(
     #' @description
     #' Create a new \code{dirichlet_tree} prior distribution with the specified
@@ -136,29 +141,31 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #'
     #' @return
     #' A new \code{dirichlet_tree} prior.
-    initialize = function(
-      candidates,
-      min_depth = 0,
-      max_depth = length(candidates) - 1,
-      a0 = 1.,
-      vd = FALSE
-    ) {
+    initialize = function(candidates,
+                          min_depth = 0,
+                          max_depth = length(candidates) - 1,
+                          a0 = 1.,
+                          vd = FALSE) {
       # Ensure n_candidates > 1
       if (class(candidates) != "character") {
-        stop(paste0("`candidates` must be a character vector, with each",
-                    " element representing a single candidate."))
+        stop(paste0(
+          "`candidates` must be a character vector, with each",
+          " element representing a single candidate."
+        ))
       }
       if (length(unique(candidates)) != length(candidates)) {
         stop("All `candidates` must be unique.")
       }
       # Ensure 0 <= min_depth <= max_depth <= n_candidates.
       if (!(
-        min_depth >= 0
-        && max_depth >= min_depth
-        && length(candidates) >= max_depth
+        min_depth >= 0 &&
+          max_depth >= min_depth &&
+          length(candidates) >= max_depth
       )) {
-        stop(paste0("min_depth and max_depth must satisfy: ",
-                    "0 <= min_depth <= max_depth <= n_candidates"))
+        stop(paste0(
+          "min_depth and max_depth must satisfy: ",
+          "0 <= min_depth <= max_depth <= n_candidates"
+        ))
       }
       # Ensure a0 >= 0
       if (a0 < 0) {
@@ -234,10 +241,11 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #'
     #' @return The \code{dirichlet_tree} object.
     update = function(ballots) {
-      if (!any(class(ballots) %in% .ballot_types))
+      if (!any(class(ballots) %in% .ballot_types)) {
         stop("`ballots` must be an object of class `ranked_ballots`.")
+      }
       private$.Rcpp_tree$update(ballots = ballots)
-      private$observations = ranked_ballots(
+      private$observations <- ranked_ballots(
         c(private$observations, ballots),
         candidates = private$.Rcpp_tree$candidates
       )
@@ -316,16 +324,20 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #' ballots drawn from a single realisation of the posterior Dirichlet-Tree.
     sample_predictive = function(n_ballots) {
       # Ensure n_ballots > 0.
-      if (n_ballots <= 0 || !is.numeric(n_ballots))
+      if (n_ballots <= 0 || !is.numeric(n_ballots)) {
         stop("n_ballots must be an integer > 0")
+      }
       ballots <- private$.Rcpp_tree$sample_predictive(
-                              as.integer(n_ballots), gseed())
+        as.integer(n_ballots), gseed()
+      )
       class(ballots) <- "ranked_ballots"
       attr(ballots, "candidates") <- private$.Rcpp_tree$candidates
       return(ballots)
     }
   )
 )
+
+# nolint end
 
 #' @name dirtree
 #'
@@ -370,13 +382,11 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
 #' \insertAllCited{}
 #'
 #' @export
-dirtree <- function(
-  candidates,
-  min_depth = 0,
-  max_depth = length(candidates),
-  a0 = 1.,
-  vd = FALSE
-) {
+dirtree <- function(candidates,
+                    min_depth = 0,
+                    max_depth = length(candidates),
+                    a0 = 1.,
+                    vd = FALSE) {
   dirichlet_tree$new(
     candidates = candidates,
     min_depth = min_depth,

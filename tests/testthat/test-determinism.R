@@ -13,8 +13,10 @@ test_that("`sample_predictive` is deterministic with specified seed", {
   )
 })
 
-test_that(paste0("`sample_posterior` (n_elections=1) ",
-                 "is deterministic with specified seed"), {
+test_that(paste0(
+  "`sample_posterior` (n_elections=1) ",
+  "is deterministic with specified seed"
+), {
   set.seed(seed)
   ps_1 <- sample_posterior(dtree, 1, 1000)
   set.seed(seed)
@@ -25,8 +27,10 @@ test_that(paste0("`sample_posterior` (n_elections=1) ",
   )
 })
 
-test_that(paste0("`sample_posterior` (n_elections=100) is deterministic with ",
-                 "specified seed"), {
+test_that(paste0(
+  "`sample_posterior` (n_elections=100) is deterministic with ",
+  "specified seed"
+), {
   set.seed(seed)
   ps_1 <- sample_posterior(dtree, 100, 1000)
   set.seed(seed)

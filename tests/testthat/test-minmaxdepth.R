@@ -1,5 +1,7 @@
-test_that(paste0("Bayesian bootstrap posterior can sample truncated ballots ",
-                "with max_depth preferences"), {
+test_that(paste0(
+  "Bayesian bootstrap posterior can sample truncated ballots ",
+  "with max_depth preferences"
+), {
   dtree <- dirtree(
     candidates = LETTERS[1:5],
     a0 = 0,
