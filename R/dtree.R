@@ -205,15 +205,15 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
         "\n\n",
         sep = ""
       )
-      cat("  `a0`: ", private$.Rcpp_tree$a0, "\n\n", sep = "")
-      cat("  `min_depth`: ", private$.Rcpp_tree$min_depth, "\n\n", sep = "")
-      cat("  `max_depth`: ", private$.Rcpp_tree$max_depth, "\n\n", sep = "")
-      cat("  `vd`: ", private$.Rcpp_tree$vd, "\n\n", sep = "")
+      cat("  `a0`: ", private$.Rcpp_tree$a0, sep = "")
+      cat(", `min_depth`: ", private$.Rcpp_tree$min_depth, sep = "")
+      cat(", `max_depth`: ", private$.Rcpp_tree$max_depth, sep = "")
+      cat(", `vd`: ", private$.Rcpp_tree$vd, "\n\n", sep = "")
       # Summarize observations
       n_observations <- length(private$observations)
       cat("  observations: ", n_observations, "\n", sep = "")
       # count first preferences
-      cat("    first preference distribution:\n")
+      cat("    First preferences:")
       first_prefs <- table(factor(
         sapply(
           private$observations,
