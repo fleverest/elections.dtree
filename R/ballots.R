@@ -255,12 +255,18 @@ read_ballots <- function(file) {
 #' @param \\dots
 #' Additional parameters to pass to \code{social_choice}.
 #'
+#' @examples
+#' social_choice(ranked_ballots(list(LETTERS[1], LETTERS[1], LETTERS[2])))
+#'
 #' @export
 social_choice <- function(x, ...) UseMethod("social_choice", x)
 
 #' @name social_choice.ranked_ballots
 #'
 #' @title
+#' Evaluate a social choice function on a set of \code{ranked_ballots}.
+#'
+#' @description
 #' \code{social_choice.ranked_ballots} reads a set of ranked ballots and
 #' computes an election outcome. The outcome depends on the chosen
 #' social choice function, along with any its associated parameters.

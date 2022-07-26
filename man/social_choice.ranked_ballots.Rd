@@ -2,9 +2,7 @@
 % Please edit documentation in R/ballots.R
 \name{social_choice.ranked_ballots}
 \alias{social_choice.ranked_ballots}
-\title{\code{social_choice.ranked_ballots} reads a set of ranked ballots and
-computes an election outcome. The outcome depends on the chosen
-social choice function, along with any its associated parameters.}
+\title{Evaluate a social choice function on a set of \code{ranked_ballots}.}
 \usage{
 \method{social_choice}{ranked_ballots}(x, n_winners = 1, fn = "irv", ...)
 }

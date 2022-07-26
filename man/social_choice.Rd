@@ -17,3 +17,7 @@ choice function.}
 outcome of the election. The outcome is described by a vector of winning
 candidates, along with the elimination order of the losing candidates.
 }
+\examples{
+social_choice(ranked_ballots(list(LETTERS[1], LETTERS[1], LETTERS[2])))
+
+}
