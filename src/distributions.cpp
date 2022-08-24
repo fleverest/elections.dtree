@@ -21,7 +21,7 @@ unsigned *rDirichletMultinomial(unsigned count, float *a, unsigned d,
   for (unsigned i = 0; i < d - 1; ++i) {
     // Calculate marginal probability p.
     // Draw from marginal binomial distribution.
-    std::binomial_distribution<unsigned> b(count, p[i]);
+    std::binomial_distribution<unsigned> b(count, p[i] / sum_ps);
     out[i] = b(*engine);
     count -= out[i];
     // Renormalise ps for next categories.
