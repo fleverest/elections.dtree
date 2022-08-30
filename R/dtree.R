@@ -195,20 +195,24 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #'
     #' @return The \code{dirichlet_tree} object.
     print = function() {
-      cat("Dirichlet-Tree:\n")
+      cat(
+        "Dirichlet-Tree (",
+        "a0=", private$.Rcpp_tree$a0, ", ",
+        "min_depth=", private$.Rcpp_tree$min_depth, ", ",
+        "max_depth=", private$.Rcpp_tree$max_depth, ", ",
+        "vd=", private$.Rcpp_tree$vd,
+        ")\n",
+        sep = ""
+      )
       cat(
         "  Candidates: ",
         paste(
           sort(private$.Rcpp_tree$candidates),
           collapse = " "
         ),
-        "\n\n",
+        "\n",
         sep = ""
       )
-      cat("  `a0`: ", private$.Rcpp_tree$a0, sep = "")
-      cat(", `min_depth`: ", private$.Rcpp_tree$min_depth, sep = "")
-      cat(", `max_depth`: ", private$.Rcpp_tree$max_depth, sep = "")
-      cat(", `vd`: ", private$.Rcpp_tree$vd, "\n\n", sep = "")
       # Summarize observations
       n_observations <- length(private$observations)
       cat("  observations: ", n_observations, "\n", sep = "")
