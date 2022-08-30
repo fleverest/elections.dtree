@@ -29,8 +29,27 @@
  *
  * \return An array of multinomial counts of dimension d.
  */
-unsigned *rDirichletMultinomial(unsigned count, float *a, unsigned d,
-                                std::mt19937 *engine);
+unsigned *rDirichletMultinomial(const unsigned count, const float *a,
+                                const unsigned d, std::mt19937 *engine);
+
+/*! \brief Draws a sample from a Multinomial distribution.
+ *
+ *  Given the multinomial count, category probabilities `p`, and the number of
+ * categories `d`, this method draws a single sample from the corresponding
+ * Multinomial distribution.
+ *
+ * \param count The total number of Multinomial samples.
+ *
+ * \param p An array of category probabilities.
+ *
+ * \param d The dimension of p, which is equal to the number of categories.
+ *
+ * \param engine A PRNG for sampling.
+ *
+ * \return An array of multinomial counts of dimension d.
+ */
+unsigned *rMultinomial(unsigned count, const float *p, const unsigned d,
+                       std::mt19937 *engine);
 
 /*! \brief Draws a sample from a Dirichlet distribution.
  *
@@ -38,10 +57,13 @@ unsigned *rDirichletMultinomial(unsigned count, float *a, unsigned d,
  * Dirichlet(a) random variable.
  *
  * \param a The a parameter to the Dirichlet distribution
+ *
  * \param d The dimension of a.
+ *
  * \param *engine A PRNG for sampling.
+ *
  * \return A single sample from a Dirichlet(a) random variable.
  */
-float *rDirichlet(float *a, unsigned d, std::mt19937 *engine);
+float *rDirichlet(const float *a, const unsigned d, std::mt19937 *engine);
 
 #endif /* DISTRIBUTIONS_H */
