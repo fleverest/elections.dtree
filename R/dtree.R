@@ -266,6 +266,10 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #' @return The \code{dirichlet_tree} object.
     reset = function() {
       private$.Rcpp_tree$reset()
+      private$observations <- ranked_ballots(
+        c(),
+        candidates = private$.Rcpp_tree$candidates
+      )
       invisible(self)
     },
 
