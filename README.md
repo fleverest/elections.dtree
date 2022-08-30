@@ -120,8 +120,5 @@ dtree <- dirichlet_tree$new(
     ),
     candidates = LETTERS
   )
-)$sample_posterior(
-  n_elections = 100,
-  n_ballots = 1000
 )
 ```
