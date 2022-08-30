@@ -14,6 +14,14 @@ test_that("ranked_ballots raises error on invalid input", {
   })
 })
 
+
+test_that("ranked_ballots can construct empty sets.", {
+  expect_equal(
+    ranked_ballots(list(), candidates = LETTERS),
+    ranked_ballots(c(), candidates = LETTERS)
+  )
+})
+
 test_that("Subsets of ballots have same attributes.", {
   ballots <- sample_predictive(dtree, 100)
   subset <- ballots[1:10]
