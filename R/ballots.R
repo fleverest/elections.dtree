@@ -71,6 +71,8 @@ ranked_ballots <- function(x, candidates = NULL, ...) {
   # If a single vector is passed, add it to a singleton list.
   if (typeof(x) == "character") {
     x <- list(x)
+  } else if (typeof(x) == "NULL") {
+    x <- list()
   }
 
   # Check ballots are valid
