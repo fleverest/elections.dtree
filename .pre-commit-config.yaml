@@ -30,9 +30,9 @@ repos:
           .*\.Rds|
           .*\.Rproj|
           .*\.sh|
-          .*\.cpp
-          .*\.hpp
-          .*\.h
+          .*\.cpp|
+          .*\.hpp|
+          .*\.h|
           (.*/|)\.gitignore|
           (.*/|)\.gitlab-ci\.yml|
           (.*/|)\.lintr|
