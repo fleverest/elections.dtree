@@ -147,7 +147,7 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
                           a0 = 1.,
                           vd = FALSE) {
       # Ensure n_candidates > 1
-      if (class(candidates) != "character") {
+      if (!is(candidates, "character")) {
         stop(paste0(
           "`candidates` must be a character vector, with each",
           " element representing a single candidate."
