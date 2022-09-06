@@ -4,7 +4,7 @@
  * Author:           Floyd Everest <me@floydeverest.com>
  * Created:          03/01/22
  * Description:      This file implements the Rcpp interface for all of the
- *                   Dirichlet Tree methods, and for the social choice
+ *                   Dirichlet-tree methods, and for the social choice
  *                   functions.
  *****************************************************************************/
 
@@ -139,7 +139,7 @@ void RDirichletTree::update(Rcpp::List ballots) {
     depth = bc.first.nPreferences();
     if (depth < minDepth && depth > 0)
       Rcpp::warning(
-          "Updating a Dirichlet-Tree distribution with a ballot "
+          "Updating a Dirichlet-tree distribution with a ballot "
           "specifying fewer than `minDepth` preferences. This introduces "
           "undefined behaviour to the sampling methods, and the "
           "resulting posterior can no longer reduce to a Dirichlet "

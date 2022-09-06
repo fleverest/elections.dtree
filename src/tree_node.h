@@ -4,7 +4,7 @@
  * Author:           Floyd Everest (me@floydeverest.com)
  * Created:          02/26/22
  * Description:      This file declares the abstract class `TreeNode` for use
- *                   in Dirichlet Trees. A node in a Dirichlet Tree represents
+ *                   in Dirichlet-trees. A node in a Dirichlet-tree represents
  *                   a non-terminal state in an incomplete stochastic process.
  *                   For example, a node might represent an IRV ballot that is
  *                   not yet completely specified.
@@ -89,7 +89,7 @@ public:
    *
    *  Given an outcome of the underlying stochastic process, this
    * method updates the parameters along the path to the outome in order to
-   * obtain the posterior Dirichlet Tree having observed the outcome.
+   * obtain the posterior Dirichlet-tree having observed the outcome.
    *
    * \param o The outcome to observe.
    *

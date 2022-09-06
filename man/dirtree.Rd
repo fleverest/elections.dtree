@@ -4,7 +4,7 @@
 \name{dirtree}
 \alias{dirtree}
 \alias{dtree}
-\title{Create a Dirichlet-Tree object}
+\title{Create a Dirichlet-tree object}
 \usage{
 dirtree(
   candidates,
@@ -29,11 +29,11 @@ to a regular Dirichlet distribution as described by
 \insertCite{dtree_evoteid;textual}{dirtree.elections}.}
 }
 \value{
-A Dirichlet-Tree representing ranked ballots, as an object of class
+A Dirichlet-tree representing ranked ballots, as an object of class
 \code{dirichlet_tree}.
 }
 \description{
-\code{dirtree} is used to create a Dirichlet-Tree for modelling ballots,
+\code{dirtree} is used to create a Dirichlet-tree for modelling ballots,
 as described by \insertCite{dtree_evoteid;textual}{dirtree.elections}.
 }
 \references{
@@ -41,6 +41,7 @@ as described by \insertCite{dtree_evoteid;textual}{dirtree.elections}.
 }
 \keyword{ballot}
 \keyword{dirichlet}
+\keyword{dirichlet-tree}
 \keyword{election}
 \keyword{irv}
 \keyword{tree}

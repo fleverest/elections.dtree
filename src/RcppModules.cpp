@@ -4,13 +4,13 @@
  * Author:           Floyd Everest <me@floydeverest.com>
  * Created:          07/23/22
  * Description:      This file contains the Rcpp module declarations, defining
- *                   the Dirichlet Tree interface to R.
+ *                   the Dirichlet-tree interface to R.
  *****************************************************************************/
 
 #include "R_tree.h"
 #include <Rcpp.h>
 
-// The Rcpp Dirichlet Tree interface to R.
+// The Rcpp Dirichlet-tree interface to R.
 RCPP_MODULE(dirichlet_tree_module) {
   Rcpp::class_<RDirichletTree>("RDirichletTree")
       // candidates, minDepth, maxDepth, a0, vd and seed.

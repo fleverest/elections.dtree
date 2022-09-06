@@ -3,14 +3,14 @@
 \docType{class}
 \name{dirichlet_tree}
 \alias{dirichlet_tree}
-\title{Create a Dirichlet-Tree for modelling ranked ballots}
+\title{Create a Dirichlet-tree for modelling ranked ballots}
 \format{
 An \code{\link{R6Class}} generator object.
 }
 \description{
-A \code{dirichlet_tree} object represents a Dirichlet-Tree distribution
+A \code{dirichlet_tree} object represents a Dirichlet-tree distribution
 on ballots. By specifying the tree structure for the ranked ballots,
-the Dirichlet-Tree is initialized with the same prior structure described by
+the Dirichlet-tree is initialized with the same prior structure described by
 \insertCite{dtree_evoteid;textual}{dirtree.elections}. There are
 methods provided for observing data (to obtain a posterior distribution)
 along with methods to sample election outcomes and sets of ballots from
@@ -87,20 +87,21 @@ dirichlet_tree$new(
 }
 \keyword{ballot}
 \keyword{dirichlet}
+\keyword{dirichlet-tree}
 \keyword{election}
 \keyword{irv}
 \keyword{tree}
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
-\item{\code{a0}}{Gets or sets the \code{a0} parameter for the Dirichlet-Tree.}
+\item{\code{a0}}{Gets or sets the \code{a0} parameter for the Dirichlet-tree.}
 
-\item{\code{min_depth}}{Gets or sets the \code{min_depth} parameter for the Dirichlet-Tree.}
+\item{\code{min_depth}}{Gets or sets the \code{min_depth} parameter for the Dirichlet-tree.}
 
 \item{\code{max_depth}}{Gets or sets the \code{max_depth} parameter for the
-Dirichlet-Tree.}
+Dirichlet-tree.}
 
-\item{\code{vd}}{Gets or sets the \code{vd} parameter for the Dirichlet-Tree.}
+\item{\code{vd}}{Gets or sets the \code{vd} parameter for the Dirichlet-tree.}
 }
 \if{html}{\out{</div>}}
 }
@@ -184,7 +185,7 @@ The \code{dirichlet_tree} object.
 \subsection{Method \code{update()}}{
 Updates the \code{dirichlet_tree} object with observations of ballots.
 This updates the parameter structure of the tree to yield the posterior
-Dirichlet-Tree, as described in
+Dirichlet-tree, as described in
 \insertCite{dtree_evoteid;textual}{dirtree.elections}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dirichlet_tree$update(ballots)}\if{html}{\out{</div>}}
@@ -245,7 +246,7 @@ The \code{dirichlet_tree} object.
 \if{html}{\out{<a id="method-dirichlet_tree-sample_posterior"></a>}}
 \if{latex}{\out{\hypertarget{method-dirichlet_tree-sample_posterior}{}}}
 \subsection{Method \code{sample_posterior()}}{
-Draws sets of ballots from independent realizations of the Dirichlet-Tree
+Draws sets of ballots from independent realizations of the Dirichlet-tree
 posterior, then determines the probability for each candidate being
 elected by aggregating the results of the social choice function. See
 \insertCite{dtree_evoteid;textual}{dirtree.elections} for details.
@@ -296,7 +297,7 @@ being elected.
 \subsection{Method \code{sample_predictive()}}{
 \code{sample_predictive} draws ballots from a multinomial distribution
 with ballot probabilities obtained from a single realization of the
-Dirichlet-Tree posterior on the ranked ballots. See
+Dirichlet-tree posterior on the ranked ballots. See
 \insertCite{dtree_evoteid;textual}{dirtree.elections} for details.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dirichlet_tree$sample_predictive(n_ballots)}\if{html}{\out{</div>}}
@@ -311,7 +312,7 @@ Dirichlet-Tree posterior on the ranked ballots. See
 }
 \subsection{Returns}{
 A \code{ranked_ballots} object containing \code{n_ballots}
-ballots drawn from a single realisation of the posterior Dirichlet-Tree.
+ballots drawn from a single realisation of the posterior Dirichlet-tree.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}

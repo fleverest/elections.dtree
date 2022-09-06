@@ -4,7 +4,7 @@
  * Author:           Floyd Everest <me@floydeverest.com>
  * Created:          02/27/22
  * Description:      This file declares the distributions which we use in our
- *                   Dirichlet Tree implementation.
+ *                   Dirichlet-tree implementation.
  *****************************************************************************/
 
 #ifndef DISTRIBUTIONS_H

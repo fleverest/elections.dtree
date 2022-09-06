@@ -1,11 +1,11 @@
 # nolint start
 
-#' Create a Dirichlet-Tree for modelling ranked ballots
+#' Create a Dirichlet-tree for modelling ranked ballots
 #'
 #' @description
-#' A \code{dirichlet_tree} object represents a Dirichlet-Tree distribution
+#' A \code{dirichlet_tree} object represents a Dirichlet-tree distribution
 #' on ballots. By specifying the tree structure for the ranked ballots,
-#' the Dirichlet-Tree is initialized with the same prior structure described by
+#' the Dirichlet-tree is initialized with the same prior structure described by
 #' \insertCite{dtree_evoteid;textual}{dirtree.elections}. There are
 #' methods provided for observing data (to obtain a posterior distribution)
 #' along with methods to sample election outcomes and sets of ballots from
@@ -44,7 +44,7 @@
 #' @param n_winners
 #' The number of candidates elected in each election.
 #'
-#' @keywords dirichlet tree irv election ballot
+#' @keywords dirichlet tree dirichlet-tree irv election ballot
 #'
 #' @format An \code{\link{R6Class}} generator object.
 #'
@@ -65,7 +65,7 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
   ),
   active = list(
     #' @field a0
-    #' Gets or sets the \code{a0} parameter for the Dirichlet-Tree.
+    #' Gets or sets the \code{a0} parameter for the Dirichlet-tree.
     a0 = function(a0) {
       if (missing(a0)) {
         return(private$.Rcpp_tree$a0)
@@ -79,7 +79,7 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     },
 
     #' @field min_depth
-    #' Gets or sets the \code{min_depth} parameter for the Dirichlet-Tree.
+    #' Gets or sets the \code{min_depth} parameter for the Dirichlet-tree.
     min_depth = function(min_depth) {
       if (missing(min_depth)) {
         return(private$.Rcpp_tree$min_depth)
@@ -97,7 +97,7 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
 
     #' @field max_depth
     #' Gets or sets the \code{max_depth} parameter for the
-    #' Dirichlet-Tree.
+    #' Dirichlet-tree.
     max_depth = function(max_depth) {
       if (missing(max_depth)) {
         return(private$.Rcpp_tree$max_depth)
@@ -117,7 +117,7 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     },
 
     #' @field vd
-    #' Gets or sets the \code{vd} parameter for the Dirichlet-Tree.
+    #' Gets or sets the \code{vd} parameter for the Dirichlet-tree.
     vd = function(vd) {
       if (missing(vd)) {
         return(private$.Rcpp_tree$vd)
@@ -177,7 +177,7 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
       }
       # Set the observations attribute.
       private$observations <- ranked_ballots(list(), candidates = candidates)
-      # Return Dirichlet-Tree
+      # Return Dirichlet-tree
       private$.Rcpp_tree <- new(
         RDirichletTree,
         candidates = candidates,
@@ -196,7 +196,7 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #' @return The \code{dirichlet_tree} object.
     print = function() {
       cat(
-        "Dirichlet-Tree (",
+        "Dirichlet-tree (",
         "a0=", private$.Rcpp_tree$a0, ", ",
         "min_depth=", private$.Rcpp_tree$min_depth, ", ",
         "max_depth=", private$.Rcpp_tree$max_depth, ", ",
@@ -233,7 +233,7 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #' @description
     #' Updates the \code{dirichlet_tree} object with observations of ballots.
     #' This updates the parameter structure of the tree to yield the posterior
-    #' Dirichlet-Tree, as described in
+    #' Dirichlet-tree, as described in
     #' \insertCite{dtree_evoteid;textual}{dirtree.elections}.
     #'
     #' @examples
@@ -278,7 +278,7 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     },
 
     #' @description
-    #' Draws sets of ballots from independent realizations of the Dirichlet-Tree
+    #' Draws sets of ballots from independent realizations of the Dirichlet-tree
     #' posterior, then determines the probability for each candidate being
     #' elected by aggregating the results of the social choice function. See
     #' \insertCite{dtree_evoteid;textual}{dirtree.elections} for details.
@@ -312,7 +312,7 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #' @description
     #' \code{sample_predictive} draws ballots from a multinomial distribution
     #' with ballot probabilities obtained from a single realization of the
-    #' Dirichlet-Tree posterior on the ranked ballots. See
+    #' Dirichlet-tree posterior on the ranked ballots. See
     #' \insertCite{dtree_evoteid;textual}{dirtree.elections} for details.
     #'
     #' @examples
@@ -329,7 +329,7 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #' )
     #'
     #' @return A \code{ranked_ballots} object containing \code{n_ballots}
-    #' ballots drawn from a single realisation of the posterior Dirichlet-Tree.
+    #' ballots drawn from a single realisation of the posterior Dirichlet-tree.
     sample_predictive = function(n_ballots) {
       # Ensure n_ballots > 0.
       if (n_ballots <= 0 || !is.numeric(n_ballots)) {
@@ -352,13 +352,13 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
 #' @aliases dtree
 #'
 #' @title
-#' Create a Dirichlet-Tree object
+#' Create a Dirichlet-tree object
 #'
 #' @description
-#' \code{dirtree} is used to create a Dirichlet-Tree for modelling ballots,
+#' \code{dirtree} is used to create a Dirichlet-tree for modelling ballots,
 #' as described by \insertCite{dtree_evoteid;textual}{dirtree.elections}.
 #'
-#' @keywords dirichlet tree irv election ballot
+#' @keywords dirichlet tree dirichlet-tree irv election ballot
 #'
 #' @param candidates
 #' A character vector, with each element (must be unique) representing a single
@@ -383,7 +383,7 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
 #' @import methods
 #'
 #' @return
-#' A Dirichlet-Tree representing ranked ballots, as an object of class
+#' A Dirichlet-tree representing ranked ballots, as an object of class
 #' \code{dirichlet_tree}.
 #'
 #' @references
@@ -411,7 +411,7 @@ dirtree <- function(candidates,
 #'
 #' @description
 #' \code{sample_predictive} draws ballots from a multinomial distribution with
-#' probabilities obtained from a single realization of the Dirichlet-Tree
+#' probabilities obtained from a single realization of the Dirichlet-tree
 #' posterior on the ranked ballots. See
 #' \insertCite{dtree_evoteid;textual}{dirtree.elections} for details.
 #'
@@ -422,7 +422,7 @@ dirtree <- function(candidates,
 #' An integer representing the number of ballots to draw.
 #'
 #' @return A \code{ranked_ballots} object containing \code{n_ballots} ballots
-#' drawn from a single realisation of the posterior Dirichlet-Tree.
+#' drawn from a single realisation of the posterior Dirichlet-tree.
 #'
 #' @references
 #' \insertAllCited{}
@@ -441,7 +441,7 @@ sample_predictive <- function(dtree, n_ballots) {
 #'
 #' @description
 #' \code{sample_posterior} draws sets of ballots from independent realizations
-#' of the Dirichlet-Tree posterior, then determines the probability for each
+#' of the Dirichlet-tree posterior, then determines the probability for each
 #' candidate being elected by aggregating the results of the social choice
 #' function. See \insertCite{dtree_evoteid;textual}{dirtree.elections} for
 #' details.
@@ -483,7 +483,7 @@ sample_posterior <- function(dtree, n_elections, n_ballots, n_winners = 1) {
 #' Update a \code{dirichlet_tree} model by observing some ranked ballots.
 #'
 #' @description
-#' \code{update} updates a Dirichlet-Tree model with observations to obtain
+#' \code{update} updates a Dirichlet-tree model with observations to obtain
 #' a posterior distribution on the ranked ballots. See
 #' \insertCite{dtree_evoteid;textual}{dirtree.elections} for implementation
 #' details.

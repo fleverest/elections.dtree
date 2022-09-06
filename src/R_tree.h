@@ -4,7 +4,7 @@
  * Author:           Floyd Everest <me@floydeverest.com>
  * Created:          05/14/22
  * Description:      This file defines the Rcpp interface for all of the
- *                   Dirichlet Tree methods, and for the social choice
+ *                   Dirichlet-tree methods, and for the social choice
  *                   functions.
  *****************************************************************************/
 
@@ -26,11 +26,11 @@
 /*! \brief An Rcpp object which implements the `dtree` R object interface.
  *
  *  This class exposes all interfaces for the partially-ordered, IRV-ballot
- * Dirichlet Tree.
+ * Dirichlet-tree.
  */
 class RDirichletTree {
 private:
-  // The underlying Dirichlet Tree.
+  // The underlying Dirichlet-tree.
   DirichletTree<IRVNode, IRVBallot, IRVParameters> *tree;
 
   // A vector of candidate names.

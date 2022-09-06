@@ -13,11 +13,11 @@ sample_predictive(dtree, n_ballots)
 }
 \value{
 A \code{ranked_ballots} object containing \code{n_ballots} ballots
-drawn from a single realisation of the posterior Dirichlet-Tree.
+drawn from a single realisation of the posterior Dirichlet-tree.
 }
 \description{
 \code{sample_predictive} draws ballots from a multinomial distribution with
-probabilities obtained from a single realization of the Dirichlet-Tree
+probabilities obtained from a single realization of the Dirichlet-tree
 posterior on the ranked ballots. See
 \insertCite{dtree_evoteid;textual}{dirtree.elections} for details.
 }
