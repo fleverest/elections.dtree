@@ -27,7 +27,7 @@ private:
   unsigned minDepth = 0;
   // The maximum number of ballots that must be specified for an IRV election.
   unsigned maxDepth = 0;
-  // The prior parameter for a uniform Dirichlet Tree.
+  // The prior parameter for a uniform Dirichlet-tree.
   float a0 = 1.;
   // A flag indicating whether or not the parameter structure reduces to a
   // vanilla Dirichlet distribution.
@@ -104,9 +104,9 @@ public:
    */
   unsigned getMaxDepth() { return maxDepth; }
 
-  /*! \brief Gets the prior uniform-Dirichlet-Tree parameter a0.
+  /*! \brief Gets the prior uniform-Dirichlet-tree parameter a0.
    *
-   * \return a0, the prior parameter of the uniform Dirichlet Tree.
+   * \return a0, the prior parameter of the uniform Dirichlet-tree.
    */
   float getA0() { return a0; }
 
@@ -134,24 +134,24 @@ public:
     calculateDepthFactors();
   }
 
-  /*! \brief Sets the uniform Dirichlet Tree prior parameter a0.
+  /*! \brief Sets the uniform Dirichlet-tree prior parameter a0.
    *
-   * \param a0_ The new prior parameter for the uniform Dirichlet Tree.
+   * \param a0_ The new prior parameter for the uniform Dirichlet-tree.
    */
   void setA0(float a0_) { a0 = a0_; }
 
   /*! \brief Change the parameter structure of the prior.
    *
-   *  Changes the prior either to a uniform Dirichlet-Tree with a0 on
+   *  Changes the prior either to a uniform Dirichlet-tree with a0 on
    *  every branch, or scale the parameters such that it is reducible to a
    *  vanilla Dirichlet distribution.
    *
-   * \param a0_ The new prior parameter for the uniform Dirichlet Tree.
+   * \param a0_ The new prior parameter for the uniform Dirichlet-tree.
    */
   void setVD(bool vd_) { vd = vd_; };
 };
 
-/*! \brief Simulate random ballots from a uniform Dirichlet Tree starting from
+/*! \brief Simulate random ballots from a uniform Dirichlet-tree starting from
  * an incomplete ballot.
  *
  *  Simulates random ballots, starting from an internal state in the IRV
@@ -164,7 +164,7 @@ public:
  * \param path The path to the internal node representing the incomplete
  * ballot.
  *
- * \param depth The current depth in the Dirichlet Tree.
+ * \param depth The current depth in the Dirichlet-tree.
  *
  * \param engine A PRNG for sampling.
  *

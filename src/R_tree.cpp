@@ -1,104 +1,16 @@
 /******************************************************************************
- * File:             RcppIRV.cpp
+ * File:             R_tree.cpp
  *
  * Author:           Floyd Everest <me@floydeverest.com>
  * Created:          03/01/22
- * Description:      This file implements an Rcpp interface for the IRV
- *                   Dirichlet Tree methods, and for the IRV social choice
- *                   function.
+ * Description:      This file implements the Rcpp interface for all of the
+ *                   Dirichlet-tree methods, and for the social choice
+ *                   functions.
  *****************************************************************************/
 
-#include "RcppIRV.h"
-#include "R.h"
+#include "R_tree.h"
 
-// [[Rcpp::plugins("cpp17")]]
-// [[Rcpp::depends(RcppThread)]]
-
-// [[Rcpp::export]]
-Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners,
-                            Rcpp::CharacterVector candidates,
-                            std::string seed) {
-
-  Rcpp::List out{};
-
-  std::list<IRVBallotCount> scInput{};
-
-  std::unordered_map<std::string, size_t> c2Index{};
-  std::vector<std::string> cNames{};
-  // If candidates vector is not null, initialze some indices.
-  std::string cName;
-  for (const auto &candidate : candidates) {
-    cName = candidate;
-    if (c2Index.count(cName) == 0) {
-      c2Index[cName] = cNames.size();
-      cNames.push_back(cName);
-    }
-  }
-
-  Rcpp::CharacterVector bNames;
-  std::list<unsigned> bIndices;
-  bool newBallot = true;
-
-  for (auto i = 0; i < bs.size(); ++i) {
-    if (bs[i] == R_NilValue) // Skip empty ballots
-      continue;
-    bNames = bs[i];
-    bIndices = {};
-    for (auto j = 0; j < bNames.size(); ++j) {
-      cName = bNames[j];
-      // If candidate has not yet been seen, raise an error.
-      if (c2Index.count(cName) == 0)
-        Rcpp::stop("Invalid candidate found during social-choice evaluation.");
-      bIndices.push_back(c2Index[cName]);
-    }
-
-    // Search for the same ballot already in the social choice input.
-    IRVBallot b(bIndices);
-    newBallot = true;
-    for (auto &bc : scInput) {
-      if (b == bc.first) {
-        bc.second = bc.second + 1;
-        newBallot = false;
-      }
-    }
-    // If it's not already there, add it to the back of the list with count 1.
-    if (newBallot)
-      scInput.emplace_back(std::move(b), 1);
-  }
-
-  if (nWinners < 1 || nWinners >= cNames.size())
-    Rcpp::stop("`nWinners` must be >= 1 and <= the number of candidates.");
-
-  if (scInput.size() == 0)
-    Rcpp::stop("No valid ballots for the IRV social choice function.");
-
-  // Seed the PRNG.
-  std::seed_seq ss(seed.begin(), seed.end());
-  std::mt19937 e(ss);
-  e.discard(e.state_size * 100);
-
-  // Group all equal ballots
-
-  std::vector<unsigned> elimination_order_idx =
-      socialChoiceIRV(scInput, cNames.size(), &e);
-
-  Rcpp::CharacterVector elimination_order{};
-  Rcpp::CharacterVector winners{};
-
-  for (size_t i = 0; i < cNames.size() - nWinners; ++i) {
-    elimination_order.push_back(cNames[elimination_order_idx[i]]);
-  }
-  for (size_t i = cNames.size() - nWinners; i < cNames.size(); ++i) {
-    winners.push_back(cNames[elimination_order_idx[i]]);
-  }
-
-  out("elimination_order") = elimination_order;
-  out("winners") = winners;
-
-  return out;
-}
-
-std::list<IRVBallotCount> PIRVDirichletTree::parseBallotList(Rcpp::List bs) {
+std::list<IRVBallotCount> RDirichletTree::parseBallotList(Rcpp::List bs) {
   Rcpp::CharacterVector namePrefs;
   std::string cName;
   std::list<unsigned> indexPrefs;
@@ -129,9 +41,9 @@ std::list<IRVBallotCount> PIRVDirichletTree::parseBallotList(Rcpp::List bs) {
   return out;
 }
 
-PIRVDirichletTree::PIRVDirichletTree(Rcpp::CharacterVector candidates,
-                                     unsigned minDepth_, unsigned maxDepth_,
-                                     float a0_, bool vd_, std::string seed_) {
+RDirichletTree::RDirichletTree(Rcpp::CharacterVector candidates,
+                               unsigned minDepth_, unsigned maxDepth_,
+                               float a0_, bool vd_, std::string seed_) {
   // Parse the candidate strings.
   std::string cName;
   size_t cIndex = 0;
@@ -148,24 +60,24 @@ PIRVDirichletTree::PIRVDirichletTree(Rcpp::CharacterVector candidates,
 }
 
 // Destructor.
-PIRVDirichletTree::~PIRVDirichletTree() {
+RDirichletTree::~RDirichletTree() {
   delete tree->getParameters();
   delete tree;
 }
 
 // Getters
-unsigned PIRVDirichletTree::getNCandidates() {
+unsigned RDirichletTree::getNCandidates() {
   return tree->getParameters()->getNCandidates();
 }
-unsigned PIRVDirichletTree::getMinDepth() {
+unsigned RDirichletTree::getMinDepth() {
   return tree->getParameters()->getMinDepth();
 }
-unsigned PIRVDirichletTree::getMaxDepth() {
+unsigned RDirichletTree::getMaxDepth() {
   return tree->getParameters()->getMaxDepth();
 }
-float PIRVDirichletTree::getA0() { return tree->getParameters()->getA0(); }
-bool PIRVDirichletTree::getVD() { return tree->getParameters()->getVD(); }
-Rcpp::CharacterVector PIRVDirichletTree::getCandidates() {
+float RDirichletTree::getA0() { return tree->getParameters()->getA0(); }
+bool RDirichletTree::getVD() { return tree->getParameters()->getVD(); }
+Rcpp::CharacterVector RDirichletTree::getCandidates() {
   Rcpp::CharacterVector out{};
   for (const auto &[candidate, idx] : candidateMap)
     out.push_back(candidate);
@@ -173,7 +85,7 @@ Rcpp::CharacterVector PIRVDirichletTree::getCandidates() {
 }
 
 // Setters
-void PIRVDirichletTree::setMinDepth(unsigned minDepth_) {
+void RDirichletTree::setMinDepth(unsigned minDepth_) {
   if (minDepth_ > tree->getParameters()->getMaxDepth())
     Rcpp::stop("Cannot set `minDepth` to a value larger than `maxDepth`.");
   tree->getParameters()->setMinDepth(minDepth_);
@@ -194,24 +106,24 @@ void PIRVDirichletTree::setMinDepth(unsigned minDepth_) {
   }
 }
 
-void PIRVDirichletTree::setMaxDepth(unsigned maxDepth_) {
+void RDirichletTree::setMaxDepth(unsigned maxDepth_) {
   if (maxDepth_ < tree->getParameters()->getMinDepth())
     Rcpp::stop("Cannot set `maxDepth` to a value less than `minDepth`.");
   tree->getParameters()->setMaxDepth(maxDepth_);
 }
 
-void PIRVDirichletTree::setA0(float a0_) { tree->getParameters()->setA0(a0_); }
+void RDirichletTree::setA0(float a0_) { tree->getParameters()->setA0(a0_); }
 
-void PIRVDirichletTree::setVD(bool vd_) { tree->getParameters()->setVD(vd_); }
+void RDirichletTree::setVD(bool vd_) { tree->getParameters()->setVD(vd_); }
 
 // Other methods
-void PIRVDirichletTree::reset() {
+void RDirichletTree::reset() {
   tree->reset();
   nObserved = 0;
   observedDepths.clear();
 }
 
-void PIRVDirichletTree::update(Rcpp::List ballots) {
+void RDirichletTree::update(Rcpp::List ballots) {
   // For checking validitity of inputs.
   unsigned minDepth = tree->getParameters()->getMinDepth();
   unsigned depth;
@@ -227,7 +139,7 @@ void PIRVDirichletTree::update(Rcpp::List ballots) {
     depth = bc.first.nPreferences();
     if (depth < minDepth && depth > 0)
       Rcpp::warning(
-          "Updating a Dirichlet-Tree distribution with a ballot "
+          "Updating a Dirichlet-tree distribution with a ballot "
           "specifying fewer than `minDepth` preferences. This introduces "
           "undefined behaviour to the sampling methods, and the "
           "resulting posterior can no longer reduce to a Dirichlet "
@@ -241,8 +153,8 @@ void PIRVDirichletTree::update(Rcpp::List ballots) {
   }
 }
 
-Rcpp::List PIRVDirichletTree::samplePredictive(unsigned nSamples,
-                                               std::string seed) {
+Rcpp::List RDirichletTree::samplePredictive(unsigned nSamples,
+                                            std::string seed) {
 
   tree->setSeed(seed);
 
@@ -264,11 +176,11 @@ Rcpp::List PIRVDirichletTree::samplePredictive(unsigned nSamples,
   return out;
 }
 
-Rcpp::NumericVector PIRVDirichletTree::samplePosterior(unsigned nElections,
-                                                       unsigned nBallots,
-                                                       unsigned nWinners,
-                                                       unsigned nBatches,
-                                                       std::string seed) {
+Rcpp::NumericVector RDirichletTree::samplePosterior(unsigned nElections,
+                                                    unsigned nBallots,
+                                                    unsigned nWinners,
+                                                    unsigned nBatches,
+                                                    std::string seed) {
 
   if (nBallots < nObserved)
     Rcpp::stop("`nBallots` must be larger than the number of ballots "
@@ -343,26 +255,4 @@ Rcpp::NumericVector PIRVDirichletTree::samplePosterior(unsigned nElections,
 
   out = out / nElections;
   return out;
-}
-
-// The Rcpp module interface.
-RCPP_MODULE(pirv_dirichlet_tree_module) {
-  Rcpp::class_<PIRVDirichletTree>("PIRVDirichletTree")
-      // Constructor needs nCandidates, minDepth, a0 and seed.
-      .constructor<Rcpp::CharacterVector, unsigned, unsigned, float, bool,
-                   std::string>()
-      // Getter/Setter interface
-      .property("nCandidates", &PIRVDirichletTree::getNCandidates)
-      .property("a0", &PIRVDirichletTree::getA0, &PIRVDirichletTree::setA0)
-      .property("minDepth", &PIRVDirichletTree::getMinDepth,
-                &PIRVDirichletTree::setMinDepth)
-      .property("maxDepth", &PIRVDirichletTree::getMaxDepth,
-                &PIRVDirichletTree::setMaxDepth)
-      .property("vd", &PIRVDirichletTree::getVD, &PIRVDirichletTree::setVD)
-      .property("candidates", &PIRVDirichletTree::getCandidates)
-      // Methods
-      .method("reset", &PIRVDirichletTree::reset)
-      .method("update", &PIRVDirichletTree::update)
-      .method("samplePredictive", &PIRVDirichletTree::samplePredictive)
-      .method("samplePosterior", &PIRVDirichletTree::samplePosterior);
 }

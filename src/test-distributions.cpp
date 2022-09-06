@@ -45,3 +45,33 @@ context("Test Dirichlet-Multinomial samples sum to count.") {
     expect_true(always_sums_to_count);
   }
 }
+
+context("Test uniform dirichlet distribution has mean 1/n.") {
+
+  std::mt19937 mte;
+  mte.seed(time(NULL));
+
+  unsigned n = 100;
+  unsigned n_trials = 1000;
+
+  float *alpha = new float[n];
+  for (auto i = 0; i < n; ++i)
+    alpha[i] = 1.;
+
+  float *p;
+  float sum_p_n = 0.;
+  for (auto i = 0; i < n_trials; ++i) {
+    p = rDirichlet(alpha, n, &mte);
+    sum_p_n += p[n - 1];
+    delete[] p;
+  }
+
+  delete[] alpha;
+
+  test_that("Last Dirichlet probability has mean approximately 1/n.") {
+    expect_true(sum_p_n <
+                1.05 * static_cast<float>(n_trials) / static_cast<float>(n));
+    expect_true(sum_p_n >
+                0.95 * static_cast<float>(n_trials) / static_cast<float>(n));
+  }
+}

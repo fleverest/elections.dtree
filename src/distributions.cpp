@@ -10,31 +10,34 @@
 #include "distributions.h"
 #include <random>
 
-unsigned *rDirichletMultinomial(unsigned count, float *a, unsigned d,
-                                std::mt19937 *engine) {
-  unsigned *out = new unsigned[d];
-
+unsigned *rDirichletMultinomial(const unsigned count, const float *a,
+                                const unsigned d, std::mt19937 *engine) {
+  // Draw p ~ Dirichlet(a)
   float *p = rDirichlet(a, d, engine);
+  // Draw out ~ Multinomial(p)
+  unsigned *out = rMultinomial(count, p, d, engine);
+  // Cleanup and return
+  delete[] p;
+  return out;
+}
 
-  // Sample from Multinomial distribution with p.
+unsigned *rMultinomial(unsigned count, const float *p, const unsigned d,
+                       std::mt19937 *engine) {
+  unsigned *out = new unsigned[d];
   float sum_ps = 1.0;
   for (unsigned i = 0; i < d - 1; ++i) {
-    // Calculate marginal probability p.
     // Draw from marginal binomial distribution.
     std::binomial_distribution<unsigned> b(count, p[i] / sum_ps);
     out[i] = b(*engine);
     count -= out[i];
-    // Renormalise ps for next categories.
+    // Normalise remaining ps.
     sum_ps -= p[i];
   }
   out[d - 1] = count;
-
-  delete[] p;
-
   return out;
 }
 
-float *rDirichlet(float *a, unsigned d, std::mt19937 *engine) {
+float *rDirichlet(const float *a, const unsigned d, std::mt19937 *engine) {
   float *gamma = new float[d];
   float gamma_sum = 0.;
 
