@@ -7,19 +7,22 @@ Authors@R: c(
                 person("Damjan", "Vukcevic", email = "damjan@vukcevic.net",
                     role = c("aut"), comment = c(ORCID = "0000-0001-7780-9586"))
             )
-Version: 0.4.1
+Version: 1.0.0
 Depends: R (>= 4.0.0)
 SystemRequirements: C++17
 License: GPL-3
 LazyData: TRUE
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 LinkingTo:
     Rcpp,
     RcppThread,
     testthat
 Imports:
     Rcpp,
-    methods
+    methods,
+    Rdpack,
+    R6
+RdMacros: Rdpack
 Suggests:
     testthat (>= 3.0.0),
     xml2

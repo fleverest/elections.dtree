@@ -3,12 +3,12 @@
  *
  * Author:           Floyd Everest <me@floydeverest.com>
  * Created:          02/22/22
- * Description:      This file implements the Dirichlet Tree distribution class.
+ * Description:      This file implements the Dirichlet-tree distribution class.
  *                   This class provides an interface to the interior nodes of
  *                   the tree, and provides methods to sample ballots, update
  *                   the posterior distribution, and alter internal distribution
  *                   functionalities such as the choice of prior parameter or
- *                   style of the tree (Dirichlet vs Dirichlet-Tree sampling).
+ *                   style of the tree (Dirichlet vs Dirichlet-tree sampling).
  *****************************************************************************/
 
 #ifndef DIRICHLET_TREE_H
@@ -24,11 +24,11 @@
 template <typename NodeType, typename Outcome, class Parameters>
 class DirichletTree {
 private:
-  // The interior root node for the Dirichlet Tree.
+  // The interior root node for the Dirichlet-tree.
   NodeType *root;
 
   // The tree parameters. This object defines both the structure and sampling
-  // parameters for the Dirichlet Tree. Some parameters will be immutable, for
+  // parameters for the Dirichlet-tree. Some parameters will be immutable, for
   // example the tree structure cannot be changed dynamically while the prior
   // parameter scheme at each level might be possible to alter dynamically. The
   // parameters might also indicate some outcome filtering which can often be
@@ -46,10 +46,10 @@ private:
 public:
   /*! \brief The DirichletTree constructor.
    *
-   *  The constructor returns a new Dirichlet Tree according to the specified
+   *  The constructor returns a new Dirichlet-tree according to the specified
    * characteristics. There is no copy constructor for DirichletTrees.
    *
-   * \param parameters_ The Dirichlet Tree parameters object.
+   * \param parameters_ The Dirichlet-tree parameters object.
    *
    * \param seed A string representing the mt19937 initial seed.
    *
@@ -72,7 +72,7 @@ public:
    */
   void reset();
 
-  /*! \brief Update a dirichlet tree with an observed outcome.
+  /*! \brief Update a Dirichlet-tree with an observed outcome.
    *
    *  This function will update the internal parameters and nodes of the tree,
    * realising a new posterior distribution having observed the provided
@@ -88,10 +88,10 @@ public:
   /*! \brief Sample outcomes from the posterior predictive distribution.
    *
    *  Samples a specified number of outcomes from one realisation of the
-   * Dirichlet Tree.
+   * Dirichlet-tree.
    *
    * \param n The number of outcomes to sample from a single realisation of the
-   * Dirichlet Tree.
+   * Dirichlet-tree.
    *
    * \param engine An optional warmed-up mt19937 PRNG for randomness.
    *
@@ -103,10 +103,10 @@ public:
 
   /*! \brief Sample possible full sets from the posterior.
    *
-   *  Assuming we have been updating the Dirichlet Tree with observations
+   *  Assuming we have been updating the Dirichlet-tree with observations
    * without replacement, this method samples possible complete outcome sets of
    * size N from the posterior. Each complete set contains the already observed
-   * outcomes which determine the posterior Dirichlet Tree used in generating
+   * outcomes which determine the posterior Dirichlet-tree used in generating
    * the output. For example, if we observe a set of outcomes {o1, o2, o2}, then
    * `posteriorSets(nSets=2, N=4)` may return [{o1, o2, o2, o3},
    * {o1, o2, o2, o1}].
@@ -117,7 +117,7 @@ public:
    * than the number of observed outcomes).
    *
    * \return Returns `nSets` complete outcome sets sampled from the posterior
-   * Dirichlet Tree distribution, using the already observed data.
+   * Dirichlet-tree distribution, using the already observed data.
    */
   std::list<std::list<std::pair<Outcome, unsigned>>>
   posteriorSets(unsigned nSets, unsigned N, std::mt19937 *engine = nullptr);
@@ -134,7 +134,7 @@ public:
 
   /*! \brief Gets the tree parameters.
    *
-   * \return Returns a pointer to the Dirichlet Tree parameters.
+   * \return Returns a pointer to the Dirichlet-tree parameters.
    */
   Parameters *getParameters() { return parameters; }
 

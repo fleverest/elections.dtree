@@ -1,20 +1,20 @@
 /*
- * This file tests the PIRVDirichletTree interface class.
+ * This file tests the RDirichletTree interface class.
  */
 
 #include <testthat.h>
 
-#include "RcppIRV.h"
+#include "R_tree.h"
 
 void createAndDeleteTree(Rcpp::CharacterVector candidates, unsigned minDepth,
                          unsigned maxDepth, float a0, bool vd,
                          std::string seed) {
-  PIRVDirichletTree *tree;
-  tree = new PIRVDirichletTree(candidates, minDepth, maxDepth, a0, vd, seed);
+  RDirichletTree *tree;
+  tree = new RDirichletTree(candidates, minDepth, maxDepth, a0, vd, seed);
   delete tree;
 }
 
-context("Test PIRVDirichletTree constructor and destructor.") {
+context("Test RDirichletTree constructor and destructor.") {
 
   Rcpp::CharacterVector candidates{"A", "B", "C", "D"};
   unsigned minDepth = 3;
@@ -22,7 +22,7 @@ context("Test PIRVDirichletTree constructor and destructor.") {
   float a0 = 1.;
   bool vd = true;
   std::string seed = "123";
-  PIRVDirichletTree *tree;
+  RDirichletTree *tree;
 
   test_that("We can create and destroy tree.") {
     CATCH_CHECK_NOTHROW(

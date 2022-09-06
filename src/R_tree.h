@@ -1,15 +1,15 @@
 /******************************************************************************
- * File:             RcppIRV.hpp
+ * File:             R_tree.h
  *
  * Author:           Floyd Everest <me@floydeverest.com>
  * Created:          05/14/22
- * Description:      This file defines an Rcpp interface for the IRV
- *                   Dirichlet Tree methods, and for the IRV social choice
- *                   function.
+ * Description:      This file defines the Rcpp interface for all of the
+ *                   Dirichlet-tree methods, and for the social choice
+ *                   functions.
  *****************************************************************************/
 
-#ifndef RCPP_TREE_H
-#define RCPP_TREE_H
+#ifndef R_TREE_H
+#define R_TREE_H
 
 #include "dirichlet_tree.h"
 #include "irv_ballot.h"
@@ -23,32 +23,14 @@
 #include <unordered_set>
 #include <vector>
 
-/*! \brief The IRV social choice function.
- *
- *  This function calculates an election outcome using the standard IRV social
- * choice function.
- *
- * \param  bs An Rcpp::List of ballots in CharacterVector representation.
- *
- * \param nWinners An integer indicating the number of winners to elect.
- *
- * \param candidates A vector of strings corresponding to candidate names.
- *
- * \param seed A seed for the PRNG for tie-breaking.
- *
- * \return The winning candidate.
- */
-Rcpp::List RSocialChoiceIRV(Rcpp::List bs, unsigned nWinners,
-                            Rcpp::CharacterVector candidates, std::string seed);
-
 /*! \brief An Rcpp object which implements the `dtree` R object interface.
  *
  *  This class exposes all interfaces for the partially-ordered, IRV-ballot
- * Dirichlet Tree.
+ * Dirichlet-tree.
  */
-class PIRVDirichletTree {
+class RDirichletTree {
 private:
-  // The underlying Dirichlet Tree.
+  // The underlying Dirichlet-tree.
   DirichletTree<IRVNode, IRVBallot, IRVParameters> *tree;
 
   // A vector of candidate names.
@@ -80,11 +62,11 @@ private:
 
 public:
   // Constructor
-  PIRVDirichletTree(Rcpp::CharacterVector candidates, unsigned minDepth_,
-                    unsigned maxDepth_, float a0_, bool vd_, std::string seed_);
+  RDirichletTree(Rcpp::CharacterVector candidates, unsigned minDepth_,
+                 unsigned maxDepth_, float a0_, bool vd_, std::string seed_);
 
   // Destructor.
-  ~PIRVDirichletTree();
+  ~RDirichletTree();
 
   // TODO: Document methods.
 
@@ -112,4 +94,4 @@ public:
                                       std::string seed);
 };
 
-#endif /* RCPP_TREE_H */
+#endif /* R_TREE_H */

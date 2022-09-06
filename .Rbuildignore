@@ -1,1 +1,4 @@
+^LICENSE$
 ^\.github$
+^\.lintr$
+^\.pre-commit-config\.yaml$
