@@ -46,7 +46,7 @@ context("Test Dirichlet-Multinomial samples sum to count.") {
   }
 }
 
-context("Test uniform dirichlet distribution has mean 1/n.") {
+context("Test dirichlet marginal distributions.") {
 
   std::mt19937 mte;
   mte.seed(time(NULL));
@@ -70,8 +70,8 @@ context("Test uniform dirichlet distribution has mean 1/n.") {
 
   test_that("Last Dirichlet probability has mean approximately 1/n.") {
     expect_true(sum_p_n <
-                1.05 * static_cast<float>(n_trials) / static_cast<float>(n));
+                1.1 * static_cast<float>(n_trials) / static_cast<float>(n));
     expect_true(sum_p_n >
-                0.95 * static_cast<float>(n_trials) / static_cast<float>(n));
+                0.9 * static_cast<float>(n_trials) / static_cast<float>(n));
   }
 }
