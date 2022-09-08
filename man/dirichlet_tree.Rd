@@ -11,7 +11,7 @@ An \code{\link{R6Class}} generator object.
 A \code{dirichlet_tree} object represents a Dirichlet-tree distribution
 on ballots. By specifying the tree structure for the ranked ballots,
 the Dirichlet-tree is initialized with the same prior structure described by
-\insertCite{dtree_evoteid;textual}{dirtree.elections}. There are
+\insertCite{dtree_evoteid;textual}{elections.dtree}. There are
 methods provided for observing data (to obtain a posterior distribution)
 along with methods to sample election outcomes and sets of ballots from
 the posterior predictive distribution.
@@ -121,7 +121,7 @@ Dirichlet-tree.}
 \if{latex}{\out{\hypertarget{method-dirichlet_tree-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new \code{dirichlet_tree} prior distribution with the specified
-tree structure. See \insertCite{dtree_evoteid;textual}{dirtree.elections}
+tree structure. See \insertCite{dtree_evoteid;textual}{elections.dtree}
 for further details.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dirichlet_tree$new(
@@ -149,7 +149,7 @@ ballot in the election.}
 
 \item{\code{vd}}{A flag which, when \code{TRUE}, employs a parameter structure which
 reduces to a regular Dirichlet distribution as described by
-\insertCite{dtree_evoteid;textual}{dirtree.elections}.}
+\insertCite{dtree_evoteid;textual}{elections.dtree}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -186,7 +186,7 @@ The \code{dirichlet_tree} object.
 Updates the \code{dirichlet_tree} object with observations of ballots.
 This updates the parameter structure of the tree to yield the posterior
 Dirichlet-tree, as described in
-\insertCite{dtree_evoteid;textual}{dirtree.elections}.
+\insertCite{dtree_evoteid;textual}{elections.dtree}.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dirichlet_tree$update(ballots)}\if{html}{\out{</div>}}
 }
@@ -249,7 +249,7 @@ The \code{dirichlet_tree} object.
 Draws sets of ballots from independent realizations of the Dirichlet-tree
 posterior, then determines the probability for each candidate being
 elected by aggregating the results of the social choice function. See
-\insertCite{dtree_evoteid;textual}{dirtree.elections} for details.
+\insertCite{dtree_evoteid;textual}{elections.dtree} for details.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dirichlet_tree$sample_posterior(n_elections, n_ballots, n_winners = 1)}\if{html}{\out{</div>}}
 }
@@ -298,7 +298,7 @@ being elected.
 \code{sample_predictive} draws ballots from a multinomial distribution
 with ballot probabilities obtained from a single realization of the
 Dirichlet-tree posterior on the ranked ballots. See
-\insertCite{dtree_evoteid;textual}{dirtree.elections} for details.
+\insertCite{dtree_evoteid;textual}{elections.dtree} for details.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{dirichlet_tree$sample_predictive(n_ballots)}\if{html}{\out{</div>}}
 }

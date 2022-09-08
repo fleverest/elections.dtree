@@ -50,6 +50,11 @@ repos:
           data/.*|
           )$
     -   id: lintr
+        exclude: >
+          (?x)^(
+          R/RcppExports.R|
+          R/catch-routine-registration.R|
+          )$
     -   id: readme-rmd-rendered
     -   id: parsable-R
     -   id: no-browser-statement

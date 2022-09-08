@@ -20,7 +20,7 @@ The \code{dirichlet_tree} object.
 \description{
 \code{update} updates a Dirichlet-tree model with observations to obtain
 a posterior distribution on the ranked ballots. See
-\insertCite{dtree_evoteid;textual}{dirtree.elections} for implementation
+\insertCite{dtree_evoteid;textual}{elections.dtree} for implementation
 details.
 }
 \references{

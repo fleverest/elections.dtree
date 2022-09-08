@@ -1,4 +1,4 @@
 library(testthat)
-library(dirtree.elections)
+library(elections.dtree)
 
-test_check("dirtree.elections")
+test_check("elections.dtree")

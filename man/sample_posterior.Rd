@@ -24,7 +24,7 @@ being elected.
 \code{sample_posterior} draws sets of ballots from independent realizations
 of the Dirichlet-tree posterior, then determines the probability for each
 candidate being elected by aggregating the results of the social choice
-function. See \insertCite{dtree_evoteid;textual}{dirtree.elections} for
+function. See \insertCite{dtree_evoteid;textual}{elections.dtree} for
 details.
 }
 \references{

@@ -1,2 +1,2 @@
-# dirtree.elections 1.0.0
+# elections.dtree 1.0.0
 * Initial release

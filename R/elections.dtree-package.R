@@ -1,9 +1,9 @@
-# dirtree.elections-package.R
+# elections.dtree-package.R
 
 ## usethis namespace: start
 #' @import Rcpp
 #' @importFrom Rdpack reprompt
-#' @useDynLib dirtree.elections, .registration = TRUE
+#' @useDynLib elections.dtree, .registration = TRUE
 ## usethis namespace: end
 
 Rcpp::loadModule(module = "dirichlet_tree_module", TRUE)
