@@ -90,7 +90,7 @@ ranked_ballots <- function(x, candidates = NULL, ...) {
   ))
 }
 
-#' @name write.ballots
+#' @name write_ballots
 #'
 #' @title
 #' Write PIRV ballots to a file.
