@@ -7,6 +7,22 @@ Perform ballot-polling Bayesian audits on ranked voting elections using the Diri
   [![Codecov test coverage](https://codecov.io/gh/fleverest/elections.dtree/branch/master/graph/badge.svg)](https://app.codecov.io/gh/fleverest/elections.dtree?branch=master)
   <!-- badges: end -->
 
+
+## Installation
+
+#### CRAN
+
+TBD
+
+#### Development
+
+To install the development version of `elections.dtree` from GitHub:
+```R
+# install.packages("remotes")
+remotes::install_github("fleverest/elections.dtree")
+```
+
+
 ## About the project.
 
 #### Why?
@@ -22,21 +38,6 @@ The Dirichlet-tree prior distribution introduces a hierarchical Dirichlet struct
 In this repository, the IRV Tree structure is implemented such that the nodes in the Dirichlet-tree are only initialised when data has been observed below. This allows the memory-complexity to be `O(n*m)`, where `m` is the number of ballots observed in the audit process, and `n` is the number of participating candidates. Without such lazy evaluation, the memory-complexity is necessarily `O(n!)`. Hence, our implementation of the Dirichlet distribution (based on a reducible Dirichlet-tree structure) enables a larger candidate pool than would be possible using traditional methods.
 
 To sample unseen ballots without loading all nodes into memory, this repository implements a recursive strategy which generates samples starting from any uninitialized point in the tree. This works well for IRV ballot structures, since the permutation-tree structure is easily navigated given a target ballot. In order to support different tree structures or other elections which deal with high cardinality, this should be implemented - and anyone designing a new tree structure for this should consider it carefully.
-
-
-## Installation
-
-#### CRAN
-
-TBD
-
-#### Development
-
-To install the development version of `elections.dtree` from GitHub:
-```R
-# install.packages("remotes")
-remotes::install_github("fleverest/elections.dtree")
-```
 
 
 ## Usage
