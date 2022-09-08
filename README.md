@@ -23,7 +23,7 @@ remotes::install_github("fleverest/elections.dtree")
 ```
 
 
-## About the project.
+## About the project
 
 #### Why?
 
@@ -54,16 +54,16 @@ dtree <- dirtree(
   a0 = 1.5
 )
 
-# Create some generic ballots
+# Create some generic ballots.
 ballots <- ranked_ballots(list(c("A", "B"), c("C", "D")), candidates = LETTERS)
 
 # Sample 1000 random ballots from the tree.
 ballots <- sample_predictive(dtree, 1000)
 
-# Check which candidate wins the simulated election:
+# Check which candidate wins the simulated election.
 social_choice(ballots)
 
-# Shuffle the ballots
+# Shuffle the ballots.
 ballots <- sample(ballots)
 
 # Observe the first 100 ballots to obtain a posterior Dirichlet-tree.
@@ -102,10 +102,10 @@ dtree <- dirichlet_tree$new(
 # Sample 1000 random ballots from the tree.
 ballots <- dtree$sample_predictive(1000)
 
-# Check which candidate wins the simulated election:
+# Check which candidate wins the simulated election.
 social_choice(ballots)
 
-# Shuffle the ballots
+# Shuffle the ballots.
 ballots <- sample(ballots)
 
 # Observe the first 100 ballots to obtain a posterior Dirichlet-tree.
@@ -128,7 +128,7 @@ dtree$sample_posterior(n_elections = 100, n_ballots = 1000)
 # creating a new tree with the same parameters.
 dtree$reset()
 
-# Additionally, the R6 interface allows you to chain commands:
+# Additionally, the R6 interface allows you to chain commands.
 dtree <- dirichlet_tree$new(
   candidates = LETTERS
 )$update(
