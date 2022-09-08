@@ -1,6 +1,6 @@
 # Ranked voting election audits with Dirichlet-trees
 
-Perform ballot-polling Bayesian audits on ranked voting elections using the Dirichlet-tree prior
+Perform ballot-polling Bayesian audits for ranked voting elections using a Dirichlet-tree prior distribution.
 
   <!-- badges: start -->
   [![R-CMD-check](https://github.com/fleverest/elections.dtree/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/fleverest/elections.dtree/actions/workflows/R-CMD-check.yaml)
