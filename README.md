@@ -27,17 +27,66 @@ remotes::install_github("fleverest/elections.dtree")
 
 #### Why?
 
-The work so far in Bayesian auditing literature has employed the Dirichlet prior to the multinomial ballot types. In the case of Ranked-choice voting systems, the ballot-space can grow factorially; in the case of the IRV election, which is used for the House of Representatives in Australia, the number of possible ballot types is `n!` with `n` candidates.
+Bayesian audits of elections typically employ a Dirichlet prior, conjugate to
+a multinomial distribution for the observed ballots. For ranked voting systems,
+the number of ballot types can grow factorially.  In the case of instant-runoff
+voting (IRV), a popular type of ranked voting system, the number of possible
+ballot types is `n!` with `n` candidates (assuming all candidates are ranked;
+it is even greater if partially completed ballots are permitted).
 
-The Dirichlet distribution is a simple and effective choice if the number of ballot types is small, but it becomes problematic when this number gets large. As `n` grows, the prior concentration parameters (defined by `a0` in our implementation) would need to be on the order of `1/n!` to ensure the prior is not overly informative. If `n` is large enough, we can even push the limits of floating-point precision. Also, the fact that this varies by `n` at all is inconvenient. A more practical alternative is given by the Dirichlet-tree distribution, which we implement in this package.
+The Dirichlet distribution is a simple and effective choice if the number of
+ballot types is small, but becomes problematic when this number gets large. As
+`n` grows, the prior concentration parameters (defined by `a0` in our
+implementation) need to be on the order of `1 / n!` to ensure the prior is not
+overly informative.  If `n` is large enough, this may be smaller than the
+available floating-point precision.  Also, the fact that this varies by `n` is
+inconvenient.  A more practical alternative is given by the Dirichlet-tree
+distribution, which we implement in this package.
 
-The Dirichlet-tree prior distribution introduces a hierarchical Dirichlet structure, consisting of nested Dirichlet distributions over the conditional probabilities on the next-preferences given the previous candidate selections. This improves on the Dirichlet prior such that initial parameters need not depend on `n` to perform well.
+The Dirichlet-tree distribution consists of nested Dirichlet distributions,
+arranged hierarchically in a tree structure.  The structure represents the
+preference ordering of the candidates.  Branches coming out of each node
+correspond to choices for which candidate to select as the next preferred, and
+nodes represent a ranking of candidates (an complete ranking for leaf nodes,
+and an incomplete ranking for internal nodes).  We place a Dirichlet
+distribution at each node, to model the conditional split of preferences at
+that node.  The structure as a whole then defines a Dirichlet-tree
+distribution.  Just like the Dirichlet, it is conjugate to a multinomial
+distribution.  Also, the Dirichlet-tree is a generalisation, including
+a Dirichlet as a special case.
+
+Using the Dirichlet-tree as a prior distribution allows it to scale efficiently
+to large `n`, and does not require setting the concentration parameters (`a0`)
+to values that depend on `n` to perform well.
+depend on `n` to perform well.
 
 #### How?
 
-In this repository, the IRV Tree structure is implemented such that the nodes in the Dirichlet-tree are only initialised when data has been observed below. This allows the memory-complexity to be `O(n*m)`, where `m` is the number of ballots observed in the audit process, and `n` is the number of participating candidates. Without such lazy evaluation, the memory-complexity is necessarily `O(n!)`. Hence, our implementation of the Dirichlet distribution (based on a reducible Dirichlet-tree structure) enables a larger candidate pool than would be possible using traditional methods.
+In this package, the tree structure is implemented such that the nodes are only
+initialised when they appear in the observed ballot data (i.e. when at least
+one of the ballots includes a preference sequence that is represented by that
+node).  This allows the memory-complexity to be `O(n*m)`, where `m` is the
+number of ballots observed in the audit process and `n` is the number of
+participating candidates.
 
-To sample unseen ballots without loading all nodes into memory, this repository implements a recursive strategy which generates samples starting from any uninitialized point in the tree. This works well for IRV ballot structures, since the permutation-tree structure is easily navigated given a target ballot. In order to support different tree structures or other elections which deal with high cardinality, this should be implemented - and anyone designing a new tree structure for this should consider it carefully.
+Without such lazy evaluation, the memory-complexity is necessarily `O(n!)`.
+Hence, our implementation of the Dirichlet distribution (based on a reducible
+Dirichlet-tree structure) enables a larger set of candidates than would be
+possible using traditional methods.
+
+To sample unseen ballots without loading all nodes into memory, this repository
+implements a recursive strategy that generates samples starting from any
+uninitialized point in the tree.  This works well for IRV ballot structures,
+since the permutation-tree structure is easily navigated given a target ballot.
+
+Currently, only IRV elections have been implemented, but other ranked voting
+systems could be supported by implementing the corresponding social choice
+function.
+
+In order to support different tree structures or other elections which deal
+with high cardinality, a similar recursive strategy for sampling should be
+developed (and anyone designing a new tree structure should consider this
+carefully).
 
 
 ## Usage
