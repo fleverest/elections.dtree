@@ -19,7 +19,7 @@ drawn from a single realisation of the posterior Dirichlet-tree.
 \code{sample_predictive} draws ballots from a multinomial distribution with
 probabilities obtained from a single realization of the Dirichlet-tree
 posterior on the ranked ballots. See
-\insertCite{dtree_evoteid;textual}{dirtree.elections} for details.
+\insertCite{dtree_evoteid;textual}{elections.dtree} for details.
 }
 \references{
 \insertAllCited{}

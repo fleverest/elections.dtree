@@ -1,6 +1,6 @@
-Package: dirtree.elections
-Title: Bayesian IRV Election Audits with Dirichlet-Trees
-Description: A package for performing Bayesian audits on IRV Elections using Dirichlet-Tree priors.
+Package: elections.dtree
+Title: Ranked voting election audits with Dirichlet-trees
+Description: Perform Bayesian audits on ranked voting elections using the Dirichlet-tree prior.
 Authors@R: c(
                 person("Floyd", "Everest", email = "me@floydeverest.com",
                     role = c("aut", "cre", "cph"), comment = c(ORCID = "0000-0002-2726-6736")),

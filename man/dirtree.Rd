@@ -26,7 +26,7 @@ candidate.}
 
 \item{vd}{A flag which, when \code{TRUE}, employs a parameter structure which reduces
 to a regular Dirichlet distribution as described by
-\insertCite{dtree_evoteid;textual}{dirtree.elections}.}
+\insertCite{dtree_evoteid;textual}{elections.dtree}.}
 }
 \value{
 A Dirichlet-tree representing ranked ballots, as an object of class
@@ -34,7 +34,7 @@ A Dirichlet-tree representing ranked ballots, as an object of class
 }
 \description{
 \code{dirtree} is used to create a Dirichlet-tree for modelling ballots,
-as described by \insertCite{dtree_evoteid;textual}{dirtree.elections}.
+as described by \insertCite{dtree_evoteid;textual}{elections.dtree}.
 }
 \references{
 \insertAllCited{}

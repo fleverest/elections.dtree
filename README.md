@@ -1,7 +1,7 @@
 # Bayesian IRV Election Auditing with the Dirichlet-tree Prior.
   <!-- badges: start -->
-  [![R-CMD-check](https://github.com/fleverest/dirtree-elections/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/fleverest/dirtree-elections/actions/workflows/R-CMD-check.yaml)
-  [![codecov](https://codecov.io/gh/fleverest/dirtree-elections/branch/master/graph/badge.svg?token=V36WLNA1BY)](https://codecov.io/gh/fleverest/dirtree-elections)
+  [![R-CMD-check](https://github.com/fleverest/elections.dtree/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/fleverest/elections.dtree/actions/workflows/R-CMD-check.yaml)
+  [![codecov](https://codecov.io/gh/fleverest/elections.dtree/branch/master/graph/badge.svg?token=V36WLNA1BY)](https://codecov.io/gh/fleverest/elections.dtree)
   <!-- badges: end -->
 
 ## About the project.
@@ -131,8 +131,8 @@ TBD
 
 #### Development
 
-To install the development version of `dirtree-elections` from GitHub:
+To install the development version of `elections.dtree` from GitHub:
 ```R
 # install.packages("remotes")
-remotes::install_github("fleverest/dirtree-elections")
+remotes::install_github("fleverest/elections.dtree")
 ```
