@@ -83,7 +83,9 @@ dirichlet_tree$new(
 
 }
 \references{
-\insertAllCited{}
+\insertRef{dtree_evoteid}{elections.dtree}.
+
+\insertRef{dtree_evoteid}{elections.dtree}.
 }
 \keyword{ballot}
 \keyword{dirichlet}
