@@ -83,7 +83,7 @@ dirichlet_tree$new(
 
 }
 \references{
-\insertRef{dtree_evoteid}{elections.dtree}.
+\insertRef{dtree_eis}{elections.dtree}.
 
 \insertRef{dtree_evoteid}{elections.dtree}.
 }

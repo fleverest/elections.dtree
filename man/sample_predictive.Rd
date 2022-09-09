@@ -22,7 +22,7 @@ posterior on the ranked ballots. See
 \insertCite{dtree_evoteid;textual}{elections.dtree} for details.
 }
 \references{
-\insertRef{dtree_evoteid}{elections.dtree}.
+\insertRef{dtree_eis}{elections.dtree}.
 
 \insertRef{dtree_evoteid}{elections.dtree}.
 }
