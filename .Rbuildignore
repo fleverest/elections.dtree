@@ -3,3 +3,4 @@
 ^\.lintr$
 ^\.pre-commit-config\.yaml$
 ^codecov\.yml$
+^cran-comments\.md$
