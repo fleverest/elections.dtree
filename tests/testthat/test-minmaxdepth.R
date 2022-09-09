@@ -34,6 +34,8 @@ test_that("sample_predictive produces valid ballots", {
 })
 
 test_that("sample_predictive produces correct number of ballots when a0=0", {
+  skip_on_os("mac")
+
   dtree <- dirtree(
     candidates = LETTERS[1:10],
     a0 = 1.,
