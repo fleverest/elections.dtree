@@ -53,7 +53,9 @@
 #' @importFrom R6 R6Class
 #'
 #' @references
-#' \insertAllCited{}
+#' \insertRef{dtree_evoteid}{elections.dtree}.
+#'
+#' \insertRef{dtree_evoteid}{elections.dtree}.
 #'
 #' @export
 dirichlet_tree <- R6::R6Class("dirichlet_tree",
@@ -387,7 +389,9 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
 #' \code{dirichlet_tree}.
 #'
 #' @references
-#' \insertAllCited{}
+#' \insertRef{dtree_evoteid}{elections.dtree}.
+#'
+#' \insertRef{dtree_evoteid}{elections.dtree}.
 #'
 #' @export
 dirtree <- function(candidates,
@@ -425,7 +429,9 @@ dirtree <- function(candidates,
 #' drawn from a single realisation of the posterior Dirichlet-tree.
 #'
 #' @references
-#' \insertAllCited{}
+#' \insertRef{dtree_evoteid}{elections.dtree}.
+#'
+#' \insertRef{dtree_evoteid}{elections.dtree}.
 #'
 #' @export
 sample_predictive <- function(dtree, n_ballots) {
@@ -463,7 +469,9 @@ sample_predictive <- function(dtree, n_ballots) {
 #' being elected.
 #'
 #' @references
-#' \insertAllCited{}
+#' \insertRef{dtree_evoteid}{elections.dtree}.
+#'
+#' \insertRef{dtree_evoteid}{elections.dtree}.
 #'
 #' @export
 sample_posterior <- function(dtree, n_elections, n_ballots, n_winners = 1) {
@@ -498,7 +506,9 @@ sample_posterior <- function(dtree, n_elections, n_ballots, n_winners = 1) {
 #' The \code{dirichlet_tree} object.
 #'
 #' @references
-#' \insertAllCited{}
+#' \insertRef{dtree_evoteid}{elections.dtree}.
+#'
+#' \insertRef{dtree_evoteid}{elections.dtree}.
 #'
 #' @export
 update.dirichlet_tree <- function(object, ballots, ...) {
