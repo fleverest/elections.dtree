@@ -90,10 +90,10 @@ ranked_ballots <- function(x, candidates = NULL, ...) {
   ))
 }
 
-#' @name write.ballots
+#' @name write_ballots
 #'
 #' @title
-#' Write PIRV ballots to a file.
+#' Write \code{ranked_ballots} to a file.
 #'
 #' @description
 #' Writes a set of ballots to a new file. This follows the
@@ -104,7 +104,7 @@ ranked_ballots <- function(x, candidates = NULL, ...) {
 #' write_ballots(ranked_ballots(c(LETTERS))) # Output to stdout
 #'
 #' @param ballots
-#' The IRVBallots to write to a file.
+#' The \code{ranked_ballots} to write to a file.
 #'
 #' @param filename
 #' The name of the file to write to, or \code{""} to write output to stdout.
@@ -184,7 +184,7 @@ count_ballots <- function(ballots, candidates) {
 #' @name read_ballots
 #'
 #' @title
-#' Read PIRV ballots from a file.
+#' Read \code{ranked_ballots} from a file.
 #'
 #' @description
 #' Reads a set of partial IRV ballots from a file. The file is expected to

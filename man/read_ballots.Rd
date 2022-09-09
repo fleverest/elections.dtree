@@ -2,7 +2,7 @@
 % Please edit documentation in R/ballots.R
 \name{read_ballots}
 \alias{read_ballots}
-\title{Read PIRV ballots from a file.}
+\title{Read \code{ranked_ballots} from a file.}
 \usage{
 read_ballots(file)
 }

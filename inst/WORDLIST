@@ -13,6 +13,7 @@ dtree
 evoteid
 factorially
 floydeverest
+generalisation
 initialised
 IRV
 LazyData
@@ -26,6 +27,7 @@ Rdpack
 realisation
 reimplemented
 RoxygenNote
+stdout
 SystemRequirements
 TBD
 testthat
