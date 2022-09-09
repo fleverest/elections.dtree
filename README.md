@@ -28,14 +28,14 @@ remotes::install_github("fleverest/elections.dtree")
 #### Why?
 
 Bayesian audits of elections typically employ a Dirichlet prior, conjugate to
-a multinomial distribution for the observed ballots. For ranked voting systems,
+a multinomial distribution for the observed ballots.  For ranked voting systems,
 the number of ballot types can grow factorially.  In the case of instant-runoff
 voting (IRV), a popular type of ranked voting system, the number of possible
 ballot types is `n!` with `n` candidates (assuming all candidates are ranked;
 it is even greater if partially completed ballots are permitted).
 
 The Dirichlet distribution is a simple and effective choice if the number of
-ballot types is small, but becomes problematic when this number gets large. As
+ballot types is small, but becomes problematic when this number gets large.  As
 `n` grows, the prior concentration parameters (defined by `a0` in our
 implementation) need to be on the order of `1 / n!` to ensure the prior is not
 overly informative.  If `n` is large enough, this may be smaller than the
@@ -47,7 +47,7 @@ The Dirichlet-tree distribution consists of nested Dirichlet distributions,
 arranged hierarchically in a tree structure.  The structure represents the
 preference ordering of the candidates.  Branches coming out of each node
 correspond to choices for which candidate to select as the next preferred, and
-nodes represent a ranking of candidates (an complete ranking for leaf nodes,
+nodes represent a ranking of candidates (a complete ranking for leaf nodes,
 and an incomplete ranking for internal nodes).  We place a Dirichlet
 distribution at each node, to model the conditional split of preferences at
 that node.  The structure as a whole then defines a Dirichlet-tree
@@ -66,8 +66,7 @@ In this package, the tree structure is implemented such that the nodes are only
 initialised when they appear in the observed ballot data (i.e. when at least
 one of the ballots includes a preference sequence that is represented by that
 node).  This allows the memory-complexity to be `O(n*m)`, where `m` is the
-number of ballots observed in the audit process and `n` is the number of
-participating candidates.
+number of ballots observed in the audit process.
 
 Without such lazy evaluation, the memory-complexity is necessarily `O(n!)`.
 Hence, our implementation of the Dirichlet distribution (based on a reducible
