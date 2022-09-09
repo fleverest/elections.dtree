@@ -24,7 +24,7 @@ a posterior distribution on the ranked ballots. See
 details.
 }
 \references{
-\insertRef{dtree_evoteid}{elections.dtree}.
+\insertRef{dtree_eis}{elections.dtree}.
 
 \insertRef{dtree_evoteid}{elections.dtree}.
 }

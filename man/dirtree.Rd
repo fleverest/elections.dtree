@@ -37,7 +37,7 @@ A Dirichlet-tree representing ranked ballots, as an object of class
 as described by \insertCite{dtree_evoteid;textual}{elections.dtree}.
 }
 \references{
-\insertRef{dtree_evoteid}{elections.dtree}.
+\insertRef{dtree_eis}{elections.dtree}.
 
 \insertRef{dtree_evoteid}{elections.dtree}.
 }
