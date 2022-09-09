@@ -6,6 +6,11 @@ repos:
     hooks:
     -   id: style-files
         args: [--style_pkg=styler, --style_fun=tidyverse_style]
+        exclude: >
+          (?x)^(
+          src/RcppExports\.cpp|
+          R/RcppExports\.R|
+          )$
     -   id: roxygenize
         additional_dependencies:
         -    pkgbuild
@@ -53,6 +58,7 @@ repos:
         exclude: >
           (?x)^(
           R/RcppExports.R|
+          src/RcppExports.cpp|
           R/catch-routine-registration.R|
           )$
     -   id: readme-rmd-rendered
@@ -68,7 +74,12 @@ repos:
     -   id: file-contents-sorter
         files: '^\.Rbuildignore$'
     -   id: end-of-file-fixer
-        exclude: '\.Rd'
+        exclude: >
+          (?x)^(
+          .*\.Rd|
+          src/RcppExports\.cpp|
+          R/RcppExports\.R|
+          )$
 -   repo: local
     hooks:
     -   id: forbid-to-commit

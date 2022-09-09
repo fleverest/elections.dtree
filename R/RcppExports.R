@@ -2,5 +2,6 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 social_choice_irv <- function(bs, nWinners, candidates, seed) {
-  .Call(`_elections_dtree_social_choice_irv`, bs, nWinners, candidates, seed)
+    .Call(`_elections_dtree_social_choice_irv`, bs, nWinners, candidates, seed)
 }
+
