@@ -295,8 +295,8 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #' )$update(
     #'   ranked_ballots(c("A","B","C"))
     #' )$sample_posterior(
-    #'   n_elections = 100,
-    #'   n_ballots = 1000
+    #'   n_elections = 10,
+    #'   n_ballots = 10
     #' )
     #'
     #' @return A numeric vector containing the probabilities for each candidate
