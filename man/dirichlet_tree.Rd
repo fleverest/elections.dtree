@@ -60,8 +60,8 @@ dirichlet_tree$new(
 )$update(
   ranked_ballots(c("A","B","C"))
 )$sample_posterior(
-  n_elections = 100,
-  n_ballots = 1000
+  n_elections = 10,
+  n_ballots = 10
 )
 
 
@@ -283,8 +283,8 @@ being elected.
 )$update(
   ranked_ballots(c("A","B","C"))
 )$sample_posterior(
-  n_elections = 100,
-  n_ballots = 1000
+  n_elections = 10,
+  n_ballots = 10
 )
 
 }
