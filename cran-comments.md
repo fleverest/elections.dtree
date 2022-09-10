@@ -21,3 +21,7 @@ GH Actions (via `usethis::use_github_action_check_standard()`):
 ```
 
 A large directory `libs` is common among packages which depend on `Rcpp`: (source)[https://stackoverflow.com/questions/53819970#comment94489093_53819970].
+
+#### `devtools::check_win_devel` results
+
+Dependency `bioconductor` isn't building for 4.3 yet.
