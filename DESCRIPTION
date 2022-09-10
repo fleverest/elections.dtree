@@ -1,5 +1,5 @@
 Package: elections.dtree
-Title: Ranked voting election audits with Dirichlet-trees
+Title: Ranked Voting Election Audits with Dirichlet-Trees
 Description: Perform ballot-polling Bayesian audits for ranked voting elections
     using a Dirichlet-tree prior distribution.
 Authors@R: c(
