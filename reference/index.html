@@ -46,7 +46,7 @@
     <div class="section level2">
       <h2 id="using-the-dirichlet-tree-model">Using the Dirichlet-tree model<a class="anchor" aria-label="anchor" href="#using-the-dirichlet-tree-model"></a></h2>
       
-      <p class="section-desc"></p><p>Functions for installing Spark components and managing connections to Spark</p>
+      <p class="section-desc"></p><p>Functions for creating and working with Dirichlet-tree models.</p>
 
       
     </div><div id="" class="section level2">
@@ -85,9 +85,9 @@
         </dt>
         <dd>Draw ballots from the posterior predictive distribution.</dd>
       </dl></div><div class="section level2">
-      <h2 id="reading-and-writing-ranked-ballot-data">Reading and Writing Ranked Ballot Data<a class="anchor" aria-label="anchor" href="#reading-and-writing-ranked-ballot-data"></a></h2>
+      <h2 id="reading-and-writing-ranked-ballot-data">Reading and writing ranked ballot data<a class="anchor" aria-label="anchor" href="#reading-and-writing-ranked-ballot-data"></a></h2>
       
-      <p class="section-desc"></p><p>Functions for reading and writing Ranked Ballot <code>.txt</code> files.</p>
+      <p class="section-desc"></p><p>Functions for reading and writing ranked ballot <code>.txt</code> files.</p>
 
       
     </div><div id="" class="section level2">
@@ -112,6 +112,22 @@
         <dd>Construct a set of ranked ballots.</dd>
       </dl><dl><dt>
           
+          <code><a href="tick-sub-.ranked_ballots-tick.html">`[`(<i>&lt;ranked_ballots&gt;</i>)</a></code> 
+        </dt>
+        <dd>Access Subsets of Ballots.</dd>
+      </dl></div><div class="section level2">
+      <h2 id="evaluating-social-choice-function-s-">Evaluating social choice function(s).<a class="anchor" aria-label="anchor" href="#evaluating-social-choice-function-s-"></a></h2>
+      
+      <p class="section-desc"></p><p>Functions for evaluating social choice functions on ranked ballots. Currently only the IRV social choice function is implemented.</p>
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
           <code><a href="social_choice.html">social_choice()</a></code> 
         </dt>
         <dd>Compute the outcome of an election.</dd>
@@ -120,11 +136,6 @@
           <code><a href="social_choice.ranked_ballots.html">social_choice(<i>&lt;ranked_ballots&gt;</i>)</a></code> 
         </dt>
         <dd>Evaluate a social choice function on a set of <code>ranked_ballots</code>.</dd>
-      </dl><dl><dt>
-          
-          <code><a href="tick-sub-.ranked_ballots-tick.html">`[`(<i>&lt;ranked_ballots&gt;</i>)</a></code> 
-        </dt>
-        <dd>Access Subsets of Ballots.</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
