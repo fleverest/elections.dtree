@@ -1,4 +1,4 @@
-# Ranked voting election audits with Dirichlet-trees
+# Ranked Voting Election Audits with Dirichlet-Trees
 
 Perform ballot-polling Bayesian audits for ranked voting elections using a Dirichlet-tree prior distribution.
 
