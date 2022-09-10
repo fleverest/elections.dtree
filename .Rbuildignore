@@ -1,7 +1,9 @@
+^CRAN-SUBMISSION$
 ^LICENSE$
 ^\.github$
 ^\.lintr$
 ^\.pre-commit-config\.yaml$
+^\.ycm_extra_conf.yaml$
 ^_pkgdown\.yml$
 ^codecov\.yml$
 ^cran-comments\.md$
