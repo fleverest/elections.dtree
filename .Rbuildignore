@@ -2,5 +2,8 @@
 ^\.github$
 ^\.lintr$
 ^\.pre-commit-config\.yaml$
+^_pkgdown\.yml$
 ^codecov\.yml$
 ^cran-comments\.md$
+^docs$
+^pkgdown$

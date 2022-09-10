@@ -1,0 +1,19 @@
+url: https://fleverest.github.io/elections.dtree/
+template:
+  bootstrap: 5
+reference:
+- title: Using the Dirichlet-tree model
+  desc: |
+    Functions for installing Spark components and managing connections to Spark
+  contents:
+  - dirichlet_tree
+  - dirtree
+  - update
+  - reset
+  - sample_posterior
+  - sample_predictive
+- title: Reading and Writing Ranked Ballot Data
+  desc: Functions for reading and writing Ranked Ballot `.txt` files.
+  contents:
+  - read_ballots
+  - write_ballots
