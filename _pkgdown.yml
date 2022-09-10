@@ -4,7 +4,7 @@ template:
 reference:
 - title: Using the Dirichlet-tree model
   desc: |
-    Functions for installing Spark components and managing connections to Spark
+    Functions for creating and working with Dirichlet-tree models.
   contents:
   - dirichlet_tree
   - dirtree
