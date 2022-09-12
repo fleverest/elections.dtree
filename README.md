@@ -126,9 +126,9 @@ sample_posterior(dtree, n_elections = 100, n_ballots = 1000)
 dtree$a0 <- 1.
 sample_posterior(dtree, n_elections = 100, n_ballots = 1000)
 
-# Do it again, with a Dirichlet prior this time!
+# Do it again, with a Dirichlet prior using all available threads.
 dtree$vd <- TRUE
-sample_posterior(dtree, n_elections = 100, n_ballots = 1000)
+sample_posterior(dtree, n_elections = 100, n_ballots = 1000, n_threads = Inf)
 
 # Reset the distribution to the prior, removing observed data. This is equivalent to
 # creating a new tree with the same parameters.
@@ -168,9 +168,9 @@ dtree$sample_posterior(n_elections = 100, n_ballots = 1000)
 dtree$a0 <- 1.
 dtree$sample_posterior(n_elections = 100, n_ballots = 1000)
 
-# Do it again, with a Dirichlet prior this time!
+# Do it again, with a Dirichlet prior using all available threads.
 dtree$vd <- TRUE
-dtree$sample_posterior(n_elections = 100, n_ballots = 1000)
+dtree$sample_posterior(n_elections = 100, n_ballots = 1000, n_threads = Inf)
 
 # Reset the distribution to the prior, removing observed data. This is equivalent to
 # creating a new tree with the same parameters.
