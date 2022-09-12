@@ -146,9 +146,9 @@
 <span><span class="va">dtree</span><span class="op">$</span><span class="va">a0</span> <span class="op">&lt;-</span> <span class="fl">1.</span></span>
 <span><span class="fu"><a href="reference/sample_posterior.html">sample_posterior</a></span><span class="op">(</span><span class="va">dtree</span>, n_elections <span class="op">=</span> <span class="fl">100</span>, n_ballots <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Do it again, with a Dirichlet prior this time!</span></span>
+<span><span class="co"># Do it again, with a Dirichlet prior using all available threads.</span></span>
 <span><span class="va">dtree</span><span class="op">$</span><span class="va">vd</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
-<span><span class="fu"><a href="reference/sample_posterior.html">sample_posterior</a></span><span class="op">(</span><span class="va">dtree</span>, n_elections <span class="op">=</span> <span class="fl">100</span>, n_ballots <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/sample_posterior.html">sample_posterior</a></span><span class="op">(</span><span class="va">dtree</span>, n_elections <span class="op">=</span> <span class="fl">100</span>, n_ballots <span class="op">=</span> <span class="fl">1000</span>, n_threads <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Reset the distribution to the prior, removing observed data. This is equivalent to</span></span>
 <span><span class="co"># creating a new tree with the same parameters.</span></span>
@@ -189,9 +189,9 @@
 <span><span class="va">dtree</span><span class="op">$</span><span class="va">a0</span> <span class="op">&lt;-</span> <span class="fl">1.</span></span>
 <span><span class="va">dtree</span><span class="op">$</span><span class="fu">sample_posterior</span><span class="op">(</span>n_elections <span class="op">=</span> <span class="fl">100</span>, n_ballots <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Do it again, with a Dirichlet prior this time!</span></span>
+<span><span class="co"># Do it again, with a Dirichlet prior using all available threads.</span></span>
 <span><span class="va">dtree</span><span class="op">$</span><span class="va">vd</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
-<span><span class="va">dtree</span><span class="op">$</span><span class="fu">sample_posterior</span><span class="op">(</span>n_elections <span class="op">=</span> <span class="fl">100</span>, n_ballots <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
+<span><span class="va">dtree</span><span class="op">$</span><span class="fu">sample_posterior</span><span class="op">(</span>n_elections <span class="op">=</span> <span class="fl">100</span>, n_ballots <span class="op">=</span> <span class="fl">1000</span>, n_threads <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Reset the distribution to the prior, removing observed data. This is equivalent to</span></span>
 <span><span class="co"># creating a new tree with the same parameters.</span></span>
