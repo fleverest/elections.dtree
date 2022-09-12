@@ -66,7 +66,13 @@ details.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sample_posterior</span><span class="op">(</span><span class="va">dtree</span>, <span class="va">n_elections</span>, <span class="va">n_ballots</span>, n_winners <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sample_posterior</span><span class="op">(</span></span>
+<span>  <span class="va">dtree</span>,</span>
+<span>  <span class="va">n_elections</span>,</span>
+<span>  <span class="va">n_ballots</span>,</span>
+<span>  n_winners <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  n_threads <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -86,6 +92,13 @@ number yields higher precision in the output probabilities.</p></dd>
 
 <dt>n_winners</dt>
 <dd><p>The number of candidates elected in each election.</p></dd>
+
+
+<dt>n_threads</dt>
+<dd><p>The maximum number of threads for the process. The default value of
+<code>NULL</code> will default to 2 threads. <code>Inf</code> will default to the maximum
+available, and any value greater than or equal to the maximum available will
+result in the maximum available.</p></dd>
 
 </dl></div>
     <div class="section level2">
