@@ -90,7 +90,7 @@ public:
   void update(Rcpp::List ballots);
   Rcpp::List samplePredictive(unsigned nSamples, std::string seed);
   Rcpp::NumericVector samplePosterior(unsigned nElections, unsigned nBallots,
-                                      unsigned nWinners, unsigned nBatches,
+                                      unsigned nWinners, unsigned nThreads,
                                       std::string seed);
 };
 

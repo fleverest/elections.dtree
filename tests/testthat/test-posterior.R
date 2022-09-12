@@ -32,3 +32,28 @@ test_that("Posterior cannot be calculated when n_ballots is too low", {
     sample_posterior(dtree, 1, 1)
   })
 })
+
+test_that("Posterior cannot be calculated with invalid `n_elections`", {
+  dtree <- dirtree(candidates = LETTERS[1:3])
+  expect_error({
+    sample_posterior(dtree, 0, 1)
+  })
+})
+
+test_that("Exception is thrown with invalid `n_threads`", {
+  dtree <- dirtree(candidates = LETTERS[1:3])
+  expect_error({
+    sample_posterior(dtree, 2, 2, n_threads = 0)
+  })
+})
+
+test_that("No exception is thrown with `n_threads` > maximum available", {
+  skip_on_cran() # Exceeds maximum number of cores
+  dtree <- dirtree(candidates = LETTERS[1:3])
+  expect_true(any(sample_posterior(dtree, 2, 2, n_threads = Inf) > 0))
+  expect_true(
+    any(sample_posterior(dtree, 2, 2,
+      n_threads = parallel::detectCores() + 1
+    ) > 0)
+  )
+})
