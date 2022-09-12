@@ -253,7 +253,12 @@ posterior, then determines the probability for each candidate being
 elected by aggregating the results of the social choice function. See
 \insertCite{dtree_evoteid;textual}{elections.dtree} for details.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{dirichlet_tree$sample_posterior(n_elections, n_ballots, n_winners = 1)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{dirichlet_tree$sample_posterior(
+  n_elections,
+  n_ballots,
+  n_winners = 1,
+  n_threads = NULL
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -265,6 +270,11 @@ number yields higher precision in the output probabilities.}
 \item{\code{n_ballots}}{An integer representing the total number of ballots cast in the election.}
 
 \item{\code{n_winners}}{The number of candidates elected in each election.}
+
+\item{\code{n_threads}}{The maximum number of threads for the process. The default value of
+\code{NULL} will default to 2 threads. \code{Inf} will default to the maximum
+available, and any value greater than or equal to the maximum available will
+result in the maximum available.}
 }
 \if{html}{\out{</div>}}
 }

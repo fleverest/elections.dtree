@@ -22,7 +22,8 @@ Imports:
     Rcpp,
     methods,
     Rdpack,
-    R6
+    R6,
+    parallel
 RdMacros: Rdpack
 Suggests:
     covr,

@@ -179,7 +179,7 @@ Rcpp::List RDirichletTree::samplePredictive(unsigned nSamples,
 Rcpp::NumericVector RDirichletTree::samplePosterior(unsigned nElections,
                                                     unsigned nBallots,
                                                     unsigned nWinners,
-                                                    unsigned nBatches,
+                                                    unsigned nThreads,
                                                     std::string seed) {
 
   if (nBallots < nObserved)
@@ -193,13 +193,12 @@ Rcpp::NumericVector RDirichletTree::samplePosterior(unsigned nElections,
   // Generate nBatches PRNGs.
   std::mt19937 *treeGen = tree->getEnginePtr();
   std::vector<unsigned> seeds{};
+  unsigned nBatches = nElections / 2;
   for (unsigned i = 0; i <= nBatches; ++i) {
     seeds.push_back((*treeGen)());
   }
-  // TODO: Remove this?
-  treeGen->discard(treeGen->state_size * 100);
 
-  // The number of elections to sample per thread.
+  // The number of elections to sample per batch.
   unsigned batchSize, batchRemainder;
   if (nElections <= 1) {
     batchSize = 0;
@@ -230,7 +229,7 @@ Rcpp::NumericVector RDirichletTree::samplePosterior(unsigned nElections,
   };
 
   // Dispatch the jobs.
-  RcppThread::ThreadPool pool(std::thread::hardware_concurrency());
+  RcppThread::ThreadPool pool(nThreads);
 
   // Process batches on workers
   pool.parallelFor(0, nBatches,

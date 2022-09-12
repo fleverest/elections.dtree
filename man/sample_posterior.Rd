@@ -4,7 +4,13 @@
 \alias{sample_posterior}
 \title{Draw election outcomes from the posterior distribution.}
 \usage{
-sample_posterior(dtree, n_elections, n_ballots, n_winners = 1)
+sample_posterior(
+  dtree,
+  n_elections,
+  n_ballots,
+  n_winners = 1,
+  n_threads = NULL
+)
 }
 \arguments{
 \item{dtree}{A \code{dirichlet_tree} object.}
@@ -15,6 +21,11 @@ number yields higher precision in the output probabilities.}
 \item{n_ballots}{An integer representing the total number of ballots cast in the election.}
 
 \item{n_winners}{The number of candidates elected in each election.}
+
+\item{n_threads}{The maximum number of threads for the process. The default value of
+\code{NULL} will default to 2 threads. \code{Inf} will default to the maximum
+available, and any value greater than or equal to the maximum available will
+result in the maximum available.}
 }
 \value{
 A numeric vector containing the probabilities for each candidate

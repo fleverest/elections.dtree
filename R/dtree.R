@@ -44,6 +44,12 @@
 #' @param n_winners
 #' The number of candidates elected in each election.
 #'
+#' @param n_threads
+#' The maximum number of threads for the process. The default value of
+#' \code{NULL} will default to 2 threads. \code{Inf} will default to the maximum
+#' available, and any value greater than or equal to the maximum available will
+#' result in the maximum available.
+#'
 #' @keywords dirichlet tree dirichlet-tree irv election ballot
 #'
 #' @format An \code{\link{R6Class}} generator object.
@@ -301,12 +307,32 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #'
     #' @return A numeric vector containing the probabilities for each candidate
     #' being elected.
-    sample_posterior = function(n_elections, n_ballots, n_winners = 1) {
+    sample_posterior = function(n_elections, n_ballots, n_winners = 1, n_threads = NULL) {
+      if (n_elections <= 0) {
+        stop("`n_elections` must be an integer > 0.")
+      }
+      if (n_ballots < length(private$observations)) {
+        stop("`n_ballots` must be an integer >= the number of observed ballots.")
+      }
+      # Validate n_threads input
+      if (is.null(n_threads)) {
+        # NULL is mapped to the default of 2.
+        n_threads <- 2
+      }
+      if (n_threads > parallel::detectCores()) {
+        # Any value greater than the maximum available is set to the number of
+        #  available cores.
+        n_threads <- parallel::detectCores()
+      }
+      if (n_threads < 1) {
+        # Invalid inputs raise an exception.
+        stop("`n_threads` must be >= 1.")
+      }
       private$.Rcpp_tree$sample_posterior(
         nElections = n_elections,
         nBallots = n_ballots,
         nWinners = n_winners,
-        nBatches = n_elections / 2,
+        nThreads = n_threads,
         gseed()
       )
     },
@@ -465,6 +491,12 @@ sample_predictive <- function(dtree, n_ballots) {
 #' @param n_winners
 #' The number of candidates elected in each election.
 #'
+#' @param n_threads
+#' The maximum number of threads for the process. The default value of
+#' \code{NULL} will default to 2 threads. \code{Inf} will default to the maximum
+#' available, and any value greater than or equal to the maximum available will
+#' result in the maximum available.
+#'
 #' @return A numeric vector containing the probabilities for each candidate
 #' being elected.
 #'
@@ -474,13 +506,15 @@ sample_predictive <- function(dtree, n_ballots) {
 #' \insertRef{dtree_evoteid}{elections.dtree}.
 #'
 #' @export
-sample_posterior <- function(dtree, n_elections, n_ballots, n_winners = 1) {
+sample_posterior <- function(dtree, n_elections, n_ballots, n_winners = 1,
+                             n_threads = NULL) {
   stopifnot(any(class(dtree) %in% .dtree_classes))
   return(
     dtree$sample_posterior(
       n_elections = n_elections,
       n_ballots = n_ballots,
-      n_winners = n_winners
+      n_winners = n_winners,
+      n_threads = n_threads
     )
   )
 }
