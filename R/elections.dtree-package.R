@@ -2,6 +2,7 @@
 
 ## usethis namespace: start
 #' @import Rcpp
+#' @import parallel
 #' @importFrom Rdpack reprompt
 #' @useDynLib elections.dtree, .registration = TRUE
 ## usethis namespace: end
