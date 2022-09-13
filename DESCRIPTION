@@ -1,10 +1,12 @@
 Package: elections.dtree
 Title: Ranked Voting Election Audits with Dirichlet-Trees
 Description: Perform ballot-polling Bayesian audits for ranked voting elections
-    using a Dirichlet-tree prior distribution.
+    using Dirichlet-tree prior distributions. Everest et al. (2022)
+    <arXiv:2206.14605>.
 Authors@R: c(
                 person("Floyd", "Everest", email = "me@floydeverest.com",
-                    role = c("aut", "cre", "cph"), comment = c(ORCID = "0000-0002-2726-6736")),
+                    role = c("aut", "cre", "cph"),
+                    comment = c(ORCID = "0000-0002-2726-6736")),
                 person("Damjan", "Vukcevic", email = "damjan@vukcevic.net",
                     role = c("aut"), comment = c(ORCID = "0000-0001-7780-9586"))
             )
