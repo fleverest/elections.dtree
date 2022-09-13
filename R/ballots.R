@@ -100,10 +100,10 @@ ranked_ballots <- function(x, candidates = NULL, ...) {
 #' ballot:count standard, with a header describing the candidates.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' write_ballots(ranked_ballots(c(LETTERS)), "test.txt") # Output to test.txt
-#' write_ballots(ranked_ballots(c(LETTERS))) # Output to stdout
 #' }
+#' write_ballots(ranked_ballots(c(LETTERS))) # Output to stdout
 #'
 #' @param ballots
 #' The \code{ranked_ballots} to write to a file.

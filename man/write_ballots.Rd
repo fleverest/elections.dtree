@@ -21,9 +21,9 @@ Writes a set of ballots to a new file. This follows the
 ballot:count standard, with a header describing the candidates.
 }
 \examples{
-\dontrun{
+\donttest{
 write_ballots(ranked_ballots(c(LETTERS)), "test.txt") # Output to test.txt
-write_ballots(ranked_ballots(c(LETTERS))) # Output to stdout
 }
+write_ballots(ranked_ballots(c(LETTERS))) # Output to stdout
 
 }
