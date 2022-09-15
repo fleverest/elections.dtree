@@ -12,16 +12,18 @@ Perform ballot-polling Bayesian audits for ranked voting elections using a Diric
 
 #### CRAN
 
-TBD
+To install the latest minor release of `elections.dtree` from CRAN:
+```R
+install.packages("elections.dtree")
+```
 
 #### Development
 
-To install the development version of `elections.dtree` from GitHub:
+To install the development release of `elections.dtree` from GitHub:
 ```R
 # install.packages("remotes")
 remotes::install_github("fleverest/elections.dtree")
 ```
-
 
 ## About the project
 
