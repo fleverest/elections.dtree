@@ -4,7 +4,7 @@ Perform ballot-polling Bayesian audits for ranked voting elections using a Diric
 
   <!-- badges: start -->
   [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/elections.dtree)](https://cran.r-project.org/package=elections.dtree)
-  [![pkgdown](https://github.com/fleverest/elections.dtree/workflows/pkgdown/badge.svg)](https://fleverest.github.io/elections.dtree)
+  [![pkgdown](https://github.com/fleverest/elections.dtree/workflows/pkgdown/badge.svg)](https://fleverest.github.io/elections.dtree/)
   [![R-CMD-check](https://github.com/fleverest/elections.dtree/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/fleverest/elections.dtree/actions/workflows/R-CMD-check.yaml)
   [![Codecov test coverage](https://codecov.io/gh/fleverest/elections.dtree/branch/main/graph/badge.svg)](https://app.codecov.io/gh/fleverest/elections.dtree?branch=main)
   <!-- badges: end -->
