@@ -228,18 +228,22 @@ Rcpp::NumericVector RDirichletTree::samplePosterior(unsigned nElections,
       results[i].push_back(socialChoiceIRV(el, nCandidates, &e));
   };
 
-  // Dispatch the jobs.
-  RcppThread::ThreadPool pool(nThreads);
-
-  // Process batches on workers
-  pool.parallelFor(0, nBatches,
-                   [&](size_t i) { getBatchResult(i, batchSize); });
+  // Dispatch the jobs
+  std::vector<std::thread> pool(nBatches);
+  for (unsigned i = 0; i < nBatches; ++i) {
+    pool[i] = std::thread(std::bind(
+      getBatchResult,
+      i,
+      batchSize
+    ));
+  }
 
   // Process remainder on main thread.
   if (batchRemainder > 0)
     getBatchResult(nBatches, batchRemainder);
 
-  pool.join();
+  // Join the threads batches
+  std::for_each(pool.begin(), pool.end(), [](std::thread& t){ t.join(); });
 
   // Aggregate the results
   Rcpp::NumericVector out(nCandidates);
