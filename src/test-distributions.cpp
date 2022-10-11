@@ -55,12 +55,12 @@ context("Test dirichlet marginal distributions.") {
   unsigned n_trials = 1000;
 
   float *alpha = new float[n];
-  for (auto i = 0; i < n; ++i)
+  for (unsigned i = 0; i < n; ++i)
     alpha[i] = 1.;
 
   float *p;
   float sum_p_n = 0.;
-  for (auto i = 0; i < n_trials; ++i) {
+  for (unsigned i = 0; i < n_trials; ++i) {
     p = rDirichlet(alpha, n, &mte);
     sum_p_n += p[n - 1];
     delete[] p;

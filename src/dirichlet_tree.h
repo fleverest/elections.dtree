@@ -104,23 +104,20 @@ public:
   /*! \brief Sample possible full sets from the posterior.
    *
    *  Assuming we have been updating the Dirichlet-tree with observations
-   * without replacement, this method samples possible complete outcome sets of
-   * size N from the posterior. Each complete set contains the already observed
-   * outcomes which determine the posterior Dirichlet-tree used in generating
-   * the output. For example, if we observe a set of outcomes {o1, o2, o2}, then
-   * `posteriorSets(nSets=2, N=4)` may return [{o1, o2, o2, o3},
-   * {o1, o2, o2, o1}].
-   *
-   * \param nSets The number of complete observation sets to sample.
+   * without replacement, this method samples a potential outcome for the
+   * complete ballot set of size N from the posterior. The complete set contains
+   * both the already observed outcomes and the new samples in the output. For
+   * example, if we observe a set of outcomes {o1, o2, o2}, then
+   * `posteriorSet(N=4)` may return {o1, o2, o2, o3}.
    *
    * \param N The number of observations in each complete set (must be >=
    * than the number of observed outcomes).
    *
-   * \return Returns `nSets` complete outcome sets sampled from the posterior
+   * \return Returns one potential outcome sampled from the posterior
    * Dirichlet-tree distribution, using the already observed data.
    */
-  std::list<std::list<std::pair<Outcome, unsigned>>>
-  posteriorSets(unsigned nSets, unsigned N, std::mt19937 *engine = nullptr);
+  std::list<std::pair<Outcome, unsigned>>
+  posteriorSet(unsigned N, std::mt19937 *engine = nullptr);
 
   // Getters
 
@@ -216,33 +213,20 @@ DirichletTree<NodeType, Outcome, Parameters>::~DirichletTree() {
 }
 
 template <typename NodeType, typename Outcome, typename Parameters>
-std::list<std::list<std::pair<Outcome, unsigned>>>
-DirichletTree<NodeType, Outcome, Parameters>::posteriorSets(
-    unsigned nSets, unsigned N, std::mt19937 *engine) {
-
-  // Initialize list of outcomes.
-  std::list<std::list<std::pair<Outcome, unsigned>>> out{};
-  std::list<std::pair<Outcome, unsigned>> old_outcomes, new_outcomes;
+std::list<std::pair<Outcome, unsigned>>
+DirichletTree<NodeType, Outcome, Parameters>::posteriorSet(
+    unsigned N, std::mt19937 *engine) {
 
   // Handle invalid case by returning empty list.
-  if (nObserved > N || nSets <= 0)
+  if (nObserved > N)
     return {};
 
-  for (unsigned i = 0; i < nSets; ++i) {
-    // Add a new list to the list, first by copying the observed outcomes.
-    out.push_back({});
+  // Initialize output by copying observed data.
+  std::list<std::pair<Outcome, unsigned>> out =
+    std::list<std::pair<Outcome, unsigned>>(observed.begin(), observed.end());
 
-    // Copy the observed outcomes
-    old_outcomes = std::list<std::pair<Outcome, unsigned>>(observed.begin(),
-                                                           observed.end());
-
-    // Then sample new outcomes.
-    new_outcomes = sample(N - nObserved, engine);
-
-    // Combine the two, by appending to the new list.
-    out.back().splice(out.back().end(), old_outcomes);
-    out.back().splice(out.back().end(), new_outcomes);
-  }
+  // Then sample new outcomes and add them to the end of the list.
+  out.splice(out.end(), sample(N - nObserved, engine));
 
   return out;
 }

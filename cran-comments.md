@@ -1,27 +1,23 @@
-# `elections.dtree` v1.0
+# `elections.dtree` v1.0.1
 
-This is the initial release
+This is the first patch of the initial release. The initial release failed to
+compile (and in some cases, run tests) on clang-based systems. I have attempted
+to resolve this issue by replacing a call to `RcppThread`'s `parallelFor`
+implementation with spawning `std::thread`s manually.
 
 #### `R CMD check` results
 
 GH Actions (via `usethis::use_github_action_check_standard()`):
+
 * ✅ macOS (11.6.8 20G730), R==4.2.1
 * ✅ Windows Server (2022 10.0.20348), R==4.2.1-win
 * ✅ Ubuntu (20.04.5), R==4.1.3
 * ✅ Ubuntu (20.04.5), R==4.2.1
 * ✅ Ubuntu (20.04.5), R==devel
 
-```
-0 errors ✔ | 0 warnings ✔ | 1 note ✖
+```0 errors ✔ | 0 warnings ✔ | 0 notes ✔```
 
-❯ checking installed package size ... NOTE
-    installed size is 10.8Mb
-    sub-directories of 1Mb or more:
-      libs  10.6Mb
-```
+Other Rhub checks:
 
-A large directory `libs` is common among packages which depend on `Rcpp`: (source)[https://stackoverflow.com/questions/53819970#comment94489093_53819970].
-
-#### `devtools::check_win_devel` results
-
-Dependency `bioconductor` isn't building for 4.3 yet.
+* ✅ fedora
+* ✅ fedora-clang-devel

@@ -190,11 +190,10 @@ Rcpp::NumericVector RDirichletTree::samplePosterior(unsigned nElections,
 
   size_t nCandidates = getNCandidates();
 
-  // Generate nBatches PRNGs.
+  // Generate PRNG seeds.
   std::mt19937 *treeGen = tree->getEnginePtr();
   std::vector<unsigned> seeds{};
-  unsigned nBatches = nElections / 2;
-  for (unsigned i = 0; i <= nBatches; ++i) {
+  for (unsigned i = 0; i <= nThreads; ++i) {
     seeds.push_back((*treeGen)());
   }
 
@@ -204,56 +203,53 @@ Rcpp::NumericVector RDirichletTree::samplePosterior(unsigned nElections,
     batchSize = 0;
     batchRemainder = nElections;
   } else {
-    batchSize = nElections / nBatches;
-    batchRemainder = nElections % nBatches;
+    batchSize = nElections / nThreads;
+    batchRemainder = nElections % nThreads;
   }
 
   // The results vector for each thread.
-  std::vector<std::vector<std::vector<unsigned>>> results(nBatches + 1);
+  std::vector<std::vector<unsigned>> results(nElections);
 
-  // Use RcppThreads to compute the posterior in batches.
-  auto getBatchResult = [&](size_t i, size_t batchSize) -> void {
-    // Check for interrupt.
-    RcppThread::checkUserInterrupt();
-
+  // Use multiple threads to compute the posterior in batches.
+  auto processBatch = [&](size_t thread_idx, size_t size) -> void {
     // Seed a new PRNG, and warm it up.
-    std::mt19937 e(seeds[i]);
+    std::mt19937 e(seeds[thread_idx]);
     e.discard(e.state_size * 100);
 
-    // Simulate elections.
-    std::list<std::list<IRVBallotCount>> elections =
-        tree->posteriorSets(batchSize, nBallots, &e);
-
-    for (auto &el : elections)
-      results[i].push_back(socialChoiceIRV(el, nCandidates, &e));
+    for (unsigned j = 0; j < size; ++j) {
+      // Check for interrupt.
+      RcppThread::checkUserInterrupt();
+      // Simulate election.
+      std::list<IRVBallotCount> election =
+          tree->posteriorSet(nBallots, &e);
+      // Evaluate social choice function.
+      results[thread_idx * batchSize + j] =
+          socialChoiceIRV(election, nCandidates, &e);
+    }
   };
 
   // Dispatch the jobs
-  std::vector<std::thread> pool(nBatches);
-  for (unsigned i = 0; i < nBatches; ++i) {
+  std::vector<std::thread> pool(nThreads);
+  for (unsigned i = 0; i < nThreads; ++i) {
     pool[i] = std::thread(std::bind(
-      getBatchResult,
+      processBatch,
       i,
       batchSize
     ));
   }
 
   // Process remainder on main thread.
-  if (batchRemainder > 0)
-    getBatchResult(nBatches, batchRemainder);
+  processBatch(nThreads, batchRemainder);
 
-  // Join the threads batches
+  // Join the threads
   std::for_each(pool.begin(), pool.end(), [](std::thread& t){ t.join(); });
 
   // Aggregate the results
   Rcpp::NumericVector out(nCandidates);
   out.names() = candidateVector;
-
-  for (unsigned j = 0; j <= nBatches; ++j) {
-    for (auto elimination_order_idx : results[j]) {
-      for (auto i = nCandidates - nWinners; i < nCandidates; ++i)
-        out[elimination_order_idx[i]] = out[elimination_order_idx[i]] + 1;
-    }
+  for (unsigned j = 0; j < nElections; ++j) {
+    for (auto i = nCandidates - nWinners; i < nCandidates; ++i)
+      out[results[j][i]] = out[results[j][i]] + 1;
   }
 
   out = out / nElections;
