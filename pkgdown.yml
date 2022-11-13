@@ -1,8 +1,8 @@
-pandoc: 2.14.2
+pandoc: 2.19.2
 pkgdown: 2.0.6
 pkgdown_sha: ~
 articles: {}
-last_built: 2022-10-11T20:47Z
+last_built: 2022-11-13T23:45Z
 urls:
   reference: https://fleverest.github.io/elections.dtree/reference
   article: https://fleverest.github.io/elections.dtree/articles
