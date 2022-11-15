@@ -30,7 +30,7 @@
     
     <a class="navbar-brand me-2" href="index.html">elections.dtree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -95,7 +95,7 @@
 <h4 id="why">Why?<a class="anchor" aria-label="anchor" href="#why"></a>
 </h4>
 <p>Bayesian audits of elections typically employ a Dirichlet prior, conjugate to a multinomial distribution for the observed ballots. For ranked voting systems, the number of ballot types can grow factorially. In the case of instant-runoff voting (IRV), a popular type of ranked voting system, the number of possible ballot types is <code>n!</code> with <code>n</code> candidates (assuming all candidates are ranked; it is even greater if partially completed ballots are permitted).</p>
-<p>The Dirichlet distribution is a simple and effective choice if the number of ballot types is small, but becomes problematic when this number gets large. As <code>n</code> grows, the prior concentration parameters (defined by <code>a0</code> in our implementation) need to be on the order of <code>1 / n!</code> to ensure the prior is not overly informative. If <code>n</code> is large enough, this may be smaller than the available floating-point precision. Also, the fact that this varies by <code>n</code> is inconvenient. A more practical alternative is given by the Dirichlet-tree distribution, which we implement in this package.</p>
+<p>The Dirichlet distribution is a simple and effective choice if the number of ballot types is small, but becomes problematic when this number gets large. As <code>n</code> grows, the prior concentration parameters (defined by <code>a0</code> in our implementation) need to be on the order of <code>1 / n!</code> to ensure the prior is not overly informative. If <code>n</code> is large enough, this may be smaller than the available precision. Also, the fact that this varies by <code>n</code> is inconvenient. A more practical alternative is given by the Dirichlet-tree distribution, which we implement in this package.</p>
 <p>The Dirichlet-tree distribution consists of nested Dirichlet distributions, arranged hierarchically in a tree structure. The structure represents the preference ordering of the candidates. Branches coming out of each node correspond to choices for which candidate to select as the next preferred, and nodes represent a ranking of candidates (a complete ranking for leaf nodes, and an incomplete ranking for internal nodes). We place a Dirichlet distribution at each node, to model the conditional split of preferences at that node. The structure as a whole then defines a Dirichlet-tree distribution. Just like the Dirichlet, it is conjugate to a multinomial distribution. Also, the Dirichlet-tree is a generalisation, including a Dirichlet as a special case.</p>
 <p>Using the Dirichlet-tree as a prior distribution allows it to scale efficiently to large <code>n</code>, and does not require setting the concentration parameters (<code>a0</code>) to values that depend on <code>n</code> to perform well. depend on <code>n</code> to perform well.</p>
 </div>
