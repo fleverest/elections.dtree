@@ -9,3 +9,4 @@
 ^cran-comments\.md$
 ^docs$
 ^pkgdown$
+^src/compile_commands\.json$
