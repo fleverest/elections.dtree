@@ -22,16 +22,15 @@
  *
  * \param N The total number of multinomial samples.
  *
- * \param a An array of `a` parameters to the Dirichlet distribution.
- *
- * \param d The dimension of a, which is equal to the number of categories.
+ * \param a The `a` parameter to the Dirichlet distribution.
  *
  * \param engine A PRNG for sampling.
  *
- * \return An array of multinomial counts of dimension d.
+ * \return A vector containing the sampled counts.
  */
-unsigned *rDirichletMultinomial(const unsigned &N, const double *a,
-                                const unsigned d, std::mt19937 *engine);
+std::vector<unsigned> rDirichletMultinomial(const unsigned &N,
+                                            const std::vector<double> &a,
+                                            std::mt19937 *engine);
 
 /*! \brief Draws a sample from a Multinomial distribution.
  *
@@ -41,16 +40,15 @@ unsigned *rDirichletMultinomial(const unsigned &N, const double *a,
  *
  * \param N The total number of Multinomial samples.
  *
- * \param p An array of category probabilities.
- *
- * \param d The dimension of p, which is equal to the number of categories.
+ * \param p A vector of category probabilities.
  *
  * \param engine A PRNG for sampling.
  *
- * \return An array of multinomial counts of dimension d.
+ * \return A vector containing sampled counts.
  */
-unsigned *rMultinomial(const unsigned N, const double *p, const unsigned d,
-                       std::mt19937 *engine);
+std::vector<unsigned> rMultinomial(const unsigned &N,
+                                   const std::vector<double> &p,
+                                   std::mt19937 *engine);
 
 /*! \brief Draws a sample from a Dirichlet distribution.
  *
@@ -65,6 +63,7 @@ unsigned *rMultinomial(const unsigned N, const double *p, const unsigned d,
  *
  * \return A single sample from a Dirichlet(a) random variable.
  */
-double *rDirichlet(const double *a, const unsigned d, std::mt19937 *engine);
+std::vector<double> rDirichlet(const std::vector<double> &a,
+                               std::mt19937 *engine);
 
 #endif /* DISTRIBUTIONS_H */

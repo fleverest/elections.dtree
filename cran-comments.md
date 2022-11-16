@@ -1,9 +1,7 @@
-# `elections.dtree` v1.0.1
+# `elections.dtree` v1.0.3
 
-This is the first patch of the initial release. The initial release failed to
-compile (and in some cases, run tests) on clang-based systems. I have attempted
-to resolve this issue by replacing a call to `RcppThread`'s `parallelFor`
-implementation with spawning `std::thread`s manually.
+This patch includes a confirmed fix for the underlying Multinomial distribution
+sampling under `libc++`.
 
 #### `R CMD check` results
 
@@ -19,5 +17,5 @@ GH Actions (via `usethis::use_github_action_check_standard()`):
 
 Other Rhub checks:
 
-* ✅ fedora
 * ✅ fedora-clang-devel
+* ✅ debian-clang-devel

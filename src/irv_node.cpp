@@ -36,11 +36,12 @@ std::list<IRVBallotCount> lazyIRVBallots(IRVParameters *params, unsigned count,
 
   std::list<IRVBallotCount> out = {};
 
-  double *a;
-  unsigned *mnomCounts;
+  std::vector<unsigned> mnomCounts;
 
   unsigned nChildren = nCandidates - depth;
   unsigned nOutcomes = nChildren + (depth >= minDepth);
+
+  std::vector<double> a(nOutcomes);
 
   if (depth == nCandidates - 1 || depth == maxDepth) {
     // If the ballot is completely specified, return count * the specified
@@ -55,9 +56,8 @@ std::list<IRVBallotCount> lazyIRVBallots(IRVParameters *params, unsigned count,
   // ballots terminate).
 
   // We start by initializing a to the appropriate values.
-  a = new double[nOutcomes];
   for (unsigned i = 0; i < nOutcomes; ++i) a[i] = a0;
-  mnomCounts = rDirichletMultinomial(count, a, nOutcomes, engine);
+  mnomCounts = rDirichletMultinomial(count, a, engine);
 
   // Add the ballots which terminate at this node.
   if (depth >= minDepth && mnomCounts[nOutcomes - 1] > 0) {
@@ -79,9 +79,6 @@ std::list<IRVBallotCount> lazyIRVBallots(IRVParameters *params, unsigned count,
     // Change the path back for further sampling.
     std::swap(path[depth], path[depth + i]);
   }
-
-  delete[] mnomCounts;
-  delete[] a;
 
   return out;
 }
@@ -119,14 +116,13 @@ std::list<IRVBallotCount> IRVNode::sample(unsigned count,
 
   unsigned nOutcomes = nChildren + (depth >= minDepth);
 
-  double *asPost = new double[nOutcomes];
+  std::vector<double> asPost(nOutcomes);
   for (unsigned i = 0; i < nOutcomes; ++i) asPost[i] = as[i] + a0;
 
   // Get Dirichlet-multinomial counts for next-preference selections below
   // current node.
-  unsigned *mnomCounts =
-      rDirichletMultinomial(count, asPost, nOutcomes, engine);
-  delete[] asPost;
+  std::vector<unsigned> mnomCounts =
+      rDirichletMultinomial(count, asPost, engine);
 
   // Add terminal node ballots
   if (depth >= minDepth && mnomCounts[nChildren] > 0) {
@@ -151,7 +147,6 @@ std::list<IRVBallotCount> IRVNode::sample(unsigned count,
       std::swap(path[depth], path[depth + i]);
     }
     // Return early since there are no child nodes to sample from.
-    delete[] mnomCounts;
     return out;
   }
 
@@ -174,8 +169,6 @@ std::list<IRVBallotCount> IRVNode::sample(unsigned count,
     }
     std::swap(path[depth], path[depth + i]);
   }
-
-  delete[] mnomCounts;
 
   return out;
 }

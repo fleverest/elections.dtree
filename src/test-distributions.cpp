@@ -4,11 +4,14 @@
 
 #include <testthat.h>
 
+#include <vector>
+
 #include "distributions.h"
 
 context("Test Dirichlet-Multinomial samples sum to count.") {
-  unsigned *result, sum;
-  double *a;
+  std::vector<unsigned> result;
+  unsigned sum;
+  std::vector<double> a;
   std::mt19937 mte;
   mte.seed(time(NULL));
   // We draw each a parameter from gamma(2,2)
@@ -22,20 +25,16 @@ context("Test Dirichlet-Multinomial samples sum to count.") {
   for (auto z = 0; z < 10; ++z) {
     for (unsigned d = 1; d < 1000; ++d) {
       // Initialize a new a vector.
-      a = new double[d];
+      a = std::vector<double>(d);
       for (unsigned i = 0; i < d; ++i) a[i] = g(mte);
 
-      result = rDirichletMultinomial(count, a, d, &mte);
+      result = rDirichletMultinomial(count, a, &mte);
 
       // Sum the result
       sum = 0;
       for (unsigned i = 0; i < d; ++i) sum += result[i];
 
       always_sums_to_count = always_sums_to_count && (sum == count);
-
-      // Delete a and mnom counts
-      delete[] a;
-      delete[] result;
     }
   }
   test_that("Dirichlet-Multinomial sample sums to count.") {
@@ -50,18 +49,15 @@ context("Test dirichlet marginal distributions.") {
   unsigned n = 100;
   unsigned n_trials = 1000;
 
-  double *alpha = new double[n];
+  std::vector<double> alpha(n);
   for (unsigned i = 0; i < n; ++i) alpha[i] = 1.;
 
-  double *p;
+  std::vector<double> p;
   double sum_p_n = 0.;
   for (unsigned i = 0; i < n_trials; ++i) {
-    p = rDirichlet(alpha, n, &mte);
+    p = rDirichlet(alpha, &mte);
     sum_p_n += p[n - 1];
-    delete[] p;
   }
-
-  delete[] alpha;
 
   test_that("Last Dirichlet probability has mean approximately 1/n.") {
     expect_true(sum_p_n <
