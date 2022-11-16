@@ -1,5 +1,9 @@
 # elections.dtree
 
+## 1.0.2
+
+* Patched the Dirichlet-Multinomial sampling for systems built on `libc++`.
+
 ## 1.0.1
 
 * Patched concurrency functionality for `sample_posterior` which prevented
