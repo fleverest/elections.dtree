@@ -29,7 +29,7 @@
  *
  * \return An array of multinomial counts of dimension d.
  */
-unsigned *rDirichletMultinomial(const unsigned count, const float *a,
+unsigned *rDirichletMultinomial(const unsigned count, const double *a,
                                 const unsigned d, std::mt19937 *engine);
 
 /*! \brief Draws a sample from a Multinomial distribution.
@@ -48,7 +48,7 @@ unsigned *rDirichletMultinomial(const unsigned count, const float *a,
  *
  * \return An array of multinomial counts of dimension d.
  */
-unsigned *rMultinomial(unsigned count, const float *p, const unsigned d,
+unsigned *rMultinomial(unsigned count, const double *p, const unsigned d,
                        std::mt19937 *engine);
 
 /*! \brief Draws a sample from a Dirichlet distribution.
@@ -64,6 +64,6 @@ unsigned *rMultinomial(unsigned count, const float *p, const unsigned d,
  *
  * \return A single sample from a Dirichlet(a) random variable.
  */
-float *rDirichlet(const float *a, const unsigned d, std::mt19937 *engine);
+double *rDirichlet(const double *a, const unsigned d, std::mt19937 *engine);
 
 #endif /* DISTRIBUTIONS_H */

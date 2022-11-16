@@ -63,7 +63,7 @@ private:
 public:
   // Constructor
   RDirichletTree(Rcpp::CharacterVector candidates, unsigned minDepth_,
-                 unsigned maxDepth_, float a0_, bool vd_, std::string seed_);
+                 unsigned maxDepth_, double a0_, bool vd_, std::string seed_);
 
   // Destructor.
   ~RDirichletTree();
@@ -74,14 +74,14 @@ public:
   unsigned getNCandidates();
   unsigned getMinDepth();
   unsigned getMaxDepth();
-  float getA0();
+  double getA0();
   bool getVD();
   Rcpp::CharacterVector getCandidates();
 
   // Setters
   void setMinDepth(unsigned minDepth_);
   void setMaxDepth(unsigned maxDepth_);
-  void setA0(float a0_);
+  void setA0(double a0_);
   void setSeed(std::string seed_);
   void setVD(bool vd_);
 

@@ -50,7 +50,7 @@ protected:
   // The a parameters for the dirichlet distribution on the possible
   // next-preferences. Considering the case of IRV ballots allowing for partial
   // specification, then it has size nCandidates+1.
-  float *as;
+  double *as;
 
   // An array of ChildNode pointers corresponding to each of the child states.
   // These will be null pointers if the corresponding child has not yet been

@@ -9,11 +9,11 @@
 context("Test Dirichlet-Multinomial samples sum to count.") {
 
   unsigned *result, sum;
-  float *a;
+  double *a;
   std::mt19937 mte;
   mte.seed(time(NULL));
   // We draw each a parameter from gamma(2,2)
-  std::gamma_distribution<float> g(2.0, 2.0);
+  std::gamma_distribution<double> g(2.0, 2.0);
 
   // Draw 1000 multinomial samples.
   unsigned count = 1000;
@@ -23,7 +23,7 @@ context("Test Dirichlet-Multinomial samples sum to count.") {
   for (auto z = 0; z < 10; ++z) {
     for (unsigned d = 1; d < 1000; ++d) {
       // Initialize a new a vector.
-      a = new float[d];
+      a = new double[d];
       for (unsigned i = 0; i < d; ++i)
         a[i] = g(mte);
 
@@ -54,12 +54,12 @@ context("Test dirichlet marginal distributions.") {
   unsigned n = 100;
   unsigned n_trials = 1000;
 
-  float *alpha = new float[n];
+  double *alpha = new double[n];
   for (unsigned i = 0; i < n; ++i)
     alpha[i] = 1.;
 
-  float *p;
-  float sum_p_n = 0.;
+  double *p;
+  double sum_p_n = 0.;
   for (unsigned i = 0; i < n_trials; ++i) {
     p = rDirichlet(alpha, n, &mte);
     sum_p_n += p[n - 1];
@@ -70,8 +70,8 @@ context("Test dirichlet marginal distributions.") {
 
   test_that("Last Dirichlet probability has mean approximately 1/n.") {
     expect_true(sum_p_n <
-                1.1 * static_cast<float>(n_trials) / static_cast<float>(n));
+                1.1 * static_cast<double>(n_trials) / static_cast<double>(n));
     expect_true(sum_p_n >
-                0.9 * static_cast<float>(n_trials) / static_cast<float>(n));
+                0.9 * static_cast<double>(n_trials) / static_cast<double>(n));
   }
 }

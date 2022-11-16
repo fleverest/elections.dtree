@@ -43,9 +43,9 @@ ballot types is small, but becomes problematic when this number gets large.  As
 `n` grows, the prior concentration parameters (defined by `a0` in our
 implementation) need to be on the order of `1 / n!` to ensure the prior is not
 overly informative.  If `n` is large enough, this may be smaller than the
-available floating-point precision.  Also, the fact that this varies by `n` is
-inconvenient.  A more practical alternative is given by the Dirichlet-tree
-distribution, which we implement in this package.
+available precision.  Also, the fact that this varies by `n` is inconvenient.
+A more practical alternative is given by the Dirichlet-tree distribution,
+which we implement in this package.
 
 The Dirichlet-tree distribution consists of nested Dirichlet distributions,
 arranged hierarchically in a tree structure.  The structure represents the

@@ -28,17 +28,17 @@ private:
   // The maximum number of ballots that must be specified for an IRV election.
   unsigned maxDepth = 0;
   // The prior parameter for a uniform Dirichlet-tree.
-  float a0 = 1.;
+  double a0 = 1.;
   // A flag indicating whether or not the parameter structure reduces to a
   // vanilla Dirichlet distribution.
   bool vd = false;
   // For storing factor calculations for each depth level in the tree.
-  std::vector<float> depthFactors = std::vector<float>(0);
+  std::vector<double> depthFactors = std::vector<double>(0);
 
 public:
   // Canonical constructor
   IRVParameters(unsigned nCandidates_, unsigned minDepth_ = 0,
-                unsigned maxDepth_ = 0, float a0_ = 1., bool vd_ = false)
+                unsigned maxDepth_ = 0, double a0_ = 1., bool vd_ = false)
       : nCandidates(nCandidates_), minDepth(minDepth_), maxDepth(maxDepth_),
         a0(a0_), vd(vd_) {
     calculateDepthFactors();
@@ -58,7 +58,7 @@ public:
    * \return The factor with which to multiply a0 by for a Dirichlet
    * distribution.
    */
-  float depthFactor(unsigned depth) { return depthFactors[depth]; };
+  double depthFactor(unsigned depth) { return depthFactors[depth]; };
 
   /*! \brief Calculates the factors with which to multiple a0 at each depth.
    *
@@ -108,13 +108,13 @@ public:
    *
    * \return a0, the prior parameter of the uniform Dirichlet-tree.
    */
-  float getA0() { return a0; }
+  double getA0() { return a0; }
 
   /*! \brief Indicates whether the tree reduces to a Dirichlet distribution.
    *
    * \return vd, true if the tree reduces to a vanilla Dirichlet distribution.
    */
-  float getVD() { return vd; }
+  double getVD() { return vd; }
 
   // Setters
   /*! \brief Sets the minimum depth for the election.
@@ -138,7 +138,7 @@ public:
    *
    * \param a0_ The new prior parameter for the uniform Dirichlet-tree.
    */
-  void setA0(float a0_) { a0 = a0_; }
+  void setA0(double a0_) { a0 = a0_; }
 
   /*! \brief Change the parameter structure of the prior.
    *

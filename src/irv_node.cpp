@@ -11,11 +11,11 @@
 // Calculates the factors with which to multiply a0 in order to obtain the
 // interior parameters which reduce to a Dirichlet distribution.
 void IRVParameters::calculateDepthFactors() {
-  depthFactors = std::vector<float>(maxDepth);
+  depthFactors = std::vector<double>(maxDepth);
   // The number of children to a node for a given depth in the tree.
   unsigned nChildren;
   // For each depth, maxDepth-1 through 0, we calculate the factors.
-  float f = 1.;
+  double f = 1.;
   for (int depth = maxDepth - 1; depth >= 0; --depth) {
     nChildren = nCandidates - depth;
     if (depth >= minDepth)
@@ -31,15 +31,15 @@ std::list<IRVBallotCount> lazyIRVBallots(IRVParameters *params, unsigned count,
 
   // Get parameters
   unsigned nCandidates = params->getNCandidates();
-  float minDepth = params->getMinDepth();
-  float maxDepth = params->getMaxDepth();
-  float a0 = params->getA0();
+  double minDepth = params->getMinDepth();
+  double maxDepth = params->getMaxDepth();
+  double a0 = params->getA0();
   if (params->getVD())
     a0 = a0 * params->depthFactor(depth);
 
   std::list<IRVBallotCount> out = {};
 
-  float *a;
+  double *a;
   unsigned *mnomCounts;
 
   unsigned nChildren = nCandidates - depth;
@@ -58,7 +58,7 @@ std::list<IRVBallotCount> lazyIRVBallots(IRVParameters *params, unsigned count,
   // ballots terminate).
 
   // We start by initializing a to the appropriate values.
-  a = new float[nOutcomes];
+  a = new double[nOutcomes];
   for (unsigned i = 0; i < nOutcomes; ++i)
     a[i] = a0;
   mnomCounts = rDirichletMultinomial(count, a, nOutcomes, engine);
@@ -96,7 +96,7 @@ IRVNode::IRVNode(unsigned depth_, IRVParameters *parameters_) {
   nChildren = parameters->getNCandidates() - depth_;
   depth = depth_;
 
-  as = new float[nChildren + 1]; // +1 for incomplete ballots
+  as = new double[nChildren + 1]; // +1 for incomplete ballots
   for (unsigned i = 0; i < nChildren + 1; ++i)
     as[i] = 0.;
 
@@ -122,13 +122,13 @@ std::list<IRVBallotCount> IRVNode::sample(unsigned count,
 
   unsigned minDepth = parameters->getMinDepth();
   unsigned maxDepth = parameters->getMaxDepth();
-  float a0 = parameters->getA0();
+  double a0 = parameters->getA0();
   if (parameters->getVD())
     a0 = a0 * parameters->depthFactor(depth);
 
   unsigned nOutcomes = nChildren + (depth >= minDepth);
 
-  float *asPost = new float[nOutcomes];
+  double *asPost = new double[nOutcomes];
   for (unsigned i = 0; i < nOutcomes; ++i)
     asPost[i] = as[i] + a0;
 

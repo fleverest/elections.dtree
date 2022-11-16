@@ -43,7 +43,7 @@ std::list<IRVBallotCount> RDirichletTree::parseBallotList(Rcpp::List bs) {
 
 RDirichletTree::RDirichletTree(Rcpp::CharacterVector candidates,
                                unsigned minDepth_, unsigned maxDepth_,
-                               float a0_, bool vd_, std::string seed_) {
+                               double a0_, bool vd_, std::string seed_) {
   // Parse the candidate strings.
   std::string cName;
   size_t cIndex = 0;
@@ -75,7 +75,7 @@ unsigned RDirichletTree::getMinDepth() {
 unsigned RDirichletTree::getMaxDepth() {
   return tree->getParameters()->getMaxDepth();
 }
-float RDirichletTree::getA0() { return tree->getParameters()->getA0(); }
+double RDirichletTree::getA0() { return tree->getParameters()->getA0(); }
 bool RDirichletTree::getVD() { return tree->getParameters()->getVD(); }
 Rcpp::CharacterVector RDirichletTree::getCandidates() {
   Rcpp::CharacterVector out{};
@@ -112,7 +112,7 @@ void RDirichletTree::setMaxDepth(unsigned maxDepth_) {
   tree->getParameters()->setMaxDepth(maxDepth_);
 }
 
-void RDirichletTree::setA0(float a0_) { tree->getParameters()->setA0(a0_); }
+void RDirichletTree::setA0(double a0_) { tree->getParameters()->setA0(a0_); }
 
 void RDirichletTree::setVD(bool vd_) { tree->getParameters()->setVD(vd_); }
 

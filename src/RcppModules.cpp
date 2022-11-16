@@ -14,7 +14,7 @@
 RCPP_MODULE(dirichlet_tree_module) {
   Rcpp::class_<RDirichletTree>("RDirichletTree")
       // candidates, minDepth, maxDepth, a0, vd and seed.
-      .constructor<Rcpp::CharacterVector, unsigned, unsigned, float, bool,
+      .constructor<Rcpp::CharacterVector, unsigned, unsigned, double, bool,
                    std::string>()
       // Getter and Setter interfaces
       .property("n_candidates", &RDirichletTree::getNCandidates)

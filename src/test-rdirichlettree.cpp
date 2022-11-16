@@ -7,7 +7,7 @@
 #include "R_tree.h"
 
 void createAndDeleteTree(Rcpp::CharacterVector candidates, unsigned minDepth,
-                         unsigned maxDepth, float a0, bool vd,
+                         unsigned maxDepth, double a0, bool vd,
                          std::string seed) {
   RDirichletTree *tree;
   tree = new RDirichletTree(candidates, minDepth, maxDepth, a0, vd, seed);
@@ -19,7 +19,7 @@ context("Test RDirichletTree constructor and destructor.") {
   Rcpp::CharacterVector candidates{"A", "B", "C", "D"};
   unsigned minDepth = 3;
   unsigned maxDepth = 3;
-  float a0 = 1.;
+  double a0 = 1.;
   bool vd = true;
   std::string seed = "123";
   RDirichletTree *tree;
