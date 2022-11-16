@@ -42,7 +42,6 @@ bool IRVBallot::operator<(const IRVBallot &b) const {
 std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> &ballots,
                                       unsigned nCandidates,
                                       std::mt19937 *engine) {
-
   unsigned firstPref;
   bool isEmpty = false;
 
@@ -85,7 +84,6 @@ std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> &ballots,
 
   // While more than one candidate stands.
   while (nEliminations < nCandidates) {
-
     // Determine candidates with the minimum tally.
     min_tally = std::numeric_limits<unsigned>::max();
     for (unsigned i = 0; i < nCandidates; ++i) {
@@ -116,8 +114,7 @@ std::vector<unsigned> socialChoiceIRV(std::list<IRVBallotCount> &ballots,
       while (eliminated[firstPref]) {
         // Check if the ballot was emptied. If so, we break now.
         isEmpty = (*list_start)->first.eliminateFirstPref();
-        if (isEmpty)
-          break;
+        if (isEmpty) break;
         // Otherwise, continue looking for a standing next-preference.
         firstPref = (*list_start)->first.firstPreference();
       }

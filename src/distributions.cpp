@@ -9,12 +9,12 @@
 
 #include "distributions.h"
 
-unsigned *rDirichletMultinomial(const unsigned count, const double *a,
+unsigned *rDirichletMultinomial(const unsigned &N, const double *a,
                                 const unsigned d, std::mt19937 *engine) {
   // Draw p ~ Dirichlet(a)
   double *p = rDirichlet(a, d, engine);
   // Draw out ~ Multinomial(p)
-  unsigned *out = rMultinomial(count, p, d, engine);
+  unsigned *out = rMultinomial(N, p, d, engine);
   // Cleanup and return
   delete[] p;
   return out;
@@ -22,14 +22,12 @@ unsigned *rDirichletMultinomial(const unsigned count, const double *a,
 
 unsigned *rMultinomial(const unsigned N, const double *p, const unsigned d,
                        std::mt19937 *engine) {
-
   unsigned *out = new unsigned[d];
 
   // norm is necessary because floating point precision does not often allow
   // the probabilities p to sum to exactly 1.0f.
   double norm = 0.0;
-  for (unsigned i = 0; i < d; ++i)
-    norm += p[i];
+  for (unsigned i = 0; i < d; ++i) norm += p[i];
 
   // Draw from Multinomial(N, p)
   double sum_ps = 0.0;
@@ -39,8 +37,7 @@ unsigned *rMultinomial(const unsigned N, const double *p, const unsigned d,
     if (norm - (sum_ps + p[i]) == 0.0) {
       // First check if this is the last positive p.
       out[i] = n;
-      for (unsigned j = i+1; j < d; ++j)
-        out[j] = 0;
+      for (unsigned j = i + 1; j < d; ++j) out[j] = 0;
       break;
     } else {
       // Otherwise continue to draw using binomial marginals
@@ -72,8 +69,7 @@ double *rDirichlet(const double *a, const unsigned d, std::mt19937 *engine) {
     // p_j=0.
     std::uniform_int_distribution<unsigned> rint(0, d - 1);
     unsigned idx = rint(*engine);
-    for (unsigned i = 0; i < d; ++i)
-      gamma[i] = 0.;
+    for (unsigned i = 0; i < d; ++i) gamma[i] = 0.;
     gamma[idx] = 1.;
     return gamma;
   }

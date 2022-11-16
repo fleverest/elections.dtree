@@ -22,7 +22,7 @@
 #include <random>
 
 class Parameters {
-public:
+ public:
   /*! \brief Returns the default path for traversing a tree described by these
    * parameters.
    *
@@ -33,7 +33,7 @@ public:
 
 template <typename Outcome, typename ChildNode, class Parameters>
 class TreeNode {
-protected:
+ protected:
   // The distribution parameters for the tree.
   Parameters *parameters;
 
@@ -57,7 +57,7 @@ protected:
   // initialized.
   ChildNode **children;
 
-public:
+ public:
   // Destructor.
   virtual ~TreeNode(){};
 
@@ -82,8 +82,8 @@ public:
    * the underlying stochastic process possible from the starting point that
    * this node represents.
    */
-  virtual std::list<std::pair<Outcome, unsigned>>
-  sample(unsigned count, std::vector<unsigned> path, std::mt19937 *engine) = 0;
+  virtual std::list<std::pair<Outcome, unsigned>> sample(
+      unsigned count, std::vector<unsigned> path, std::mt19937 *engine) = 0;
 
   /*! \brief Updates sub-tree parameters to obtain a posterior.
    *

@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <random>
+#include <vector>
 
 /*! \brief Draws a sample from a Dirichlet Multinomial distribution.
  *
@@ -19,7 +20,7 @@
  * method samples from the Dirichlet Multinomial distribution to obtain
  * appropriately distributed multinomial counts.
  *
- * \param count The total number of multinomial samples.
+ * \param N The total number of multinomial samples.
  *
  * \param a An array of `a` parameters to the Dirichlet distribution.
  *
@@ -29,7 +30,7 @@
  *
  * \return An array of multinomial counts of dimension d.
  */
-unsigned *rDirichletMultinomial(const unsigned count, const double *a,
+unsigned *rDirichletMultinomial(const unsigned &N, const double *a,
                                 const unsigned d, std::mt19937 *engine);
 
 /*! \brief Draws a sample from a Multinomial distribution.

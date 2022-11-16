@@ -11,17 +11,18 @@
 #ifndef R_TREE_H
 #define R_TREE_H
 
-#include "dirichlet_tree.h"
-#include "irv_ballot.h"
-#include "irv_node.h"
-
 #include <Rcpp.h>
 #include <RcppThread.h>
+
 #include <random>
 #include <thread>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
+#include "dirichlet_tree.h"
+#include "irv_ballot.h"
+#include "irv_node.h"
 
 /*! \brief An Rcpp object which implements the `dtree` R object interface.
  *
@@ -29,7 +30,7 @@
  * Dirichlet-tree.
  */
 class RDirichletTree {
-private:
+ private:
   // The underlying Dirichlet-tree.
   DirichletTree<IRVNode, IRVBallot, IRVParameters> *tree;
 
@@ -60,7 +61,7 @@ private:
    */
   std::list<IRVBallotCount> parseBallotList(Rcpp::List bs);
 
-public:
+ public:
   // Constructor
   RDirichletTree(Rcpp::CharacterVector candidates, unsigned minDepth_,
                  unsigned maxDepth_, double a0_, bool vd_, std::string seed_);

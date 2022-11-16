@@ -7,8 +7,9 @@
  *                   the Dirichlet-tree interface to R.
  *****************************************************************************/
 
-#include "R_tree.h"
 #include <Rcpp.h>
+
+#include "R_tree.h"
 
 // The Rcpp Dirichlet-tree interface to R.
 RCPP_MODULE(dirichlet_tree_module) {

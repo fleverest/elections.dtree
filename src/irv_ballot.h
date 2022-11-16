@@ -21,7 +21,7 @@
 #include <vector>
 
 class IRVBallot {
-public:
+ public:
   // The IRV Ballot in list representation with candidate indices in order of
   // preference as elements, e.g. {0, 1, 2, 3, 4} or {4, 3, 2}.
   std::list<unsigned> preferences;

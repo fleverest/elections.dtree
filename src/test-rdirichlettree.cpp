@@ -15,7 +15,6 @@ void createAndDeleteTree(Rcpp::CharacterVector candidates, unsigned minDepth,
 }
 
 context("Test RDirichletTree constructor and destructor.") {
-
   Rcpp::CharacterVector candidates{"A", "B", "C", "D"};
   unsigned minDepth = 3;
   unsigned maxDepth = 3;

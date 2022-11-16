@@ -16,7 +16,6 @@
 Rcpp::List social_choice_irv(Rcpp::List bs, unsigned nWinners,
                              Rcpp::CharacterVector candidates,
                              std::string seed) {
-
   Rcpp::List out{};
 
   std::list<IRVBallotCount> scInput{};
@@ -38,7 +37,7 @@ Rcpp::List social_choice_irv(Rcpp::List bs, unsigned nWinners,
   bool newBallot = true;
 
   for (auto i = 0; i < bs.size(); ++i) {
-    if (bs[i] == R_NilValue) // Skip empty ballots
+    if (bs[i] == R_NilValue)  // Skip empty ballots
       continue;
     bNames = bs[i];
     bIndices = {};
@@ -60,8 +59,7 @@ Rcpp::List social_choice_irv(Rcpp::List bs, unsigned nWinners,
       }
     }
     // If it's not already there, add it to the back of the list with count 1.
-    if (newBallot)
-      scInput.emplace_back(std::move(b), 1);
+    if (newBallot) scInput.emplace_back(std::move(b), 1);
   }
 
   if (nWinners < 1 || nWinners >= cNames.size())

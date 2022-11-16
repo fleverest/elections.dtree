@@ -7,7 +7,6 @@
 #include "distributions.h"
 
 context("Test Dirichlet-Multinomial samples sum to count.") {
-
   unsigned *result, sum;
   double *a;
   std::mt19937 mte;
@@ -24,15 +23,13 @@ context("Test Dirichlet-Multinomial samples sum to count.") {
     for (unsigned d = 1; d < 1000; ++d) {
       // Initialize a new a vector.
       a = new double[d];
-      for (unsigned i = 0; i < d; ++i)
-        a[i] = g(mte);
+      for (unsigned i = 0; i < d; ++i) a[i] = g(mte);
 
       result = rDirichletMultinomial(count, a, d, &mte);
 
       // Sum the result
       sum = 0;
-      for (unsigned i = 0; i < d; ++i)
-        sum += result[i];
+      for (unsigned i = 0; i < d; ++i) sum += result[i];
 
       always_sums_to_count = always_sums_to_count && (sum == count);
 
@@ -47,7 +44,6 @@ context("Test Dirichlet-Multinomial samples sum to count.") {
 }
 
 context("Test dirichlet marginal distributions.") {
-
   std::mt19937 mte;
   mte.seed(time(NULL));
 
@@ -55,8 +51,7 @@ context("Test dirichlet marginal distributions.") {
   unsigned n_trials = 1000;
 
   double *alpha = new double[n];
-  for (unsigned i = 0; i < n; ++i)
-    alpha[i] = 1.;
+  for (unsigned i = 0; i < n; ++i) alpha[i] = 1.;
 
   double *p;
   double sum_p_n = 0.;

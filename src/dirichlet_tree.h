@@ -14,16 +14,16 @@
 #ifndef DIRICHLET_TREE_H
 #define DIRICHLET_TREE_H
 
-#include "irv_ballot.h"
-#include "tree_node.h"
-
 #include <list>
 #include <map>
 #include <random>
 
+#include "irv_ballot.h"
+#include "tree_node.h"
+
 template <typename NodeType, typename Outcome, class Parameters>
 class DirichletTree {
-private:
+ private:
   // The interior root node for the Dirichlet-tree.
   NodeType *root;
 
@@ -43,7 +43,7 @@ private:
   // A default PRNG for sampling.
   std::mt19937 engine;
 
-public:
+ public:
   /*! \brief The DirichletTree constructor.
    *
    *  The constructor returns a new Dirichlet-tree according to the specified
@@ -98,8 +98,8 @@ public:
    * \return A list of (outcome, count) pairs observed from the resulting
    * stochastic process.
    */
-  std::list<std::pair<Outcome, unsigned>>
-  sample(unsigned n, std::mt19937 *engine = nullptr);
+  std::list<std::pair<Outcome, unsigned>> sample(
+      unsigned n, std::mt19937 *engine = nullptr);
 
   /*! \brief Sample possible full sets from the posterior.
    *
@@ -116,8 +116,8 @@ public:
    * \return Returns one potential outcome sampled from the posterior
    * Dirichlet-tree distribution, using the already observed data.
    */
-  std::list<std::pair<Outcome, unsigned>>
-  posteriorSet(unsigned N, std::mt19937 *engine = nullptr);
+  std::list<std::pair<Outcome, unsigned>> posteriorSet(
+      unsigned N, std::mt19937 *engine = nullptr);
 
   // Getters
 
@@ -149,15 +149,13 @@ public:
     std::seed_seq ss(seed.begin(), seed.end());
     engine.seed(ss);
     // warmup. TODO: treeGen->discard(treeGen->state_size * 100);
-    for (unsigned i = 1000; i; --i)
-      engine();
+    for (unsigned i = 1000; i; --i) engine();
   }
 };
 
 template <typename NodeType, typename Outcome, typename Parameters>
 DirichletTree<NodeType, Outcome, Parameters>::DirichletTree(
     Parameters *parameters_, std::string seed) {
-
   parameters = parameters_;
 
   // Initialize the root node of the tree.
@@ -216,14 +214,12 @@ template <typename NodeType, typename Outcome, typename Parameters>
 std::list<std::pair<Outcome, unsigned>>
 DirichletTree<NodeType, Outcome, Parameters>::posteriorSet(
     unsigned N, std::mt19937 *engine) {
-
   // Handle invalid case by returning empty list.
-  if (nObserved > N)
-    return {};
+  if (nObserved > N) return {};
 
   // Initialize output by copying observed data.
   std::list<std::pair<Outcome, unsigned>> out =
-    std::list<std::pair<Outcome, unsigned>>(observed.begin(), observed.end());
+      std::list<std::pair<Outcome, unsigned>>(observed.begin(), observed.end());
 
   // Then sample new outcomes and add them to the end of the list.
   out.splice(out.end(), sample(N - nObserved, engine));

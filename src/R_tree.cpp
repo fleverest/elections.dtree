@@ -79,8 +79,7 @@ double RDirichletTree::getA0() { return tree->getParameters()->getA0(); }
 bool RDirichletTree::getVD() { return tree->getParameters()->getVD(); }
 Rcpp::CharacterVector RDirichletTree::getCandidates() {
   Rcpp::CharacterVector out{};
-  for (const auto &[candidate, idx] : candidateMap)
-    out.push_back(candidate);
+  for (const auto &[candidate, idx] : candidateMap) out.push_back(candidate);
   return out;
 }
 
@@ -155,7 +154,6 @@ void RDirichletTree::update(Rcpp::List ballots) {
 
 Rcpp::List RDirichletTree::samplePredictive(unsigned nSamples,
                                             std::string seed) {
-
   tree->setSeed(seed);
 
   Rcpp::List out;
@@ -181,10 +179,10 @@ Rcpp::NumericVector RDirichletTree::samplePosterior(unsigned nElections,
                                                     unsigned nWinners,
                                                     unsigned nThreads,
                                                     std::string seed) {
-
   if (nBallots < nObserved)
-    Rcpp::stop("`nBallots` must be larger than the number of ballots "
-               "observed to obtain the posterior.");
+    Rcpp::stop(
+        "`nBallots` must be larger than the number of ballots "
+        "observed to obtain the posterior.");
 
   tree->setSeed(seed);
 
@@ -220,8 +218,7 @@ Rcpp::NumericVector RDirichletTree::samplePosterior(unsigned nElections,
       // Check for interrupt.
       RcppThread::checkUserInterrupt();
       // Simulate election.
-      std::list<IRVBallotCount> election =
-          tree->posteriorSet(nBallots, &e);
+      std::list<IRVBallotCount> election = tree->posteriorSet(nBallots, &e);
       // Evaluate social choice function.
       results[thread_idx * batchSize + j] =
           socialChoiceIRV(election, nCandidates, &e);
@@ -231,18 +228,14 @@ Rcpp::NumericVector RDirichletTree::samplePosterior(unsigned nElections,
   // Dispatch the jobs
   std::vector<std::thread> pool(nThreads);
   for (unsigned i = 0; i < nThreads; ++i) {
-    pool[i] = std::thread(std::bind(
-      processBatch,
-      i,
-      batchSize
-    ));
+    pool[i] = std::thread(std::bind(processBatch, i, batchSize));
   }
 
   // Process remainder on main thread.
   processBatch(nThreads, batchRemainder);
 
   // Join the threads
-  std::for_each(pool.begin(), pool.end(), [](std::thread& t){ t.join(); });
+  std::for_each(pool.begin(), pool.end(), [](std::thread &t) { t.join(); });
 
   // Aggregate the results
   Rcpp::NumericVector out(nCandidates);

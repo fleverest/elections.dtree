@@ -11,16 +11,16 @@
 #ifndef IRV_NODE_H
 #define IRV_NODE_H
 
-#include "distributions.h"
-#include "irv_ballot.h"
-#include "tree_node.h"
-
 #include <list>
 #include <random>
 #include <vector>
 
+#include "distributions.h"
+#include "irv_ballot.h"
+#include "tree_node.h"
+
 class IRVParameters : Parameters {
-private:
+ private:
   // The number of candidates participating in the IRV election.
   unsigned nCandidates;
   // The minimum number of ballots that must be specified for an IRV election.
@@ -35,12 +35,15 @@ private:
   // For storing factor calculations for each depth level in the tree.
   std::vector<double> depthFactors = std::vector<double>(0);
 
-public:
+ public:
   // Canonical constructor
   IRVParameters(unsigned nCandidates_, unsigned minDepth_ = 0,
                 unsigned maxDepth_ = 0, double a0_ = 1., bool vd_ = false)
-      : nCandidates(nCandidates_), minDepth(minDepth_), maxDepth(maxDepth_),
-        a0(a0_), vd(vd_) {
+      : nCandidates(nCandidates_),
+        minDepth(minDepth_),
+        maxDepth(maxDepth_),
+        a0(a0_),
+        vd(vd_) {
     calculateDepthFactors();
   }
 
@@ -79,8 +82,7 @@ public:
    */
   std::vector<unsigned> defaultPath() {
     std::vector<unsigned> out{};
-    for (unsigned i = 0; i < nCandidates; ++i)
-      out.emplace_back(i);
+    for (unsigned i = 0; i < nCandidates; ++i) out.emplace_back(i);
     return out;
   };
 
@@ -176,7 +178,7 @@ std::list<IRVBallotCount> lazyIRVBallots(IRVParameters params, unsigned count,
                                          unsigned depth, std::mt19937 *engine);
 
 class IRVNode : public TreeNode<IRVBallot, IRVNode, IRVParameters> {
-public:
+ public:
   using NodeP = IRVNode *;
 
   /*! \brief Constructs a new IRVNode.
