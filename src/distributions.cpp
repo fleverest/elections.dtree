@@ -20,19 +20,38 @@ unsigned *rDirichletMultinomial(const unsigned count, const double *a,
   return out;
 }
 
-unsigned *rMultinomial(unsigned count, const double *p, const unsigned d,
+unsigned *rMultinomial(const unsigned N, const double *p, const unsigned d,
                        std::mt19937 *engine) {
+
   unsigned *out = new unsigned[d];
-  double sum_ps = 1.0;
-  for (unsigned i = 0; i < d - 1; ++i) {
-    // Draw from marginal binomial distribution.
-    std::binomial_distribution<unsigned> b(count, p[i] / sum_ps);
-    out[i] = b(*engine);
-    count -= out[i];
-    // Normalise remaining ps.
-    sum_ps -= p[i];
+
+  // norm is necessary because floating point precision does not often allow
+  // the probabilities p to sum to exactly 1.0f.
+  double norm = 0.0;
+  for (unsigned i = 0; i < d; ++i)
+    norm += p[i];
+
+  // Draw from Multinomial(N, p)
+  double sum_ps = 0.0;
+  double pnorm;
+  unsigned n = N;
+  for (unsigned i = 0; i < d; ++i) {
+    if (norm - (sum_ps + p[i]) == 0.0) {
+      // First check if this is the last positive p.
+      out[i] = n;
+      for (unsigned j = i+1; j < d; ++j)
+        out[j] = 0;
+      break;
+    } else {
+      // Otherwise continue to draw using binomial marginals
+      pnorm = p[i] / (norm - sum_ps);
+      std::binomial_distribution<unsigned> b(n, pnorm);
+      out[i] = b(*engine);
+      n -= out[i];
+      // Normalise remaining ps.
+      sum_ps += p[i];
+    }
   }
-  out[d - 1] = count;
   return out;
 }
 

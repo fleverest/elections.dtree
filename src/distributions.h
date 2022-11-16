@@ -38,7 +38,7 @@ unsigned *rDirichletMultinomial(const unsigned count, const double *a,
  * categories `d`, this method draws a single sample from the corresponding
  * Multinomial distribution.
  *
- * \param count The total number of Multinomial samples.
+ * \param N The total number of Multinomial samples.
  *
  * \param p An array of category probabilities.
  *
@@ -48,7 +48,7 @@ unsigned *rDirichletMultinomial(const unsigned count, const double *a,
  *
  * \return An array of multinomial counts of dimension d.
  */
-unsigned *rMultinomial(unsigned count, const double *p, const unsigned d,
+unsigned *rMultinomial(const unsigned N, const double *p, const unsigned d,
                        std::mt19937 *engine);
 
 /*! \brief Draws a sample from a Dirichlet distribution.
