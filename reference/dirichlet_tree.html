@@ -24,7 +24,7 @@ the posterior predictive distribution."><!-- mathjax --><script src="https://cdn
     
     <a class="navbar-brand me-2" href="../index.html">elections.dtree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -259,6 +259,7 @@ Everest et al. (2022)
 <span>  <span class="va">n_elections</span>,</span>
 <span>  <span class="va">n_ballots</span>,</span>
 <span>  n_winners <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  replace <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  n_threads <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
@@ -276,6 +277,11 @@ number yields higher precision in the output probabilities.</p></dd>
 
 <dt><code>n_winners</code></dt>
 <dd><p>The number of candidates elected in each election.</p></dd>
+
+
+<dt><code>replace</code></dt>
+<dd><p>A boolean indicating whether or not we should replace our sample in the
+monte-carlo step, drawing the full set of election ballots from the posterior</p></dd>
 
 
 <dt><code>n_threads</code></dt>
@@ -404,9 +410,9 @@ ballots drawn from a single realisation of the posterior Dirichlet-tree.</p>
 <span class="r-in"><span>  n_ballots <span class="op">=</span> <span class="fl">10</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   P   Q   R   S   T </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.3 0.2 0.0 0.0 0.0 0.1 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.3 0.0 0.0 0.1 0.0 0.0 0.0 0.0 0.2 0.1 0.0 0.0 0.2 0.0 0.0 0.0 0.0 0.0 0.1 0.0 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   U   V   W   X   Y   Z </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.0 0.0 0.0 0.1 0.1 0.0 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.0 0.0 0.0 0.0 0.0 0.0 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## ------------------------------------------------</span></span></span>
@@ -425,34 +431,34 @@ ballots drawn from a single realisation of the posterior Dirichlet-tree.</p>
 <span class="r-in"><span>  n_ballots <span class="op">=</span> <span class="fl">10</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "A" "H" "D" "Z" "N" "Q"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "C" "O" "J" "D" "V" "M"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "F" "C" "Q" "B" "N" "J"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "E" "O" "N" "S" "Z" "P"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[3]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "F" "P" "R" "B" "T" "I"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "E" "Q" "F" "K" "Z" "D"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[4]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "J" "A" "Z" "V" "C" "K"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "G" "E" "Z" "A" "X" "Y"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[5]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "M" "S" "R" "U" "N" "V"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "O" "N" "D" "P" "E" "X"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[6]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "P" "C" "I" "F" "J" "M"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "P" "I" "M" "S" "W" "Q"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[7]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "P" "W" "J" "Q" "A" "K"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Q" "L" "M" "F" "H" "Z"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[8]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Q" "P" "H" "K" "I" "J"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Q" "S" "M" "W" "O" "B"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[9]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "W" "K" "J" "G" "Z" "B"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Q" "U" "P" "Z" "J" "H"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [[10]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "W" "O" "K" "D" "C" "U"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "S" "K" "L" "A" "E" "X"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "ranked_ballots"</span>

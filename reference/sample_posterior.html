@@ -20,7 +20,7 @@ details."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/ma
     
     <a class="navbar-brand me-2" href="../index.html">elections.dtree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,6 +71,7 @@ details.</p>
 <span>  <span class="va">n_elections</span>,</span>
 <span>  <span class="va">n_ballots</span>,</span>
 <span>  n_winners <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  replace <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  n_threads <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -92,6 +93,11 @@ number yields higher precision in the output probabilities.</p></dd>
 
 <dt>n_winners</dt>
 <dd><p>The number of candidates elected in each election.</p></dd>
+
+
+<dt>replace</dt>
+<dd><p>A boolean indicating whether or not we should re-use the observed ballots
+in the monte-carlo integration step to determine the posterior probabilities.</p></dd>
 
 
 <dt>n_threads</dt>
