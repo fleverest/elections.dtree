@@ -91,8 +91,8 @@ class RDirichletTree {
   void update(Rcpp::List ballots);
   Rcpp::List samplePredictive(unsigned nSamples, std::string seed);
   Rcpp::NumericVector samplePosterior(unsigned nElections, unsigned nBallots,
-                                      unsigned nWinners, unsigned nThreads,
-                                      std::string seed);
+                                      unsigned nWinners, bool replace,
+                                      unsigned nThreads, std::string seed);
 };
 
 #endif /* R_TREE_H */

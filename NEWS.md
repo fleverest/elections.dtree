@@ -1,4 +1,10 @@
-# elections.dtree
+# elections.dtree 1.1.0
+
+This release adds a new parameter to the `sample_posterior` methods. This flag
+allows you to sample from the posterior distribution without reusing the ballots
+in the sample.
+
+## 1.0.3
 
 * Fixed Multinomial overflow issue on `libc++`, improved documentation.
 

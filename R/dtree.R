@@ -44,6 +44,10 @@
 #' @param n_winners
 #' The number of candidates elected in each election.
 #'
+#' @param replace
+#' A boolean indicating whether or not we should replace our sample in the
+#' monte-carlo step, drawing the full set of election ballots from the posterior
+#'
 #' @param n_threads
 #' The maximum number of threads for the process. The default value of
 #' \code{NULL} will default to 2 threads. \code{Inf} will default to the maximum
@@ -307,7 +311,11 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #'
     #' @return A numeric vector containing the probabilities for each candidate
     #' being elected.
-    sample_posterior = function(n_elections, n_ballots, n_winners = 1, n_threads = NULL) {
+    sample_posterior = function(n_elections,
+                                n_ballots,
+                                n_winners = 1,
+                                replace = FALSE,
+                                n_threads = NULL) {
       if (n_elections <= 0) {
         stop("`n_elections` must be an integer > 0.")
       }
@@ -332,6 +340,7 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
         nElections = n_elections,
         nBallots = n_ballots,
         nWinners = n_winners,
+        replace = replace,
         nThreads = n_threads,
         gseed()
       )
@@ -491,6 +500,10 @@ sample_predictive <- function(dtree, n_ballots) {
 #' @param n_winners
 #' The number of candidates elected in each election.
 #'
+#' @param replace
+#' A boolean indicating whether or not we should re-use the observed ballots
+#' in the monte-carlo integration step to determine the posterior probabilities.
+#'
 #' @param n_threads
 #' The maximum number of threads for the process. The default value of
 #' \code{NULL} will default to 2 threads. \code{Inf} will default to the maximum
@@ -506,7 +519,11 @@ sample_predictive <- function(dtree, n_ballots) {
 #' \insertRef{dtree_evoteid}{elections.dtree}.
 #'
 #' @export
-sample_posterior <- function(dtree, n_elections, n_ballots, n_winners = 1,
+sample_posterior <- function(dtree,
+                             n_elections,
+                             n_ballots,
+                             n_winners = 1,
+                             replace = FALSE,
                              n_threads = NULL) {
   stopifnot(any(class(dtree) %in% .dtree_classes))
   return(
@@ -514,6 +531,7 @@ sample_posterior <- function(dtree, n_elections, n_ballots, n_winners = 1,
       n_elections = n_elections,
       n_ballots = n_ballots,
       n_winners = n_winners,
+      replace = replace,
       n_threads = n_threads
     )
   )

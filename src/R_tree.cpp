@@ -177,6 +177,7 @@ Rcpp::List RDirichletTree::samplePredictive(unsigned nSamples,
 Rcpp::NumericVector RDirichletTree::samplePosterior(unsigned nElections,
                                                     unsigned nBallots,
                                                     unsigned nWinners,
+                                                    bool replace,
                                                     unsigned nThreads,
                                                     std::string seed) {
   if (nBallots < nObserved)
@@ -218,7 +219,7 @@ Rcpp::NumericVector RDirichletTree::samplePosterior(unsigned nElections,
       // Check for interrupt.
       RcppThread::checkUserInterrupt();
       // Simulate election.
-      std::list<IRVBallotCount> election = tree->posteriorSet(nBallots, &e);
+      std::list<IRVBallotCount> election = tree->posteriorSet(nBallots, replace, &e);
       // Evaluate social choice function.
       results[thread_idx * batchSize + j] =
           socialChoiceIRV(election, nCandidates, &e);

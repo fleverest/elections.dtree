@@ -9,6 +9,7 @@ sample_posterior(
   n_elections,
   n_ballots,
   n_winners = 1,
+  replace = FALSE,
   n_threads = NULL
 )
 }
@@ -21,6 +22,9 @@ number yields higher precision in the output probabilities.}
 \item{n_ballots}{An integer representing the total number of ballots cast in the election.}
 
 \item{n_winners}{The number of candidates elected in each election.}
+
+\item{replace}{A boolean indicating whether or not we should re-use the observed ballots
+in the monte-carlo integration step to determine the posterior probabilities.}
 
 \item{n_threads}{The maximum number of threads for the process. The default value of
 \code{NULL} will default to 2 threads. \code{Inf} will default to the maximum

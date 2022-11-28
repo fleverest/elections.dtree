@@ -57,3 +57,19 @@ test_that("No exception is thrown with `n_threads` > maximum available", {
     ) > 0)
   )
 })
+
+test_that(paste0(
+  "Posterior yields alternative winners ",
+  "when sampling with replacement"
+), {
+  dtree <- dirtree(candidates = LETTERS[1:3])
+  ballots <- ranked_ballots(list(
+    LETTERS[1:3],
+    LETTERS[1:3],
+    LETTERS[3:1]
+  ))
+  dtree$update(ballots)
+  res <- dtree$sample_posterior(1000, 3, replace = TRUE)
+  # We expect more than one outcome in the support of the posterior.
+  expect_true(sum(res > 0) > 1)
+})
