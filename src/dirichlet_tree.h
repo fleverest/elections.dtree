@@ -113,11 +113,14 @@ class DirichletTree {
    * \param N The number of observations in each complete set (must be >=
    * than the number of observed outcomes).
    *
+   * \param replacement A boolean indicating whether or not all draws should
+   * be re-sampled from the posterior predictive.
+   *
    * \return Returns one potential outcome sampled from the posterior
    * Dirichlet-tree distribution, using the already observed data.
    */
   std::list<std::pair<Outcome, unsigned>> posteriorSet(
-      unsigned N, std::mt19937 *engine = nullptr);
+      unsigned N, bool replace, std::mt19937 *engine = nullptr);
 
   // Getters
 
@@ -213,13 +216,17 @@ DirichletTree<NodeType, Outcome, Parameters>::~DirichletTree() {
 template <typename NodeType, typename Outcome, typename Parameters>
 std::list<std::pair<Outcome, unsigned>>
 DirichletTree<NodeType, Outcome, Parameters>::posteriorSet(
-    unsigned N, std::mt19937 *engine) {
+    unsigned N, bool replace, std::mt19937 *engine) {
+  // Handle the sampling with replacement case first.
+  if (replace) {
+    return sample(N, engine);
+  }
+
   // Handle invalid case by returning empty list.
   if (nObserved > N) return {};
 
   // Initialize output by copying observed data.
-  std::list<std::pair<Outcome, unsigned>> out =
-      std::list<std::pair<Outcome, unsigned>>(observed.begin(), observed.end());
+  std::list<std::pair<Outcome, unsigned>> out(observed.begin(), observed.end());
 
   // Then sample new outcomes and add them to the end of the list.
   out.splice(out.end(), sample(N - nObserved, engine));

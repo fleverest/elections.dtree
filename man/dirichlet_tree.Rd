@@ -257,6 +257,7 @@ elected by aggregating the results of the social choice function. See
   n_elections,
   n_ballots,
   n_winners = 1,
+  replace = FALSE,
   n_threads = NULL
 )}\if{html}{\out{</div>}}
 }
@@ -270,6 +271,9 @@ number yields higher precision in the output probabilities.}
 \item{\code{n_ballots}}{An integer representing the total number of ballots cast in the election.}
 
 \item{\code{n_winners}}{The number of candidates elected in each election.}
+
+\item{\code{replace}}{A boolean indicating whether or not we should replace our sample in the
+monte-carlo step, drawing the full set of election ballots from the posterior}
 
 \item{\code{n_threads}}{The maximum number of threads for the process. The default value of
 \code{NULL} will default to 2 threads. \code{Inf} will default to the maximum
