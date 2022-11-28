@@ -531,7 +531,7 @@ sample_posterior <- function(dtree,
       n_elections = n_elections,
       n_ballots = n_ballots,
       n_winners = n_winners,
-      replace   = replace,
+      replace = replace,
       n_threads = n_threads
     )
   )

@@ -59,8 +59,9 @@ test_that("No exception is thrown with `n_threads` > maximum available", {
 })
 
 test_that(paste0(
-    "Posterior yields alternative winners ",
-    "when sampling with replacement"), {
+  "Posterior yields alternative winners ",
+  "when sampling with replacement"
+), {
   dtree <- dirtree(candidates = LETTERS[1:3])
   ballots <- ranked_ballots(list(
     LETTERS[1:3],
