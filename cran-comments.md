@@ -1,8 +1,7 @@
-# `elections.dtree` v1.0.3
+# `elections.dtree` v1.1.0
 
-This patch includes a confirmed fix for the underlying Multinomial distribution
-sampling under `libc++`. I have also refactored the underlying distributions to
-reflect C++ 'better' practice.
+Add a `replace` flag to `sample_posterior` method which will not re-use the
+observed ballots in the monte-carlo integration step.
 
 #### `R CMD check` results
 
@@ -18,5 +17,4 @@ GH Actions (via `usethis::use_github_action_check_standard()`):
 
 Other Rhub checks:
 
-* ✅ fedora-clang-devel
 * ✅ debian-clang-devel
