@@ -1,4 +1,4 @@
-# elections.dtree 1.1.0
+# elections.dtree 1.1.1
 
 Fixed a bug in the `dirichlet_tree$sample_posterior` method where specifying
 `n_threads=x` would result in `x+1` threads spawning.
