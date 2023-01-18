@@ -227,12 +227,14 @@ Rcpp::NumericVector RDirichletTree::samplePosterior(unsigned nElections,
   };
 
   // Dispatch the jobs
-  std::vector<std::thread> pool(nThreads);
-  for (unsigned i = 0; i < nThreads; ++i) {
-    pool[i] = std::thread(std::bind(processBatch, i, batchSize));
+  std::vector<std::thread> pool(nThreads - 1);
+  // First batch should run on main process
+  for (unsigned i = 1; i < nThreads; ++i) {
+    pool[i-1] = std::thread(std::bind(processBatch, i, batchSize));
   }
 
-  // Process remainder on main thread.
+  // Process first batch and the remainder on main process
+  processBatch(0, batchSize);
   processBatch(nThreads, batchRemainder);
 
   // Join the threads
