@@ -10,7 +10,7 @@ Authors@R: c(
                 person("Damjan", "Vukcevic", email = "damjan@vukcevic.net",
                     role = c("aut"), comment = c(ORCID = "0000-0001-7780-9586"))
             )
-Version: 1.1.0
+Version: 1.1.1
 Depends: R (>= 4.0.0)
 SystemRequirements: C++17
 License: GPL-3

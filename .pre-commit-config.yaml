@@ -2,24 +2,25 @@
 # R specific hooks: https://github.com/lorenzwalthert/precommit
 repos:
 -   repo: https://github.com/lorenzwalthert/precommit
-    rev: v0.3.2
+    rev: v0.3.2.9007
     hooks:
     -   id: style-files
         args: [--style_pkg=styler, --style_fun=tidyverse_style]
         exclude: >
           (?x)^(
-          src/RcppExports\.cpp|
-          R/RcppExports\.R|
+          (.*/|)RcppExports\.(cpp|r|R)|
           )$
     -   id: roxygenize
+        exclude: |
+          (?x)^(
+          (.*/|)RcppExports\.(cpp|r|R)|
+          )$
         additional_dependencies:
         -    pkgbuild
         -    Rcpp
         -    methods
         -    Rdpack
         -    R6
-    # codemeta must be above use-tidy-description when both are used
-    # -   id: codemeta-description-updated
     -   id: use-tidy-description
     -   id: spell-check
         exclude: >
@@ -58,8 +59,7 @@ repos:
     -   id: lintr
         exclude: >
           (?x)^(
-          R/RcppExports.R|
-          src/RcppExports.cpp|
+          (.*/|)RcppExports\.(cpp|r|R)|
           R/catch-routine-registration.R|
           )$
     -   id: readme-rmd-rendered
@@ -68,7 +68,7 @@ repos:
     -   id: no-debug-statement
     -   id: deps-in-desc
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.3.0
+    rev: v4.4.0
     hooks:
     -   id: check-added-large-files
         args: ['--maxkb=200']
@@ -78,8 +78,7 @@ repos:
         exclude: >
           (?x)^(
           .*\.Rd|
-          src/RcppExports\.cpp|
-          R/RcppExports\.R|
+          (.*/|)RcppExports\.(cpp|r|R)|
           )$
 -   repo: local
     hooks:
