@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">elections.dtree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,11 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0" id="electionsdtree-110">elections.dtree 1.1.0<a class="anchor" aria-label="anchor" href="#electionsdtree-110"></a></h2><p class="text-muted">CRAN release: 2022-11-28</p>
-<p>This release adds a new parameter to the <code>sample_posterior</code> methods. This flag allows you to sample from the posterior distribution without reusing the ballots in the sample.</p>
+<p>Fixed a bug in the <code>dirichlet_tree$sample_posterior</code> method where specifying <code>n_threads=x</code> would result in <code>x+1</code> threads spawning.</p>
+<div class="section level3">
+<h3 id="id_110-1-1-0">1.1.0<a class="anchor" aria-label="anchor" href="#id_110-1-1-0"></a></h3>
+<p>Added a logical parameter <code>replace</code> to the <code>sample_posterior</code> methods. This flag allows you to sample from the posterior distribution without reusing the ballots in the sample.</p>
+</div>
 <div class="section level3">
 <h3 id="id_103-1-1-0">1.0.3<a class="anchor" aria-label="anchor" href="#id_103-1-1-0"></a></h3>
 <ul><li>Fixed Multinomial overflow issue on <code>libc++</code>, improved documentation.</li>
