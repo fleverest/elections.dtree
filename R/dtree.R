@@ -319,8 +319,9 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
       if (n_elections <= 0) {
         stop("`n_elections` must be an integer > 0.")
       }
-      if (n_ballots < length(private$observations)) {
-        stop("`n_ballots` must be an integer >= the number of observed ballots.")
+      if (n_ballots < length(private$observations) && !replace) {
+        stop(paste0("`n_ballots` must be an integer >= the number of ",
+                    "observed ballots unless sampling with replacement."))
       }
       # Validate n_threads input
       if (is.null(n_threads)) {
