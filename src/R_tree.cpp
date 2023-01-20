@@ -206,8 +206,8 @@ Rcpp::NumericVector RDirichletTree::samplePosterior(unsigned nElections,
     batchRemainder = nElections % nThreads;
   }
 
-  // The results vector for each thread.
-  std::vector<std::vector<unsigned>> results(nElections);
+  // The results vectors for each thread.
+  std::vector<std::vector<std::vector<unsigned>>> results(nThreads);
 
   // Use multiple threads to compute the posterior in batches.
   auto processBatch = [&](size_t thread_idx, size_t size) -> void {
@@ -215,27 +215,28 @@ Rcpp::NumericVector RDirichletTree::samplePosterior(unsigned nElections,
     std::mt19937 e(seeds[thread_idx]);
     e.discard(e.state_size * 100);
 
+    // Prepare results vector
+    results[thread_idx].resize(size);
     for (unsigned j = 0; j < size; ++j) {
       // Check for interrupt.
       RcppThread::checkUserInterrupt();
       // Simulate election.
       std::list<IRVBallotCount> election = tree->posteriorSet(nBallots, replace, &e);
       // Evaluate social choice function.
-      results[thread_idx * batchSize + j] =
+      results[thread_idx][j] =
           socialChoiceIRV(election, nCandidates, &e);
     }
   };
 
   // Dispatch the jobs
   std::vector<std::thread> pool(nThreads - 1);
-  // First batch should run on main process
-  for (unsigned i = 1; i < nThreads; ++i) {
-    pool[i-1] = std::thread(std::bind(processBatch, i, batchSize));
+  // last batch should run on head process
+  for (unsigned i = 0; i < nThreads - 1; ++i) {
+    pool[i] = std::thread(std::bind(processBatch, i, batchSize + (i < batchRemainder)));
   }
 
-  // Process first batch and the remainder on main process
-  processBatch(0, batchSize);
-  processBatch(nThreads, batchRemainder);
+  // Process final batch on main process
+  processBatch(nThreads - 1, batchSize);
 
   // Join the threads
   std::for_each(pool.begin(), pool.end(), [](std::thread &t) { t.join(); });
@@ -243,9 +244,12 @@ Rcpp::NumericVector RDirichletTree::samplePosterior(unsigned nElections,
   // Aggregate the results
   Rcpp::NumericVector out(nCandidates);
   out.names() = candidateVector;
-  for (unsigned j = 0; j < nElections; ++j) {
-    for (auto i = nCandidates - nWinners; i < nCandidates; ++i)
-      out[results[j][i]] = out[results[j][i]] + 1;
+  for (unsigned i = 0; i < nThreads; ++i) {
+    for (unsigned j = 0; j < results[i].size(); ++j) {
+      for (unsigned k = nCandidates - nWinners; k < nCandidates; ++k) {
+        out[results[i][j][k]] = out[results[i][j][k]] + 1;
+      }
+    }
   }
 
   out = out / nElections;
