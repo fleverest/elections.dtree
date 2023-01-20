@@ -1,4 +1,13 @@
-# elections.dtree 1.1.1
+# elections.dtree 1.1.2
+
+* Improved the `sample_posterior` multithreading so that the remainder is spread
+out among the worker threads instead of the entire workload being run on the
+head process.
+* Fixed an issue where sampling from a tree with the `n_ballots` parameter set
+to a value fewer than the number of observed ballots replacement raises an
+error.
+
+## 1.1.1
 
 Fixed a bug in the `dirichlet_tree$sample_posterior` method where specifying
 `n_threads=x` would result in `x+1` threads spawning.
