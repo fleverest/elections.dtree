@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">elections.dtree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,26 +45,31 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.1.1" id="electionsdtree-111">elections.dtree 1.1.1<a class="anchor" aria-label="anchor" href="#electionsdtree-111"></a></h2><p class="text-muted">CRAN release: 2023-01-18</p>
+<h2 class="pkg-version" data-toc-text="1.1.2" id="electionsdtree-112">elections.dtree 1.1.2<a class="anchor" aria-label="anchor" href="#electionsdtree-112"></a></h2><p class="text-muted">CRAN release: 2023-01-20</p>
+<ul><li>Improved the <code>sample_posterior</code> multithreading so that the remainder is spread out among the worker threads instead of the entire workload being run on the head process.</li>
+<li>Fixed an issue where sampling from a tree with the <code>n_ballots</code> parameter set to a value fewer than the number of observed ballots replacement raises an error.</li>
+</ul><div class="section level3">
+<h3 id="id_111-1-1-2">1.1.1<a class="anchor" aria-label="anchor" href="#id_111-1-1-2"></a></h3>
 <p>Fixed a bug in the <code>dirichlet_tree$sample_posterior</code> method where specifying <code>n_threads=x</code> would result in <code>x+1</code> threads spawning.</p>
+</div>
 <div class="section level3">
-<h3 id="id_110-1-1-1">1.1.0<a class="anchor" aria-label="anchor" href="#id_110-1-1-1"></a></h3>
+<h3 id="id_110-1-1-2">1.1.0<a class="anchor" aria-label="anchor" href="#id_110-1-1-2"></a></h3>
 <p>Added a logical parameter <code>replace</code> to the <code>sample_posterior</code> methods. This flag allows you to sample from the posterior distribution without reusing the ballots in the sample.</p>
 </div>
 <div class="section level3">
-<h3 id="id_103-1-1-1">1.0.3<a class="anchor" aria-label="anchor" href="#id_103-1-1-1"></a></h3>
+<h3 id="id_103-1-1-2">1.0.3<a class="anchor" aria-label="anchor" href="#id_103-1-1-2"></a></h3>
 <ul><li>Fixed Multinomial overflow issue on <code>libc++</code>, improved documentation.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="id_102-1-1-1">1.0.2<a class="anchor" aria-label="anchor" href="#id_102-1-1-1"></a></h3>
+<h3 id="id_102-1-1-2">1.0.2<a class="anchor" aria-label="anchor" href="#id_102-1-1-2"></a></h3>
 <ul><li>Patched the Dirichlet-Multinomial sampling for systems built on <code>libc++</code>.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="id_101-1-1-1">1.0.1<a class="anchor" aria-label="anchor" href="#id_101-1-1-1"></a></h3>
+<h3 id="id_101-1-1-2">1.0.1<a class="anchor" aria-label="anchor" href="#id_101-1-1-2"></a></h3>
 <ul><li>Patched concurrency functionality for <code>sample_posterior</code> which prevented compilation on <code>clang</code> systems.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="id_100-1-1-1">1.0.0<a class="anchor" aria-label="anchor" href="#id_100-1-1-1"></a></h3>
+<h3 id="id_100-1-1-2">1.0.0<a class="anchor" aria-label="anchor" href="#id_100-1-1-2"></a></h3>
 <ul><li>Initial release</li>
 </ul></div>
 </div>
