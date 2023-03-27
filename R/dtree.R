@@ -32,7 +32,9 @@
 #' \insertCite{dtree_evoteid;textual}{elections.dtree}.
 #'
 #' @param ballots
-#' A set of ballots to observe - must be of class \code{ranked_ballots}.
+#' A set of ballots of class `prefio::preferences` or
+#' `prefio::aggregated_preferences` to observe. The ballots should not contain
+#' any ties, but they may be incomplete.
 #'
 #' @param n_elections
 #' An integer representing the number of elections to generate. A higher
@@ -187,8 +189,16 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
       if (!is.logical(vd)) {
         stop("`vd` must be a logical.")
       }
-      # Set the observations attribute.
-      private$observations <- ranked_ballots(list(), candidates = candidates)
+      # Set the observations attribute to an empty set.
+      private$observations <- prefio::preferences(
+        matrix(
+          ncol = length(candidates),
+          nrow = 0L
+        ),
+        format = "ranking",
+        item_names = candidates,
+        aggregate = TRUE
+      )
       # Return Dirichlet-tree
       private$.Rcpp_tree <- new(
         RDirichletTree,
@@ -217,27 +227,17 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
         sep = ""
       )
       cat(
-        "  Candidates: ",
+        "Candidates: ",
         paste(
-          sort(private$.Rcpp_tree$candidates),
+          private$.Rcpp_tree$candidates,
           collapse = " "
         ),
         "\n",
         sep = ""
       )
       # Summarize observations
-      n_observations <- length(private$observations)
-      cat("  observations: ", n_observations, "\n", sep = "")
-      # count first preferences
-      cat("    First preferences:")
-      first_prefs <- table(factor(
-        sapply(
-          private$observations,
-          function(b) if (is.na(b[1])) "EMPTY" else b[1]
-        ),
-        levels = c(sort(private$.Rcpp_tree$candidates), "EMPTY")
-      ))
-      print(first_prefs, quote = FALSE)
+      cat("Observations:\n")
+      print(private$observations, row.names = FALSE)
       # Return self
       invisible(self)
     },
@@ -249,22 +249,55 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #' \insertCite{dtree_evoteid;textual}{elections.dtree}.
     #'
     #' @examples
-    #' dirichlet_tree$new(
-    #'   candidates = LETTERS
-    #' )$update(
-    #'   ranked_ballots(c("A", "B", "C"))
+    #' ballots <- prefio::preferences(
+    #'   t(c(1, 2, 3)),
+    #'   format = "ranking",
+    #'   item_names = LETTERS[1:3]
     #' )
+    #' dirichlet_tree$new(
+    #'   candidates = LETTERS[1:3]
+    #' )$update(ballots)
     #'
     #' @return The \code{dirichlet_tree} object.
     update = function(ballots) {
-      if (!any(class(ballots) %in% .ballot_types)) {
-        stop("`ballots` must be an object of class `ranked_ballots`.")
+      if (!inherits(ballots, .ballot_types)) {
+        stop(
+          "`ballots` must be a `prefio::preferences` or",
+          "`prefio::aggregated_preferences` object."
+        )
       }
-      private$.Rcpp_tree$update(ballots = ballots)
-      private$observations <- ranked_ballots(
-        c(private$observations, ballots),
-        candidates = private$.Rcpp_tree$candidates
-      )
+      if (inherits(ballots, "ranked_ballots")) {
+        warning(
+          "\"ranked_ballots\" is now deprecated and should be replaced ",
+          "by \"prefio::preferences\" or ",
+          "\"prefio::aggregated_preferences\"."
+        )
+        ballots <- prefio::preferences(
+          as.data.frame(
+            do.call(
+              rbind,
+              lapply(ballots, as.list)
+            )
+          ),
+          format = "ordering",
+          aggregate = TRUE
+        )
+      }
+      if (inherits(ballots, "preferences") ||
+        inherits(ballots, "aggregated_preferences")) {
+        prefs <- prefio::as.preferences(ballots)
+
+        if (!attr(prefs, "preftype") %in% c("soc", "soi")) {
+          stop("`ballots` must not feature ties between candidates.")
+        }
+
+        bs <- lapply(
+          seq_along(prefs),
+          function(i) unlist(prefs[i, as.ordering = TRUE])
+        )
+      }
+      private$.Rcpp_tree$update(ballots = bs)
+      private$observations <- rbind(private$observations, aggregate(ballots))
       invisible(self)
     },
 
@@ -273,18 +306,30 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #' parameter structure back to the originally specified prior.
     #'
     #' @examples
-    #' dirichlet_tree$new(
+    #' ballots <- prefio::preferences(
+    #'   t(c(1, 2, 3)),
+    #'   format = "ranking",
+    #'   item_names = LETTERS[1:3]
+    #' )
+    #' dtree <- dirichlet_tree$new(
     #'   candidates = LETTERS
-    #' )$update(
-    #'   ranked_ballots(c("A", "B", "C"))
-    #' )$reset()
+    #' )$update(ballots)
+    #' print(dtree)
+    #' dtree$reset()
+    #' print(dtree)
     #'
     #' @return The \code{dirichlet_tree} object.
     reset = function() {
+      candidates <- private$.Rcpp_tree$candidates
       private$.Rcpp_tree$reset()
-      private$observations <- ranked_ballots(
-        list(),
-        candidates = private$.Rcpp_tree$candidates
+      private$observations <- prefio::preferences(
+        matrix(
+          ncol = length(candidates),
+          nrow = 0L
+        ),
+        format = "ranking",
+        item_names = candidates,
+        aggregate = TRUE
       )
       invisible(self)
     },
@@ -296,6 +341,11 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #' \insertCite{dtree_evoteid;textual}{elections.dtree} for details.
     #'
     #' @examples
+    #' ballots <- prefio::preferences(
+    #'   t(c(1, 2, 3)),
+    #'   format = "ranking",
+    #'   item_names = LETTERS[1:3]
+    #' )
     #' dirichlet_tree$new(
     #'   candidates = LETTERS,
     #'   a0 = 1.,
@@ -303,7 +353,7 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #'   max_depth = 6,
     #'   vd = FALSE
     #' )$update(
-    #'   ranked_ballots(c("A","B","C"))
+    #'   ballots
     #' )$sample_posterior(
     #'   n_elections = 10,
     #'   n_ballots = 10
@@ -320,8 +370,10 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
         stop("`n_elections` must be an integer > 0.")
       }
       if (n_ballots < length(private$observations) && !replace) {
-        stop(paste0("`n_ballots` must be an integer >= the number of ",
-                    "observed ballots unless sampling with replacement."))
+        stop(paste0(
+          "`n_ballots` must be an integer >= the number of ",
+          "observed ballots unless sampling with replacement."
+        ))
       }
       # Validate n_threads input
       if (is.null(n_threads)) {
@@ -354,6 +406,11 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #' \insertCite{dtree_evoteid;textual}{elections.dtree} for details.
     #'
     #' @examples
+    #' ballots <- prefio::preferences(
+    #'   t(c(1, 2, 3)),
+    #'   format = "ranking",
+    #'   item_names = LETTERS[1:3]
+    #' )
     #' dirichlet_tree$new(
     #'   candidates = LETTERS,
     #'   a0 = 1.,
@@ -361,12 +418,12 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
     #'   max_depth = 6,
     #'   vd = FALSE
     #' )$update(
-    #'   ranked_ballots(c("A","B","C"))
+    #'   ballots
     #' )$sample_predictive(
     #'   n_ballots = 10
     #' )
     #'
-    #' @return A \code{ranked_ballots} object containing \code{n_ballots}
+    #' @return A \code{prefio::preferences} object containing \code{n_ballots}
     #' ballots drawn from a single realisation of the posterior Dirichlet-tree.
     sample_predictive = function(n_ballots) {
       # Ensure n_ballots > 0.
@@ -376,9 +433,39 @@ dirichlet_tree <- R6::R6Class("dirichlet_tree",
       ballots <- private$.Rcpp_tree$sample_predictive(
         as.integer(n_ballots), gseed()
       )
-      class(ballots) <- "ranked_ballots"
-      attr(ballots, "candidates") <- private$.Rcpp_tree$candidates
-      return(ballots)
+      # Replace empty ballots with NA
+      ballots <- lapply(ballots, function(x) if (length(x) == 0) NA else x)
+      # Make length equal to number of candidates
+      candidates <- private$.Rcpp_tree$candidates
+      n_candidates <- length(candidates)
+      # Coerce into a data frame in ordering format
+      ballots <- as.data.frame(
+        do.call(
+          rbind,
+          lapply(
+            ballots,
+            function(b) {
+              b <- as.list(b)
+              length(b) <- n_candidates
+              b
+            }
+          )
+        )
+      )
+      # Convert NAs back into blank ballots
+      ballots <- rapply(
+        ballots,
+        function(x) if (is.na(x)) character() else x,
+        how = "replace"
+      )
+      return(
+        prefio::preferences(
+          ballots,
+          item_names = candidates,
+          format = "ordering",
+          aggregate = TRUE
+        )
+      )
     }
   )
 )
@@ -461,8 +548,8 @@ dirtree <- function(candidates,
 #' @param n_ballots
 #' An integer representing the number of ballots to draw.
 #'
-#' @return A \code{ranked_ballots} object containing \code{n_ballots} ballots
-#' drawn from a single realisation of the posterior Dirichlet-tree.
+#' @return A \code{prefio::preferences} object containing \code{n_ballots}
+#' ballots drawn from a single realisation of the posterior Dirichlet-tree.
 #'
 #' @references
 #' \insertRef{dtree_eis}{elections.dtree}.
@@ -551,7 +638,7 @@ sample_posterior <- function(dtree,
 #'
 #' @param object A \code{dirichlet_tree} object.
 #'
-#' @param ballots A set of ballots - must be of type \code{ranked_ballots}.
+#' @param ballots A set of ballots - must be of type \code{prefio::preferences}.
 #'
 #' @param \\dots Unused.
 #'

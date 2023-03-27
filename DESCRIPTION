@@ -10,12 +10,12 @@ Authors@R: c(
                 person("Damjan", "Vukcevic", email = "damjan@vukcevic.net",
                     role = c("aut"), comment = c(ORCID = "0000-0001-7780-9586"))
             )
-Version: 1.1.2
+Version: 2.0.0
 Depends: R (>= 4.0.0)
 SystemRequirements: C++17
 License: GPL-3
 LazyData: TRUE
-RoxygenNote: 7.2.2
+RoxygenNote: 7.2.3
 LinkingTo:
     Rcpp,
     RcppThread,
@@ -25,7 +25,8 @@ Imports:
     methods,
     Rdpack,
     R6,
-    parallel
+    parallel,
+    prefio
 RdMacros: Rdpack
 Suggests:
     covr,

@@ -10,6 +10,7 @@ read_ballots(file)
 \item{file}{The name of the file to read from, or a character vector of file lines.}
 }
 \description{
+Deprecated in favour of `prefio` plus PrefLib formats.
 Reads a set of partial IRV ballots from a file. The file is expected to
 follow the ballot:count standard, with a header describing all participating
 candidates.

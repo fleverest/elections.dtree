@@ -11,7 +11,11 @@ test_that("Update and reset have an effect.", {
     )
 
     # The ballot we'll be assessing probabilities for.
-    b <- ranked_ballots(LETTERS[1:n_candidates])
+    b <- prefio::preferences(
+      t(1:n_candidates),
+      format = "ranking",
+      item_names = LETTERS[1:n_candidates]
+    )
 
     # Estimate the posterior probability for candidate 1 winning.
     update(dtree, b)
@@ -40,7 +44,11 @@ test_that(paste0(
   expect_warning({
     update(
       dtree,
-      ranked_ballots(LETTERS[1:2])
+      prefio::preferences(
+        t(c(1:2, rep(NA, 24))),
+        format = "ranking",
+        item_names = LETTERS
+      )
     )
   })
   dtree$min_depth <- 2
@@ -53,7 +61,14 @@ test_that("Update fails with invalid ballot.", {
   dtree <- dirtree(candidates = LETTERS[1:3])
   # Invalid ballot.
   expect_error({
-    update(dtree, ranked_ballots(LETTERS[4]))
+    update(
+      dtree,
+      prefio::preferences(
+        t(c(NA, NA, NA, 1)),
+        format = "ranking",
+        item_names = LETTERS[1:4]
+      )
+    )
   })
 })
 

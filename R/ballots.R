@@ -47,6 +47,7 @@ validate_rankedballots <- function(ballots, candidates = NULL, ...) {
 #' Construct a set of ranked ballots.
 #'
 #' @description
+#' Deprecated in favour of functionality from the `prefio` package.
 #' \code{ranked_ballots} is used to easily construct a set of ranked ballots.
 #'
 #' @examples
@@ -68,6 +69,8 @@ validate_rankedballots <- function(ballots, candidates = NULL, ...) {
 #'
 #' @export
 ranked_ballots <- function(x, candidates = NULL, ...) {
+  warning("`ranked_ballots` is deprecated in favour of `prefio::preferences`.")
+
   # If a single vector is passed, add it to a singleton list.
   if (typeof(x) == "character") {
     x <- list(x)
@@ -96,6 +99,7 @@ ranked_ballots <- function(x, candidates = NULL, ...) {
 #' Write \code{ranked_ballots} to a file.
 #'
 #' @description
+#' Deprecated in favour of fucntionality from the `prefio` package.
 #' Writes a set of ballots to a new file. This follows the
 #' ballot:count standard, with a header describing the candidates.
 #'
@@ -121,6 +125,8 @@ write_ballots <- function(ballots,
                           filename = "",
                           return_lines = FALSE,
                           suppress = FALSE) {
+  warning("`write_ballots` is deprecated in favour of `prefio::write_preflib`.")
+
   stopifnot(class(ballots) %in% .ballot_types)
 
   if (filename == "") {
@@ -187,6 +193,7 @@ count_ballots <- function(ballots, candidates) {
 #' Read \code{ranked_ballots} from a file.
 #'
 #' @description
+#' Deprecated in favour of `prefio` plus PrefLib formats.
 #' Reads a set of partial IRV ballots from a file. The file is expected to
 #' follow the ballot:count standard, with a header describing all participating
 #' candidates.
@@ -196,6 +203,8 @@ count_ballots <- function(ballots, candidates) {
 #'
 #' @export
 read_ballots <- function(file) {
+  warning("`read_ballots` is deprecated in favour of `prefio::read_preflib`.")
+
   ballots <- list()
 
   # Read the file.
@@ -238,66 +247,6 @@ read_ballots <- function(file) {
   )
 
   return(ballots)
-}
-
-#' @name social_choice
-#'
-#' @title
-#' Compute the outcome of an election.
-#'
-#' @description
-#' \code{social_choice} reads a set of ballots, and computes the
-#' outcome of the election. The outcome is described by a vector of winning
-#' candidates, along with the elimination order of the losing candidates.
-#'
-#' @param x
-#' The set of ballots for which to compute the outcome of the social
-#' choice function.
-#'
-#' @param \\dots
-#' Additional parameters to pass to \code{social_choice}.
-#'
-#' @examples
-#' social_choice(ranked_ballots(list(LETTERS[1], LETTERS[1], LETTERS[2])))
-#'
-#' @export
-social_choice <- function(x, ...) UseMethod("social_choice", x)
-
-#' @name social_choice.ranked_ballots
-#'
-#' @title
-#' Evaluate a social choice function on a set of \code{ranked_ballots}.
-#'
-#' @description
-#' \code{social_choice.ranked_ballots} reads a set of ranked ballots and
-#' computes an election outcome. The outcome depends on the chosen
-#' social choice function, along with any its associated parameters.
-#'
-#' @param x
-#' The set of ballots for which to compute the outcome of the IRV
-#' social choice function.
-#'
-#' @param n_winners
-#' The number of candidates to elect.
-#'
-#' @param fn
-#' The social choice function to use. \describe{
-#'   \item{\code{"irv"}}{The IRV social choice function.}
-#' }
-#'
-#' @param \\dots Unused.
-#'
-#' @export
-social_choice.ranked_ballots <- function(x,
-                                         n_winners = 1,
-                                         fn = "irv",
-                                         ...) {
-  stopifnot(class(x) %in% .ballot_types)
-  if (fn == "irv") {
-    return(social_choice_irv(x, n_winners, attr(x, "candidates"), gseed()))
-  } else {
-    stop(paste0("Social choice function `", fn, "` not implemented."))
-  }
 }
 
 # Helper function to get a random seed string to pass to CPP methods

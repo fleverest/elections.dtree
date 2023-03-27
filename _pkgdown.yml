@@ -17,7 +17,6 @@ reference:
   contents:
   - read_ballots
   - write_ballots
-  - ranked_ballots
   - '[.ranked_ballots'
 - title: Evaluating social choice function(s).
   desc: Functions for evaluating social choice functions on ranked ballots. Currently only the IRV social choice function is implemented.

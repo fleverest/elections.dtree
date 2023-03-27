@@ -21,6 +21,7 @@ repos:
         -    methods
         -    Rdpack
         -    R6
+        -    prefio
     -   id: use-tidy-description
     -   id: spell-check
         exclude: >
