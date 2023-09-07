@@ -10,7 +10,7 @@
 \arguments{
 \item{object}{A \code{dirichlet_tree} object.}
 
-\item{ballots}{A set of ballots - must be of type \code{ranked_ballots}.}
+\item{ballots}{A set of ballots - must be of type \code{prefio::preferences}.}
 
 \item{\\dots}{Unused.}
 }

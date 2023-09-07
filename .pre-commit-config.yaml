@@ -21,6 +21,7 @@ repos:
         -    methods
         -    Rdpack
         -    R6
+        -    prefio
     -   id: use-tidy-description
     -   id: spell-check
         exclude: >
@@ -61,6 +62,7 @@ repos:
           (?x)^(
           (.*/|)RcppExports\.(cpp|r|R)|
           R/catch-routine-registration.R|
+          README\.(Rmd|md)|
           )$
     -   id: readme-rmd-rendered
     -   id: parsable-R

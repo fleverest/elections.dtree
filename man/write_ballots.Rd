@@ -17,6 +17,7 @@ character vector}
 \item{suppress}{A flag which, when True, suppresses any output to stdout.}
 }
 \description{
+Deprecated in favour of fucntionality from the `prefio` package.
 Writes a set of ballots to a new file. This follows the
 ballot:count standard, with a header describing the candidates.
 }

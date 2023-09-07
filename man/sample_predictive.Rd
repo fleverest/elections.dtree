@@ -12,8 +12,8 @@ sample_predictive(dtree, n_ballots)
 \item{n_ballots}{An integer representing the number of ballots to draw.}
 }
 \value{
-A \code{ranked_ballots} object containing \code{n_ballots} ballots
-drawn from a single realisation of the posterior Dirichlet-tree.
+A \code{prefio::preferences} object containing \code{n_ballots}
+ballots drawn from a single realisation of the posterior Dirichlet-tree.
 }
 \description{
 \code{sample_predictive} draws ballots from a multinomial distribution with

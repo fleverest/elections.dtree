@@ -19,6 +19,7 @@ the election.}
 A \code{ranked_ballots} object representing the ballot(s).
 }
 \description{
+Deprecated in favour of functionality from the `prefio` package.
 \code{ranked_ballots} is used to easily construct a set of ranked ballots.
 }
 \examples{

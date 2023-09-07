@@ -3,7 +3,11 @@ test_that("Posterior distribution shifts after observing data", {
 
   prior_probs <- sample_posterior(dtree, 1000, 10)
 
-  ballot <- ranked_ballots(LETTERS[1:4])
+  ballot <- prefio::preferences(
+    t(1:4),
+    format = "ranking",
+    item_names = LETTERS[1:4]
+  )
 
   for (i in 1:5) update(dtree, ballot)
 
@@ -26,8 +30,14 @@ test_that("Posterior is relatively uniform when a0=0.", {
 
 test_that("Posterior cannot be calculated when n_ballots is too low", {
   dtree <- dirtree(candidates = LETTERS[1:10])
-  update(dtree, ranked_ballots(LETTERS[1:10]))
-  update(dtree, ranked_ballots(LETTERS[10:1]))
+  update(
+    dtree,
+    prefio::preferences(t(1:10), format = "ranking", item_names = LETTERS[1:10])
+  )
+  update(
+    dtree,
+    prefio::preferences(t(10:1), format = "ranking", item_names = LETTERS[1:10])
+  )
   expect_error({
     sample_posterior(dtree, 1, 1)
   })
@@ -63,11 +73,19 @@ test_that(paste0(
   "when sampling with replacement"
 ), {
   dtree <- dirtree(candidates = LETTERS[1:3])
-  ballots <- ranked_ballots(list(
-    LETTERS[1:3],
-    LETTERS[1:3],
-    LETTERS[3:1]
-  ))
+  ballots <- prefio::preferences(
+    matrix(
+      c(
+        1, 2, 3,
+        1, 2, 3,
+        3, 2, 1
+      ),
+      ncol = 3,
+      byrow = TRUE
+    ),
+    format = "ranking",
+    item_names = LETTERS[1:3]
+  )
   dtree$update(ballots)
   res <- dtree$sample_posterior(1000, 3, replace = TRUE)
   # We expect more than one outcome in the support of the posterior.

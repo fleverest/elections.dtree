@@ -1,34 +1,30 @@
 test_that("Predictive distribution sampling adheres to depth restrictions", {
-  min_depth <- 3
-  max_depth <- 7
+  min_depth <- 3L
+  max_depth <- 7L
   dtree <- dirtree(
-    candidates = LETTERS[1:10],
+    candidates = LETTERS[1L:10L],
     min_depth = min_depth,
     max_depth = max_depth,
-    a0 = 1
+    a0 = 10L
   )
 
-  ballots <- sample_predictive(dtree, 100)
+  ballots <- sample_predictive(dtree, 100L)
 
-  min_len <- min_depth
-  max_len <- max_depth
-  for (b in ballots) {
-    len <- length(b)
-    if (len < min_len) min_len <- len
-    if (len > max_len) max_len <- len
-  }
-
-  expect_true(min_len >= min_depth)
-  expect_true(max_len <= max_depth)
+  expect_true(
+    all(rowSums(!is.na(as.matrix(ballots$preferences))) >= min_depth)
+  )
+  expect_true(
+    all(rowSums(!is.na(as.matrix(ballots$preferences))) <= max_depth)
+  )
 })
 
 test_that("Predictive sampling fails when arguments don't make sense.", {
   dtree <- dirtree(
-    candidates = LETTERS[1:10],
-    a0 = 1
+    candidates = LETTERS[1L:10L],
+    a0 = 1L
   )
 
   expect_error({
-    sample_predictive(dtree, -1)
+    sample_predictive(dtree, -1L)
   })
 })

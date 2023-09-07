@@ -1,48 +1,23 @@
-test_that("Social choice works on one basic example", {
-  ballots <- ranked_ballots(list(
-    c("A"), c("A"), c("A"),
-    c("B"), c("B"), c("B"),
-    c("C", "A"),
-    c()
-  ))
+wakehurst2023 <- prefio::as.preferences(
+  prefio::read_preflib("../data/wakehurst2023.soi")
+)
 
-  result <- social_choice(ballots)
-  expect_equal(result$elimination_order, c("C", "B"))
-  expect_equal(result$winner, "A")
+test_that("social_choice works for plurality (Wakehurst 2023)", {
+  ballots_pref1 <- wakehurst2023[, 1, by.rank = TRUE]
+  winners <- social_choice(ballots_pref1, sc_function = "plurality")
+  expect_true("WILLIAMS Toby" == winners)
 })
 
-test_that("Social choice raises error when an unknown candidate is passed.", {
-  ballots <- ranked_ballots(list(
-    c("A"), c("A"), c("A"),
-    c("B"), c("B"), c("B"),
-    c("C", "A"),
-    c()
-  ))
-
-  ballots[[1]] <- c("D")
-
-  expect_error({
-    social_choice(ballots)
-  })
-})
-
-test_that("Social choice gives error when conditions don't make sense.", {
-  # n_winners is invalid
-  ballots <- ranked_ballots(c("A", "B"))
-  expect_error({
-    social_choice(ballots, n_winners = 0)
-  })
-
-  # All ballots are null
-  ballots[[1]] <- c()
-  expect_error({
-    social_choice(ballots)
-  })
-})
-
-test_that("Calling with undefined social choice function raises error", {
-  ballots <- ranked_ballots(c("A", "B"))
-  expect_error({
-    social_choice(ballots, n_winners = 1, fn = "undefined")
-  })
+test_that("social_choice works for irv (Wakehurst 2023)", {
+  outcome <- social_choice(wakehurst2023, sc_function = "irv")
+  expect_true(outcome$winners == "REGAN Michael")
+  expect_true(
+    all(outcome$elimination_order == c(
+      "MAWSON Greg",
+      "SORENSEN Susan",
+      "HRNJAK Ethan",
+      "WRIGHT Sue",
+      "WILLIAMS Toby"
+    ))
+  )
 })

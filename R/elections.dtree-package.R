@@ -10,4 +10,4 @@
 Rcpp::loadModule(module = "dirichlet_tree_module", TRUE)
 
 .dtree_classes <- c("dirichlet_tree")
-.ballot_types <- c("ranked_ballots")
+.ballot_types <- c("preferences", "aggregated_preferences", "ranked_ballots")

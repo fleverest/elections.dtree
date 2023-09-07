@@ -1,5 +1,6 @@
 ^CRAN-SUBMISSION$
 ^LICENSE$
+^README\.(Rmd|md|html)$
 ^\.github$
 ^\.lintr$
 ^\.pre-commit-config\.yaml$

@@ -1,4 +1,9 @@
-# elections.dtree 1.1.2
+# elections.dtree 2.0.0
+
+Rewrote some of the interface to make use of the `prefio` library for preference
+data.
+
+## 1.1.2
 
 * Improved the `sample_posterior` multithreading so that the remainder is spread
 out among the worker threads instead of the entire workload being run on the

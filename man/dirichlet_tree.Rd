@@ -29,28 +29,42 @@ dtree <- dirichlet_tree$new(candidates = LETTERS, a0 = 1., min_depth = 1)
 ## Method `dirichlet_tree$update`
 ## ------------------------------------------------
 
-dirichlet_tree$new(
-  candidates = LETTERS
-)$update(
-  ranked_ballots(c("A", "B", "C"))
+ballots <- prefio::preferences(
+  t(c(1, 2, 3)),
+  format = "ranking",
+  item_names = LETTERS[1:3]
 )
+dirichlet_tree$new(
+  candidates = LETTERS[1:3]
+)$update(ballots)
 
 
 ## ------------------------------------------------
 ## Method `dirichlet_tree$reset`
 ## ------------------------------------------------
 
-dirichlet_tree$new(
+ballots <- prefio::preferences(
+  t(c(1, 2, 3)),
+  format = "ranking",
+  item_names = LETTERS[1:3]
+)
+dtree <- dirichlet_tree$new(
   candidates = LETTERS
-)$update(
-  ranked_ballots(c("A", "B", "C"))
-)$reset()
+)$update(ballots)
+print(dtree)
+dtree$reset()
+print(dtree)
 
 
 ## ------------------------------------------------
 ## Method `dirichlet_tree$sample_posterior`
 ## ------------------------------------------------
 
+ballots <- prefio::preferences(
+  t(c(1, 2, 3)),
+  format = "ranking",
+  item_names = LETTERS[1:3]
+)
 dirichlet_tree$new(
   candidates = LETTERS,
   a0 = 1.,
@@ -58,7 +72,7 @@ dirichlet_tree$new(
   max_depth = 6,
   vd = FALSE
 )$update(
-  ranked_ballots(c("A","B","C"))
+  ballots
 )$sample_posterior(
   n_elections = 10,
   n_ballots = 10
@@ -69,6 +83,11 @@ dirichlet_tree$new(
 ## Method `dirichlet_tree$sample_predictive`
 ## ------------------------------------------------
 
+ballots <- prefio::preferences(
+  t(c(1, 2, 3)),
+  format = "ranking",
+  item_names = LETTERS[1:3]
+)
 dirichlet_tree$new(
   candidates = LETTERS,
   a0 = 1.,
@@ -76,7 +95,7 @@ dirichlet_tree$new(
   max_depth = 6,
   vd = FALSE
 )$update(
-  ranked_ballots(c("A","B","C"))
+  ballots
 )$sample_predictive(
   n_ballots = 10
 )
@@ -196,7 +215,9 @@ Dirichlet-tree, as described in
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{ballots}}{A set of ballots to observe - must be of class \code{ranked_ballots}.}
+\item{\code{ballots}}{A set of ballots of class `prefio::preferences` or
+`prefio::aggregated_preferences` to observe. The ballots should not contain
+any ties, but they may be incomplete.}
 }
 \if{html}{\out{</div>}}
 }
@@ -205,11 +226,14 @@ The \code{dirichlet_tree} object.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
-\preformatted{dirichlet_tree$new(
-  candidates = LETTERS
-)$update(
-  ranked_ballots(c("A", "B", "C"))
+\preformatted{ballots <- prefio::preferences(
+  t(c(1, 2, 3)),
+  format = "ranking",
+  item_names = LETTERS[1:3]
 )
+dirichlet_tree$new(
+  candidates = LETTERS[1:3]
+)$update(ballots)
 
 }
 \if{html}{\out{</div>}}
@@ -232,11 +256,17 @@ The \code{dirichlet_tree} object.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
-\preformatted{dirichlet_tree$new(
+\preformatted{ballots <- prefio::preferences(
+  t(c(1, 2, 3)),
+  format = "ranking",
+  item_names = LETTERS[1:3]
+)
+dtree <- dirichlet_tree$new(
   candidates = LETTERS
-)$update(
-  ranked_ballots(c("A", "B", "C"))
-)$reset()
+)$update(ballots)
+print(dtree)
+dtree$reset()
+print(dtree)
 
 }
 \if{html}{\out{</div>}}
@@ -288,14 +318,19 @@ being elected.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
-\preformatted{dirichlet_tree$new(
+\preformatted{ballots <- prefio::preferences(
+  t(c(1, 2, 3)),
+  format = "ranking",
+  item_names = LETTERS[1:3]
+)
+dirichlet_tree$new(
   candidates = LETTERS,
   a0 = 1.,
   min_depth = 3,
   max_depth = 6,
   vd = FALSE
 )$update(
-  ranked_ballots(c("A","B","C"))
+  ballots
 )$sample_posterior(
   n_elections = 10,
   n_ballots = 10
@@ -327,19 +362,24 @@ Dirichlet-tree posterior on the ranked ballots. See
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A \code{ranked_ballots} object containing \code{n_ballots}
+A \code{prefio::preferences} object containing \code{n_ballots}
 ballots drawn from a single realisation of the posterior Dirichlet-tree.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
-\preformatted{dirichlet_tree$new(
+\preformatted{ballots <- prefio::preferences(
+  t(c(1, 2, 3)),
+  format = "ranking",
+  item_names = LETTERS[1:3]
+)
+dirichlet_tree$new(
   candidates = LETTERS,
   a0 = 1.,
   min_depth = 3,
   max_depth = 6,
   vd = FALSE
 )$update(
-  ranked_ballots(c("A","B","C"))
+  ballots
 )$sample_predictive(
   n_ballots = 10
 )
