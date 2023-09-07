@@ -24,7 +24,7 @@ the posterior predictive distribution."><!-- mathjax --><script src="https://cdn
     
     <a class="navbar-brand me-2" href="../index.html">elections.dtree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -204,7 +204,9 @@ Everest et al. (2022)
 <div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>ballots</code></dt>
-<dd><p>A set of ballots to observe - must be of class <code>ranked_ballots</code>.</p></dd>
+<dd><p>A set of ballots of class `prefio::preferences` or
+`prefio::aggregated_preferences` to observe. The ballots should not contain
+any ties, but they may be incomplete.</p></dd>
 
 
 </dl><p></p></div>
@@ -215,11 +217,14 @@ Everest et al. (2022)
 </div>
 <div class="section">
 <h4 id="examples-1">Examples<a class="anchor" aria-label="anchor" href="#examples-1"></a></h4>
-<p></p><div class="r example copy"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/dirichlet_tree.html">dirichlet_tree</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
-<span>  candidates <span class="op">=</span> <span class="va">LETTERS</span></span>
-<span><span class="op">)</span><span class="op">$</span><span class="fu">update</span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="../reference/ranked_ballots.html">ranked_ballots</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span><span class="op">)</span></span>
+<p></p><div class="r example copy"><div class="sourceCode"><pre><code><span><span class="va">ballots</span> <span class="op">&lt;-</span> <span class="fu">prefio</span><span class="fu">::</span><span class="fu"><a href="https://fleverest.github.io/prefio/reference/preferences.html" class="external-link">preferences</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  format <span class="op">=</span> <span class="st">"ranking"</span>,</span>
+<span>  item_names <span class="op">=</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
 <span><span class="op">)</span></span>
+<span><span class="va"><a href="../reference/dirichlet_tree.html">dirichlet_tree</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  candidates <span class="op">=</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
+<span><span class="op">)</span><span class="op">$</span><span class="fu">update</span><span class="op">(</span><span class="va">ballots</span><span class="op">)</span></span>
 <span></span></code></pre></div><p></p></div>
 </div>
 
@@ -238,11 +243,17 @@ parameter structure back to the originally specified prior.</p><div class="secti
 </div>
 <div class="section">
 <h4 id="examples-2">Examples<a class="anchor" aria-label="anchor" href="#examples-2"></a></h4>
-<p></p><div class="r example copy"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/dirichlet_tree.html">dirichlet_tree</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<p></p><div class="r example copy"><div class="sourceCode"><pre><code><span><span class="va">ballots</span> <span class="op">&lt;-</span> <span class="fu">prefio</span><span class="fu">::</span><span class="fu"><a href="https://fleverest.github.io/prefio/reference/preferences.html" class="external-link">preferences</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  format <span class="op">=</span> <span class="st">"ranking"</span>,</span>
+<span>  item_names <span class="op">=</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">dtree</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/dirichlet_tree.html">dirichlet_tree</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  candidates <span class="op">=</span> <span class="va">LETTERS</span></span>
-<span><span class="op">)</span><span class="op">$</span><span class="fu">update</span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="../reference/ranked_ballots.html">ranked_ballots</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">)</span><span class="op">$</span><span class="fu">reset</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span><span class="op">$</span><span class="fu">update</span><span class="op">(</span><span class="va">ballots</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">dtree</span><span class="op">)</span></span>
+<span><span class="va">dtree</span><span class="op">$</span><span class="fu">reset</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">dtree</span><span class="op">)</span></span>
 <span></span></code></pre></div><p></p></div>
 </div>
 
@@ -300,14 +311,19 @@ being elected.</p>
 </div>
 <div class="section">
 <h4 id="examples-3">Examples<a class="anchor" aria-label="anchor" href="#examples-3"></a></h4>
-<p></p><div class="r example copy"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/dirichlet_tree.html">dirichlet_tree</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<p></p><div class="r example copy"><div class="sourceCode"><pre><code><span><span class="va">ballots</span> <span class="op">&lt;-</span> <span class="fu">prefio</span><span class="fu">::</span><span class="fu"><a href="https://fleverest.github.io/prefio/reference/preferences.html" class="external-link">preferences</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  format <span class="op">=</span> <span class="st">"ranking"</span>,</span>
+<span>  item_names <span class="op">=</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va"><a href="../reference/dirichlet_tree.html">dirichlet_tree</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  candidates <span class="op">=</span> <span class="va">LETTERS</span>,</span>
 <span>  a0 <span class="op">=</span> <span class="fl">1.</span>,</span>
 <span>  min_depth <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  max_depth <span class="op">=</span> <span class="fl">6</span>,</span>
 <span>  vd <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span><span class="op">$</span><span class="fu">update</span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="../reference/ranked_ballots.html">ranked_ballots</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">ballots</span></span>
 <span><span class="op">)</span><span class="op">$</span><span class="fu">sample_posterior</span><span class="op">(</span></span>
 <span>  n_elections <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  n_ballots <span class="op">=</span> <span class="fl">10</span></span>
@@ -337,19 +353,24 @@ Everest et al. (2022)
 </div>
 <div class="section">
 <h4 id="returns-5">Returns<a class="anchor" aria-label="anchor" href="#returns-5"></a></h4>
-<p>A <code>ranked_ballots</code> object containing <code>n_ballots</code>
+<p>A <code><a href="https://fleverest.github.io/prefio/reference/preferences.html" class="external-link">prefio::preferences</a></code> object containing <code>n_ballots</code>
 ballots drawn from a single realisation of the posterior Dirichlet-tree.</p>
 </div>
 <div class="section">
 <h4 id="examples-4">Examples<a class="anchor" aria-label="anchor" href="#examples-4"></a></h4>
-<p></p><div class="r example copy"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/dirichlet_tree.html">dirichlet_tree</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<p></p><div class="r example copy"><div class="sourceCode"><pre><code><span><span class="va">ballots</span> <span class="op">&lt;-</span> <span class="fu">prefio</span><span class="fu">::</span><span class="fu"><a href="https://fleverest.github.io/prefio/reference/preferences.html" class="external-link">preferences</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  format <span class="op">=</span> <span class="st">"ranking"</span>,</span>
+<span>  item_names <span class="op">=</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va"><a href="../reference/dirichlet_tree.html">dirichlet_tree</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  candidates <span class="op">=</span> <span class="va">LETTERS</span>,</span>
 <span>  a0 <span class="op">=</span> <span class="fl">1.</span>,</span>
 <span>  min_depth <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  max_depth <span class="op">=</span> <span class="fl">6</span>,</span>
 <span>  vd <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span><span class="op">$</span><span class="fu">update</span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="../reference/ranked_ballots.html">ranked_ballots</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">ballots</span></span>
 <span><span class="op">)</span><span class="op">$</span><span class="fu">sample_predictive</span><span class="op">(</span></span>
 <span>  n_ballots <span class="op">=</span> <span class="fl">10</span></span>
 <span><span class="op">)</span></span>
@@ -375,28 +396,52 @@ ballots drawn from a single realisation of the posterior Dirichlet-tree.</p>
 <span class="r-in"><span><span class="co">## Method `dirichlet_tree$update`</span></span></span>
 <span class="r-in"><span><span class="co">## ------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">dirichlet_tree</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  candidates <span class="op">=</span> <span class="va">LETTERS</span></span></span>
-<span class="r-in"><span><span class="op">)</span><span class="op">$</span><span class="fu">update</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="ranked_ballots.html">ranked_ballots</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ballots</span> <span class="op">&lt;-</span> <span class="fu">prefio</span><span class="fu">::</span><span class="fu"><a href="https://fleverest.github.io/prefio/reference/preferences.html" class="external-link">preferences</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  format <span class="op">=</span> <span class="st">"ranking"</span>,</span></span>
+<span class="r-in"><span>  item_names <span class="op">=</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dirichlet_tree</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  candidates <span class="op">=</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="op">)</span><span class="op">$</span><span class="fu">update</span><span class="op">(</span><span class="va">ballots</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## ------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="co">## Method `dirichlet_tree$reset`</span></span></span>
 <span class="r-in"><span><span class="co">## ------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">dirichlet_tree</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="va">ballots</span> <span class="op">&lt;-</span> <span class="fu">prefio</span><span class="fu">::</span><span class="fu"><a href="https://fleverest.github.io/prefio/reference/preferences.html" class="external-link">preferences</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  format <span class="op">=</span> <span class="st">"ranking"</span>,</span></span>
+<span class="r-in"><span>  item_names <span class="op">=</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dtree</span> <span class="op">&lt;-</span> <span class="va">dirichlet_tree</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  candidates <span class="op">=</span> <span class="va">LETTERS</span></span></span>
-<span class="r-in"><span><span class="op">)</span><span class="op">$</span><span class="fu">update</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="ranked_ballots.html">ranked_ballots</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">)</span><span class="op">$</span><span class="fu">reset</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span><span class="op">$</span><span class="fu">update</span><span class="op">(</span><span class="va">ballots</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">dtree</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Dirichlet-tree (a0=1, min_depth=0, max_depth=25, vd=FALSE)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Candidates: Z X Y V T Q O N A C W U D I B H S E F G K J P L R M</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Observations:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  preferences frequencies</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [A &gt; B &gt; C]           1</span>
+<span class="r-in"><span><span class="va">dtree</span><span class="op">$</span><span class="fu">reset</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">dtree</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Dirichlet-tree (a0=1, min_depth=0, max_depth=25, vd=FALSE)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Candidates: Z X Y V T Q O N A C W U D I B H S E F G K J P L R M</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Observations:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] preferences frequencies</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;0 rows&gt; (or 0-length row.names)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## ------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="co">## Method `dirichlet_tree$sample_posterior`</span></span></span>
 <span class="r-in"><span><span class="co">## ------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">ballots</span> <span class="op">&lt;-</span> <span class="fu">prefio</span><span class="fu">::</span><span class="fu"><a href="https://fleverest.github.io/prefio/reference/preferences.html" class="external-link">preferences</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  format <span class="op">=</span> <span class="st">"ranking"</span>,</span></span>
+<span class="r-in"><span>  item_names <span class="op">=</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">dirichlet_tree</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  candidates <span class="op">=</span> <span class="va">LETTERS</span>,</span></span>
 <span class="r-in"><span>  a0 <span class="op">=</span> <span class="fl">1.</span>,</span></span>
@@ -404,21 +449,26 @@ ballots drawn from a single realisation of the posterior Dirichlet-tree.</p>
 <span class="r-in"><span>  max_depth <span class="op">=</span> <span class="fl">6</span>,</span></span>
 <span class="r-in"><span>  vd <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span><span class="op">$</span><span class="fu">update</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="ranked_ballots.html">ranked_ballots</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">ballots</span></span></span>
 <span class="r-in"><span><span class="op">)</span><span class="op">$</span><span class="fu">sample_posterior</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  n_elections <span class="op">=</span> <span class="fl">10</span>,</span></span>
 <span class="r-in"><span>  n_ballots <span class="op">=</span> <span class="fl">10</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   P   Q   R   S   T </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.4 0.0 0.1 0.0 0.0 0.0 0.1 0.0 0.0 0.0 0.0 0.0 0.1 0.0 0.0 0.1 0.0 0.0 0.2 0.0 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.2 0.1 0.1 0.1 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.1 0.0 0.0 0.0 0.0 0.0 0.1 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   U   V   W   X   Y   Z </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.0 0.0 0.0 0.0 0.0 0.0 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.0 0.1 0.1 0.0 0.1 0.0 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## ------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="co">## Method `dirichlet_tree$sample_predictive`</span></span></span>
 <span class="r-in"><span><span class="co">## ------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">ballots</span> <span class="op">&lt;-</span> <span class="fu">prefio</span><span class="fu">::</span><span class="fu"><a href="https://fleverest.github.io/prefio/reference/preferences.html" class="external-link">preferences</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  format <span class="op">=</span> <span class="st">"ranking"</span>,</span></span>
+<span class="r-in"><span>  item_names <span class="op">=</span> <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">dirichlet_tree</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  candidates <span class="op">=</span> <span class="va">LETTERS</span>,</span></span>
 <span class="r-in"><span>  a0 <span class="op">=</span> <span class="fl">1.</span>,</span></span>
@@ -426,45 +476,21 @@ ballots drawn from a single realisation of the posterior Dirichlet-tree.</p>
 <span class="r-in"><span>  max_depth <span class="op">=</span> <span class="fl">6</span>,</span></span>
 <span class="r-in"><span>  vd <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span><span class="op">$</span><span class="fu">update</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="ranked_ballots.html">ranked_ballots</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">ballots</span></span></span>
 <span class="r-in"><span><span class="op">)</span><span class="op">$</span><span class="fu">sample_predictive</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  n_ballots <span class="op">=</span> <span class="fl">10</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[1]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "A" "B" "H" "Z" "T" "R"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[2]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "A" "C" "Y"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[3]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "A" "R" "D" "U" "Q" "T"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[4]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "A" "R" "I"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[5]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "J" "L" "G" "B" "W" "Y"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[6]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "J" "Y" "O" "T" "N" "C"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[7]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "M" "Z" "Y" "F" "W" "V"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[8]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Q" "L" "K" "M" "C" "T"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[9]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Q" "T" "I" "W" "K" "E"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [[10]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "X" "H" "N" "I" "K" "W"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "ranked_ballots"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"candidates")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Z" "X" "Y" "V" "T" "Q" "O" "N" "A" "C" "W" "U" "D" "I" "B" "H" "S" "E" "F"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [20] "G" "K" "J" "P" "L" "R" "M"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                preferences frequencies</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  [B &gt; I &gt; J &gt; W &gt; V &gt; U]           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  [G &gt; A &gt; J &gt; M &gt; T &gt; L]           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  [I &gt; A &gt; L &gt; P &gt; V &gt; Q]           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  [M &gt; G &gt; L &gt; S &gt; A &gt; T]           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5      [O &gt; N &gt; M &gt; T &gt; V]           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  [O &gt; W &gt; C &gt; Z &gt; Y &gt; S]           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  [Y &gt; G &gt; O &gt; C &gt; I &gt; F]           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  [Y &gt; K &gt; Z &gt; O &gt; T &gt; P]           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  [Y &gt; M &gt; E &gt; G &gt; L &gt; D]           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10         [Z &gt; U &gt; D &gt; J]           1</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

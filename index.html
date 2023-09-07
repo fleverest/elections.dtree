@@ -30,7 +30,7 @@
     
     <a class="navbar-brand me-2" href="index.html">elections.dtree</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.0.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,10 +65,17 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="ranked-voting-election-audits-with-dirichlet-trees">Ranked Voting Election Audits with Dirichlet-Trees<a class="anchor" aria-label="anchor" href="#ranked-voting-election-audits-with-dirichlet-trees"></a>
+<div class="page-header"><h1 id="prefio">
+<a href="https://fleverest.github.io/prefio/" class="external-link">prefio</a><a class="anchor" aria-label="anchor" href="#prefio"></a>
 </h1></div>
+</div>
+<div class="section level1">
+<h1 id="electionsdtree-audit-ranked-voting-elections-with-dirichlet-trees">
+<a href="https://fleverest.github.io/elections.dtree">elections.dtree</a>: Audit ranked voting elections with Dirichlet-trees<a class="anchor" aria-label="anchor" href="#electionsdtree-audit-ranked-voting-elections-with-dirichlet-trees"></a>
+</h1>
 <p>Perform ballot-polling Bayesian audits for ranked voting elections using a Dirichlet-tree prior distribution.</p>
-<p><!-- badges: start --> <a href="https://cran.r-project.org/package=elections.dtree" class="external-link"><img src="https://www.r-pkg.org/badges/version/elections.dtree" alt="CRAN_Status_Badge"></a> <a href="https://fleverest.github.io/elections.dtree/"><img src="https://github.com/fleverest/elections.dtree/workflows/pkgdown/badge.svg" alt="pkgdown"></a> <a href="https://github.com/fleverest/elections.dtree/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/fleverest/elections.dtree/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a> <a href="https://app.codecov.io/gh/fleverest/elections.dtree?branch=main" class="external-link"><img src="https://codecov.io/gh/fleverest/elections.dtree/branch/main/graph/badge.svg" alt="Codecov test coverage"></a> <!-- badges: end --></p>
+<!-- badges: start -->
+
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -80,7 +87,7 @@
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"elections.dtree"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
-<h4 id="development">Development<a class="anchor" aria-label="anchor" href="#development"></a>
+<h4 id="github">GitHub<a class="anchor" aria-label="anchor" href="#github"></a>
 </h4>
 <p>To install the development release of <code>elections.dtree</code> from GitHub:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -113,109 +120,174 @@
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
 <div class="section level4">
-<h4 id="s3-interface">S3 interface<a class="anchor" aria-label="anchor" href="#s3-interface"></a>
+<h4 id="load-some-data">Load some data<a class="anchor" aria-label="anchor" href="#load-some-data"></a>
 </h4>
+<p>Let’s start off by downloading some data from <a href="https://www.preflib.org/" class="external-link">PrefLib</a> using <a href="https://cran.r-project.org/package=prefio" class="external-link">prefio</a>. In this example, we select the Albury 2023 dataset containing the ballots cast in Albury for the 2023 NSW Legislative Assembly Election. Other elections for the NSW Legislative Assembly can be found <a href="https://www.preflib.org/dataset/00058" class="external-link">here</a>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Initialize a new Dirichlet-tree for IRV elections with</span></span>
-<span><span class="co"># 26 candidates (named A through Z), requiring exactly 3 preferences</span></span>
-<span><span class="co"># specified for a valid ballot, and using a prior parameter of 1.5.</span></span>
-<span><span class="va">dtree</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/dirtree.html">dirtree</a></span><span class="op">(</span></span>
-<span>  candidates <span class="op">=</span> <span class="va">LETTERS</span>,</span>
-<span>  min_depth <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  max_depth <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  a0 <span class="op">=</span> <span class="fl">1.5</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Create some generic ballots.</span></span>
-<span><span class="va">ballots</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ranked_ballots.html">ranked_ballots</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C"</span>, <span class="st">"D"</span><span class="op">)</span><span class="op">)</span>, candidates <span class="op">=</span> <span class="va">LETTERS</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Sample 1000 random ballots from the tree.</span></span>
-<span><span class="va">ballots</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sample_predictive.html">sample_predictive</a></span><span class="op">(</span><span class="va">dtree</span>, <span class="fl">1000</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Check which candidate wins the simulated election.</span></span>
-<span><span class="fu"><a href="reference/social_choice.html">social_choice</a></span><span class="op">(</span><span class="va">ballots</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Shuffle the ballots.</span></span>
-<span><span class="va">ballots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">ballots</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Observe the first 100 ballots to obtain a posterior Dirichlet-tree.</span></span>
-<span><span class="fu"><a href="reference/update.html">update</a></span><span class="op">(</span><span class="va">dtree</span>, <span class="va">ballots</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">100</span><span class="op">]</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Evaluate 100 random election outcomes by:</span></span>
-<span><span class="co">#  1. sampling 900 ballots from the posterior predictive distribution, and</span></span>
-<span><span class="co">#  2. evaluating the outcome of the 900 total sampled ballots, plus the 100 observed.</span></span>
-<span><span class="fu"><a href="reference/sample_posterior.html">sample_posterior</a></span><span class="op">(</span><span class="va">dtree</span>, n_elections <span class="op">=</span> <span class="fl">100</span>, n_ballots <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Change the prior parameter and compare the posterior winning probabilities.</span></span>
-<span><span class="va">dtree</span><span class="op">$</span><span class="va">a0</span> <span class="op">&lt;-</span> <span class="fl">1.</span></span>
-<span><span class="fu"><a href="reference/sample_posterior.html">sample_posterior</a></span><span class="op">(</span><span class="va">dtree</span>, n_elections <span class="op">=</span> <span class="fl">100</span>, n_ballots <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Do it again, with a Dirichlet prior using all available threads.</span></span>
-<span><span class="va">dtree</span><span class="op">$</span><span class="va">vd</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
-<span><span class="fu"><a href="reference/sample_posterior.html">sample_posterior</a></span><span class="op">(</span><span class="va">dtree</span>, n_elections <span class="op">=</span> <span class="fl">100</span>, n_ballots <span class="op">=</span> <span class="fl">1000</span>, n_threads <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Reset the distribution to the prior, removing observed data. This is equivalent to</span></span>
-<span><span class="co"># creating a new tree with the same parameters.</span></span>
-<span><span class="fu"><a href="reference/reset.html">reset</a></span><span class="op">(</span><span class="va">dtree</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">albury</span> <span class="op">&lt;-</span> <span class="fu">prefio</span><span class="fu">::</span><span class="fu"><a href="https://fleverest.github.io/prefio/reference/read_preflib.html" class="external-link">read_preflib</a></span><span class="op">(</span><span class="st">"nswla/00058-00000187.soi"</span>, from_preflib <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">albury</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="do">##         preferences frequencies</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="do">## 1   [CLANCY Justin]       20249</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 2  [ROWLAND Marcus]        6563</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 3  [SINCLAIR Peter]        2392</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 4      [DAVERN Eli]        1651</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 5 [FERNANDO Asanki]         685</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 6   [HAMILTON Ross]         624</span></span></code></pre></div>
+<p>We can see that in this election, voters could specify as few as one candidate. Since the underlying structure for <code><a href="https://fleverest.github.io/prefio/reference/preferences.html" class="external-link">prefio::preferences</a></code> is a ranking matrix, we can easily find the length of the longest ballot as follows:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">albury</span><span class="op">$</span><span class="va">preferences</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 7</span></span></code></pre></div>
+<p>In this election, the maximum ballot length was not bounded.</p>
 </div>
 <div class="section level4">
-<h4 id="r6-interface">R6 interface<a class="anchor" aria-label="anchor" href="#r6-interface"></a>
+<h4 id="specifying-the-prior">Specifying the prior<a class="anchor" aria-label="anchor" href="#specifying-the-prior"></a>
 </h4>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Initialize a new Dirichlet-tree for IRV elections with</span></span>
-<span><span class="co"># 26 candidates (named A through Z), requiring exactly 3 preferences</span></span>
-<span><span class="co"># specified for a valid ballot, and using a prior parameter of 1.5.</span></span>
-<span><span class="va">dtree</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/dirichlet_tree.html">dirichlet_tree</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
-<span>  candidates <span class="op">=</span> <span class="va">LETTERS</span>,</span>
-<span>  min_depth <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  max_depth <span class="op">=</span> <span class="fl">3</span>,</span>
+<p>To work with <code>dirichlet_tree</code>s in R, there are two interfaces at your disposal. The first is a standard S3 interface which all R users will be familiar with. The second is an R6 interface which can be useful when you would like to chain commands. Other than the ability to chain commands, either interface is equivalent.</p>
+<p>Here, we initialise a new Dirichlet-tree for the Albury 2023 election, requiring exactly at least one preference specified per formal ballot and using a prior <code>a0</code> parameter equal to <code>1.5</code>.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># S3 interface</span></span>
+<span><span class="va">dtree</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/dirtree.html">dirtree</a></span><span class="op">(</span></span>
+<span>  candidates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">albury</span><span class="op">$</span><span class="va">preferences</span><span class="op">)</span>,</span>
+<span>  min_depth <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  a0 <span class="op">=</span> <span class="fl">1.5</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Sample 1000 random ballots from the tree.</span></span>
-<span><span class="va">ballots</span> <span class="op">&lt;-</span> <span class="va">dtree</span><span class="op">$</span><span class="fu">sample_predictive</span><span class="op">(</span><span class="fl">1000</span><span class="op">)</span></span>
+<span><span class="co"># R6 interface (equivalent to S3)</span></span>
+<span><span class="va">dtree</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/dirichlet_tree.html">dirichlet_tree</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  candidates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">albury</span><span class="op">$</span><span class="va">preferences</span><span class="op">)</span>,</span>
+<span>  min_depth <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  a0 <span class="op">=</span> <span class="fl">1.5</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Check which candidate wins the simulated election.</span></span>
-<span><span class="fu"><a href="reference/social_choice.html">social_choice</a></span><span class="op">(</span><span class="va">ballots</span><span class="op">)</span></span>
+<span><span class="va">dtree</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Dirichlet-tree (a0=1.5, min_depth=1, max_depth=6, vd=FALSE)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="do">## Candidates: SINCLAIR Peter ROWLAND Marcus ROBERTSON Geoffrey HAMILTON Ross FERNANDO Asanki DAVERN Eli CLANCY Justin</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="do">## Observations:</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] preferences frequencies</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="do">## &lt;0 rows&gt; (or 0-length row.names)</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="observing-data">Observing data<a class="anchor" aria-label="anchor" href="#observing-data"></a>
+</h4>
+<p>The data observed during the auditing process should be formatted as a <code><a href="https://fleverest.github.io/prefio/reference/preferences.html" class="external-link">prefio::preferences</a></code> object. Currently, our <code>albury</code> object has class <code>prefio::aggregated_preferences</code>. We will also shuffle the ballots to imitate a real auditing scenario where we sample the ballots at random. We will only use 1000 ballots for ease of computation. To convert it to the appropriate format and shuffle we can do the following:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ballots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu">prefio</span><span class="fu">::</span><span class="fu"><a href="https://fleverest.github.io/prefio/reference/preferences.html" class="external-link">as.preferences</a></span><span class="op">(</span><span class="va">albury</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">1000</span><span class="op">]</span></span></code></pre></div>
+<p>Then to observe our first batch of say 10 ballots, we can update the model to obtain our posterior:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># S3</span></span>
+<span><span class="fu"><a href="reference/update.html">update</a></span><span class="op">(</span><span class="va">dtree</span>, <span class="va">ballots</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Shuffle the ballots.</span></span>
-<span><span class="va">ballots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">ballots</span><span class="op">)</span></span>
+<span><span class="co"># R6</span></span>
+<span><span class="va">dtree</span><span class="op">$</span><span class="fu">update</span><span class="op">(</span><span class="va">ballots</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Observe the first 100 ballots to obtain a posterior Dirichlet-tree.</span></span>
-<span><span class="va">dtree</span><span class="op">$</span><span class="fu">update</span><span class="op">(</span><span class="va">ballots</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">100</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co"># R6 using chained commands</span></span>
+<span><span class="va">dtree</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/dirichlet_tree.html">dirichlet_tree</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  candidates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">albury</span><span class="op">$</span><span class="va">preferences</span><span class="op">)</span>,</span>
+<span>  min_depth <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  a0 <span class="op">=</span> <span class="fl">1.5</span></span>
+<span><span class="op">)</span><span class="op">$</span><span class="fu">update</span><span class="op">(</span><span class="va">ballots</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Evaluate 100 random election outcomes by:</span></span>
-<span><span class="co">#  1. sampling 900 ballots from the posterior predictive distribution, and</span></span>
-<span><span class="co">#  2. evaluating the outcome of the 900 total sampled ballots, plus the 100 observed.</span></span>
-<span><span class="va">dtree</span><span class="op">$</span><span class="fu">sample_posterior</span><span class="op">(</span>n_elections <span class="op">=</span> <span class="fl">100</span>, n_ballots <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
+<span><span class="va">dtree</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Dirichlet-tree (a0=1.5, min_depth=1, max_depth=6, vd=FALSE)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="do">## Candidates: SINCLAIR Peter ROWLAND Marcus ROBERTSON Geoffrey HAMILTON Ross FERNANDO Asanki DAVERN Eli CLANCY Justin</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="do">## Observations:</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="do">##                               preferences frequencies</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="do">##                           [CLANCY Justin]           2</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="do">##                          [ROWLAND Marcus]           1</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="do">##  [CLANCY Justin &gt; SINCLAIR Peter &gt; R ...]           1</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  [ROWLAND Marcus &gt; FERNANDO Asanki &gt; ...]           1</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="do">##                          [SINCLAIR Peter]           1</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="do">##  [ROWLAND Marcus &gt; SINCLAIR Peter &gt;  ...]           1</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="do">##  [ROWLAND Marcus &gt; DAVERN Eli &gt; FERN ...]           1</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="do">##                         [FERNANDO Asanki]           1</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="do">##  [CLANCY Justin &gt; ROWLAND Marcus &gt; S ...]           1</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="bayesian-inference-using-the-posterior-dirichlet-tree">Bayesian inference using the posterior Dirichlet-tree<a class="anchor" aria-label="anchor" href="#bayesian-inference-using-the-posterior-dirichlet-tree"></a>
+</h4>
+<p>To conduct Bayesian inference using the posterior we have just obtained, we can employ monte-carlo simulation to simulate the unseen ballots and determine the election outcome many times. This can be used to estimate the probability that any particular candidate goes on to win the election under the posterior distribution.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># S3</span></span>
+<span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sample_posterior.html">sample_posterior</a></span><span class="op">(</span><span class="va">dtree</span>, n_elections <span class="op">=</span> <span class="fl">1000</span>, n_ballots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ballots</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Change the prior parameter and compare the posterior winning probabilities.</span></span>
-<span><span class="va">dtree</span><span class="op">$</span><span class="va">a0</span> <span class="op">&lt;-</span> <span class="fl">1.</span></span>
-<span><span class="va">dtree</span><span class="op">$</span><span class="fu">sample_posterior</span><span class="op">(</span>n_elections <span class="op">=</span> <span class="fl">100</span>, n_ballots <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
+<span><span class="co"># R6</span></span>
+<span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="va">dtree</span><span class="op">$</span><span class="fu">sample_posterior</span><span class="op">(</span>n_elections <span class="op">=</span> <span class="fl">1000</span>, n_ballots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ballots</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Do it again, with a Dirichlet prior using all available threads.</span></span>
-<span><span class="va">dtree</span><span class="op">$</span><span class="va">vd</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
-<span><span class="va">dtree</span><span class="op">$</span><span class="fu">sample_posterior</span><span class="op">(</span>n_elections <span class="op">=</span> <span class="fl">100</span>, n_ballots <span class="op">=</span> <span class="fl">1000</span>, n_threads <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span></span>
+<span><span class="co"># R6 using chained commands</span></span>
+<span><span class="va">ps</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/dirichlet_tree.html">dirichlet_tree</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  candidates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">albury</span><span class="op">$</span><span class="va">preferences</span><span class="op">)</span>,</span>
+<span>  min_depth <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  a0 <span class="op">=</span> <span class="fl">1.5</span></span>
+<span><span class="op">)</span><span class="op">$</span><span class="fu">update</span><span class="op">(</span></span>
+<span>  <span class="va">ballots</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span></span>
+<span><span class="op">)</span><span class="op">$</span><span class="fu">sample_posterior</span><span class="op">(</span></span>
+<span>  n_elections <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  n_ballots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ballots</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Reset the distribution to the prior, removing observed data. This is equivalent to</span></span>
-<span><span class="co"># creating a new tree with the same parameters.</span></span>
+<span><span class="va">ps</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="do">##      CLANCY Justin         DAVERN Eli    FERNANDO Asanki      HAMILTON Ross </span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="do">##               0.40               0.01               0.02               0.00 </span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="do">## ROBERTSON Geoffrey     ROWLAND Marcus     SINCLAIR Peter </span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="do">##               0.02               0.48               0.07</span></span></code></pre></div>
+<p>We can also take one realisation from the posterior distribution to examine it directly, rather than automatically compute the simulated election outcome and aggregate the results. To simulate the unobserved <code>N = length(ballots) - 10</code> ballots from the posterior predictive distribution we can run the following command:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># S3</span></span>
+<span><span class="va">simulated</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sample_predictive.html">sample_predictive</a></span><span class="op">(</span><span class="va">dtree</span>, n_ballots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ballots</span><span class="op">)</span> <span class="op">-</span> <span class="fl">10</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># R6</span></span>
+<span><span class="va">simulated</span> <span class="op">&lt;-</span> <span class="va">dtree</span><span class="op">$</span><span class="fu">sample_predictive</span><span class="op">(</span>n_ballots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ballots</span><span class="op">)</span> <span class="op">-</span> <span class="fl">10</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># R6 using chained commands</span></span>
+<span><span class="va">simulated</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/dirichlet_tree.html">dirichlet_tree</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  candidates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">albury</span><span class="op">$</span><span class="va">preferences</span><span class="op">)</span>,</span>
+<span>  min_depth <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  a0 <span class="op">=</span> <span class="fl">1.5</span></span>
+<span><span class="op">)</span><span class="op">$</span><span class="fu">update</span><span class="op">(</span></span>
+<span>  <span class="va">ballots</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span></span>
+<span><span class="op">)</span><span class="op">$</span><span class="fu">sample_predictive</span><span class="op">(</span>n_ballots <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ballots</span><span class="op">)</span> <span class="op">-</span> <span class="fl">10</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">simulated</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="do">##                        preferences frequencies</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="do">## 1                 [ROWLAND Marcus]         137</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 2                [FERNANDO Asanki]          41</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 3                 [SINCLAIR Peter]          32</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 4 [ROWLAND Marcus &gt; HAMILTON Ross]          30</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 5  [CLANCY Justin &gt; HAMILTON Ross]          29</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 6                  [CLANCY Justin]          28</span></span></code></pre></div>
+<p>Then we can compute the (IRV) election outcome for this simulation (plus the observed data) explicitly like this:</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/social_choice.html">social_choice</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
+<span>    <span class="va">ballots</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>,</span>
+<span>    <span class="fu">prefio</span><span class="fu">::</span><span class="fu"><a href="https://fleverest.github.io/prefio/reference/preferences.html" class="external-link">as.preferences</a></span><span class="op">(</span><span class="va">simulated</span><span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  sc_function <span class="op">=</span> <span class="st">"irv"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="do">## $elimination_order</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "DAVERN Eli"         "HAMILTON Ross"      "ROBERTSON Geoffrey"</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="do">## [4] "SINCLAIR Peter"     "FERNANDO Asanki"    "CLANCY Justin"     </span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="do">## $winners</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] "ROWLAND Marcus"</span></span></code></pre></div>
+<p>Finally, we can reset the model to the original prior distribution:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># S3</span></span>
+<span><span class="fu"><a href="reference/reset.html">reset</a></span><span class="op">(</span><span class="va">dtree</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># R6</span></span>
 <span><span class="va">dtree</span><span class="op">$</span><span class="fu">reset</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Additionally, the R6 interface allows you to chain commands.</span></span>
-<span><span class="va">dtree</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/dirichlet_tree.html">dirichlet_tree</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
-<span>  candidates <span class="op">=</span> <span class="va">LETTERS</span></span>
-<span><span class="op">)</span><span class="op">$</span><span class="fu">update</span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="reference/ranked_ballots.html">ranked_ballots</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span>,</span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"D"</span>, <span class="st">"E"</span>, <span class="st">"F"</span><span class="op">)</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    candidates <span class="op">=</span> <span class="va">LETTERS</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">dtree</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Dirichlet-tree (a0=1.5, min_depth=1, max_depth=6, vd=FALSE)</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="do">## Candidates: SINCLAIR Peter ROWLAND Marcus ROBERTSON Geoffrey HAMILTON Ross FERNANDO Asanki DAVERN Eli CLANCY Justin</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="do">## Observations:</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] preferences frequencies</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="do">## &lt;0 rows&gt; (or 0-length row.names)</span></span></code></pre></div>
 </div>
 </div>
 </div>
+
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
@@ -248,7 +320,15 @@
 </ul>
 </div>
 
-
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://cran.r-project.org/package=elections.dtree" class="external-link"><img src="https://www.r-pkg.org/badges/version/elections.dtree" alt="CRAN_Status_Badge"></a></li>
+<li><a href="https://fleverest.github.io/elections.dtree/"><img src="https://github.com/fleverest/elections.dtree/workflows/pkgdown/badge.svg" alt="pkgdown"></a></li>
+<li><a href="https://github.com/fleverest/elections.dtree/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/fleverest/elections.dtree/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://app.codecov.io/gh/fleverest/elections.dtree?branch=main" class="external-link"><img src="https://codecov.io/gh/fleverest/elections.dtree/branch/main/graph/badge.svg" alt="Codecov test coverage"></a></li>
+</ul>
+</div>
 
   </aside>
 </div>
