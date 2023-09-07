@@ -21,4 +21,5 @@ reference:
   contents:
   - read_ballots
   - write_ballots
+  - ranked_ballots
   - '[.ranked_ballots'
