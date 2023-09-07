@@ -18,6 +18,8 @@ social_choice(
 function you wish to evaluate.}
 
 \item{n_winners}{Refers to the number of seats available when `sc_function` is "stv".}
+
+\item{...}{Unused.}
 }
 \value{
 The output depends on the chosen `sc_function`:

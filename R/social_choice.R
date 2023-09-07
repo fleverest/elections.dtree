@@ -14,6 +14,9 @@
 #' @param n_winners
 #' Refers to the number of seats available when `sc_function` is "stv".
 #'
+#' @param ...
+#' Unused.
+#'
 #' @keywords social choice election irv stv plurality
 #'
 #' @return
@@ -27,6 +30,7 @@
 #'                 winning candidate(s).}
 #'    \item{"stv"}{Not yet implemented.}
 #' }
+#' @export
 social_choice <- function(ballots,
                           sc_function = c("plurality", "irv", "stv"),
                           n_winners = 1,

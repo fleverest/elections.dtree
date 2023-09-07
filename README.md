@@ -119,6 +119,14 @@ albury <- prefio::read_preflib("nswla/00058-00000187.soi", from_preflib = TRUE)
 head(albury)
 ```
 
+    ##         preferences frequencies
+    ## 1   [CLANCY Justin]       20249
+    ## 2  [ROWLAND Marcus]        6563
+    ## 3  [SINCLAIR Peter]        2392
+    ## 4      [DAVERN Eli]        1651
+    ## 5 [FERNANDO Asanki]         685
+    ## 6   [HAMILTON Ross]         624
+
 We can see that in this election, voters could specify as few as one
 candidate. Since the underlying structure for `prefio::preferences` is a
 ranking matrix, we can easily find the length of the longest ballot as
@@ -127,6 +135,8 @@ follows:
 ``` r
 max(albury$preferences, na.rm = TRUE)
 ```
+
+    ## [1] 7
 
 In this election, the maximum ballot length was not bounded.
 
@@ -151,7 +161,7 @@ dtree <- dirtree(
 )
 
 # R6 interface (equivalent to S3)
-dtree2 <- dirichlet_tree$new(
+dtree <- dirichlet_tree$new(
   candidates = names(albury$preferences),
   min_depth = 1,
   a0 = 1.5
@@ -160,17 +170,23 @@ dtree2 <- dirichlet_tree$new(
 dtree
 ```
 
+    ## Dirichlet-tree (a0=1.5, min_depth=1, max_depth=6, vd=FALSE)
+    ## Candidates: SINCLAIR Peter ROWLAND Marcus ROBERTSON Geoffrey HAMILTON Ross FERNANDO Asanki DAVERN Eli CLANCY Justin
+    ## Observations:
+    ## [1] preferences frequencies
+    ## <0 rows> (or 0-length row.names)
+
 #### Observing data
 
 The data observed during the auditing process should be formatted as a
 `prefio::preferences` object. Currently, our `albury` object has class
 `prefio::aggregated_preferences`. We will also shuffle the ballots to
 imitate a real auditing scenario where we sample the ballots at random.
-To convert it to the appropriate format and shuffle we can do the
-following:
+We will only use 1000 ballots for ease of computation. To convert it to
+the appropriate format and shuffle we can do the following:
 
 ``` r
-ballots <- sample(prefio::as.preferences(albury))
+ballots <- sample(prefio::as.preferences(albury))[1:1000]
 ```
 
 Then to observe our first batch of say 10 ballots, we can update the
@@ -181,10 +197,10 @@ model to obtain our posterior:
 update(dtree, ballots[1:10])
 
 # R6
-dtree2$update(ballots[1:10])
+dtree$update(ballots[1:10])
 
 # R6 using chained commands
-dtree2 <- dirichlet_tree$new(
+dtree <- dirichlet_tree$new(
   candidates = names(albury$preferences),
   min_depth = 1,
   a0 = 1.5
@@ -192,6 +208,20 @@ dtree2 <- dirichlet_tree$new(
 
 dtree
 ```
+
+    ## Dirichlet-tree (a0=1.5, min_depth=1, max_depth=6, vd=FALSE)
+    ## Candidates: SINCLAIR Peter ROWLAND Marcus ROBERTSON Geoffrey HAMILTON Ross FERNANDO Asanki DAVERN Eli CLANCY Justin
+    ## Observations:
+    ##                               preferences frequencies
+    ##                           [CLANCY Justin]           2
+    ##                          [ROWLAND Marcus]           1
+    ##  [CLANCY Justin > SINCLAIR Peter > R ...]           1
+    ##  [ROWLAND Marcus > FERNANDO Asanki > ...]           1
+    ##                          [SINCLAIR Peter]           1
+    ##  [ROWLAND Marcus > SINCLAIR Peter >  ...]           1
+    ##  [ROWLAND Marcus > DAVERN Eli > FERN ...]           1
+    ##                         [FERNANDO Asanki]           1
+    ##  [CLANCY Justin > ROWLAND Marcus > S ...]           1
 
 #### Bayesian inference using the posterior Dirichlet-tree
 
@@ -206,7 +236,7 @@ election under the posterior distribution.
 ps <- sample_posterior(dtree, n_elections = 1000, n_ballots = length(ballots))
 
 # R6
-ps <- dtree2$sample_posterior(n_elections = 1000, n_ballots = length(ballots))
+ps <- dtree$sample_posterior(n_elections = 1000, n_ballots = length(ballots))
 
 # R6 using chained commands
 ps <- dirichlet_tree$new(
@@ -223,18 +253,23 @@ ps <- dirichlet_tree$new(
 ps
 ```
 
+    ##      CLANCY Justin         DAVERN Eli    FERNANDO Asanki      HAMILTON Ross 
+    ##               0.40               0.01               0.02               0.00 
+    ## ROBERTSON Geoffrey     ROWLAND Marcus     SINCLAIR Peter 
+    ##               0.02               0.48               0.07
+
 We can also take one realisation from the posterior distribution to
 examine it directly, rather than automatically compute the simulated
 election outcome and aggregate the results. To simulate the unobserved
-`N = length(ballots) - 10` ballots from the posterior we can run the
-following command:
+`N = length(ballots) - 10` ballots from the posterior predictive
+distribution we can run the following command:
 
 ``` r
 # S3
 simulated <- sample_predictive(dtree, n_ballots = length(ballots) - 10)
 
 # R6
-simulated <- dtree2$sample_predictive(n_ballots = length(ballots) - 10)
+simulated <- dtree$sample_predictive(n_ballots = length(ballots) - 10)
 
 # R6 using chained commands
 simulated <- dirichlet_tree$new(
@@ -248,9 +283,48 @@ simulated <- dirichlet_tree$new(
 head(simulated)
 ```
 
-Then we can compute the (IRV) election outcome for this sample (plus the
-observed data) explicitly like this:
+    ##                        preferences frequencies
+    ## 1                 [ROWLAND Marcus]         137
+    ## 2                [FERNANDO Asanki]          41
+    ## 3                 [SINCLAIR Peter]          32
+    ## 4 [ROWLAND Marcus > HAMILTON Ross]          30
+    ## 5  [CLANCY Justin > HAMILTON Ross]          29
+    ## 6                  [CLANCY Justin]          28
+
+Then we can compute the (IRV) election outcome for this simulation (plus
+the observed data) explicitly like this:
 
 ``` r
-social_choice(rbind(ballots[1:10], simulated), sc_function = "irv")
+social_choice(
+  rbind(
+    ballots[1:10],
+    prefio::as.preferences(simulated)
+  ),
+  sc_function = "irv"
+)
 ```
+
+    ## $elimination_order
+    ## [1] "DAVERN Eli"         "HAMILTON Ross"      "ROBERTSON Geoffrey"
+    ## [4] "SINCLAIR Peter"     "FERNANDO Asanki"    "CLANCY Justin"     
+    ## 
+    ## $winners
+    ## [1] "ROWLAND Marcus"
+
+Finally, we can reset the model to the original prior distribution:
+
+``` r
+# S3
+reset(dtree)
+
+# R6
+dtree$reset()
+
+dtree
+```
+
+    ## Dirichlet-tree (a0=1.5, min_depth=1, max_depth=6, vd=FALSE)
+    ## Candidates: SINCLAIR Peter ROWLAND Marcus ROBERTSON Geoffrey HAMILTON Ross FERNANDO Asanki DAVERN Eli CLANCY Justin
+    ## Observations:
+    ## [1] preferences frequencies
+    ## <0 rows> (or 0-length row.names)
