@@ -26,7 +26,7 @@ Imports:
     Rdpack,
     R6,
     parallel,
-    prefio
+    prefio (>= 0.1.1)
 RdMacros: Rdpack
 Suggests:
     covr,
