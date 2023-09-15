@@ -46,8 +46,10 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.0.0" id="electionsdtree-200">elections.dtree 2.0.0<a class="anchor" aria-label="anchor" href="#electionsdtree-200"></a></h2>
-<p>Rewrote some of the interface to make use of the <code>prefio</code> library for preference data.</p>
-<div class="section level3">
+<ul><li>Rewrote the package to use <code>prefio</code> for handling ballots.</li>
+<li>Added the function <code>social_choice</code> for computing election results explicitly.</li>
+<li>Improved documentation in README.</li>
+</ul><div class="section level3">
 <h3 id="id_112-2-0-0">1.1.2<a class="anchor" aria-label="anchor" href="#id_112-2-0-0"></a></h3>
 <ul><li>Improved the <code>sample_posterior</code> multithreading so that the remainder is spread out among the worker threads instead of the entire workload being run on the head process.</li>
 <li>Fixed an issue where sampling from a tree with the <code>n_ballots</code> parameter set to a value fewer than the number of observed ballots replacement raises an error.</li>

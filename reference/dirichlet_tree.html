@@ -77,14 +77,14 @@ the posterior predictive distribution.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p>Everest F, Blom M, Stark PB, Stuckey PJ, Teague V, Vukcevic D (2022).
-“Ballot-Polling Audits of Instant-Runoff Voting Elections with a Dirichlet-Tree Model.”
-<a href="https://doi.org/10.48550/ARXIV.2209.03881" class="external-link">doi:10.48550/ARXIV.2209.03881</a>
-.
+    <p>Everest F, Blom M, Stark PB, Stuckey PJ, Teague V, Vukcevic D (2023).
+“Ballot-Polling Audits of Instant-Runoff Voting Elections with a Dirichlet-Tree Model.”
+In <em>Computer Security. ESORICS 2022 International Workshops</em>, 525--540.
+ISBN 978-3-031-25460-4.
 .</p>
 <p>Everest F, Blom M, Stark PB, Stuckey PJ, Teague V, Vukcevic D (2022).
 “Auditing Ranked Voting Elections with Dirichlet-Tree Models: First Steps.”
-<a href="https://doi.org/10.48550/ARXIV.2206.14605" class="external-link">doi:10.48550/ARXIV.2206.14605</a>
+<a href="https://doi.org/10.15157/diss/021" class="external-link">doi:10.15157/diss/021</a>
 .
 .</p>
     </div>
@@ -455,9 +455,9 @@ ballots drawn from a single realisation of the posterior Dirichlet-tree.</p>
 <span class="r-in"><span>  n_ballots <span class="op">=</span> <span class="fl">10</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   P   Q   R   S   T </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.2 0.1 0.1 0.1 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.1 0.0 0.0 0.0 0.0 0.0 0.1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.3 0.1 0.0 0.1 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.1 0.0 0.0 0.0 0.0 0.1 0.0 0.0 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   U   V   W   X   Y   Z </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.0 0.1 0.1 0.0 0.1 0.0 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.1 0.0 0.1 0.1 0.0 0.0 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## ------------------------------------------------</span></span></span>
@@ -481,16 +481,16 @@ ballots drawn from a single realisation of the posterior Dirichlet-tree.</p>
 <span class="r-in"><span>  n_ballots <span class="op">=</span> <span class="fl">10</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                preferences frequencies</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  [B &gt; I &gt; J &gt; W &gt; V &gt; U]           1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  [G &gt; A &gt; J &gt; M &gt; T &gt; L]           1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  [I &gt; A &gt; L &gt; P &gt; V &gt; Q]           1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  [M &gt; G &gt; L &gt; S &gt; A &gt; T]           1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5      [O &gt; N &gt; M &gt; T &gt; V]           1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  [O &gt; W &gt; C &gt; Z &gt; Y &gt; S]           1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  [Y &gt; G &gt; O &gt; C &gt; I &gt; F]           1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8  [Y &gt; K &gt; Z &gt; O &gt; T &gt; P]           1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9  [Y &gt; M &gt; E &gt; G &gt; L &gt; D]           1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10         [Z &gt; U &gt; D &gt; J]           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  [H &gt; J &gt; Y &gt; D &gt; B &gt; L]           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  [I &gt; Y &gt; Z &gt; G &gt; Q &gt; F]           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  [J &gt; X &gt; Y &gt; T &gt; A &gt; P]           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  [P &gt; D &gt; V &gt; R &gt; F &gt; J]           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  [Q &gt; N &gt; Z &gt; L &gt; W &gt; X]           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  [Q &gt; O &gt; L &gt; H &gt; U &gt; J]           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  [R &gt; O &gt; B &gt; G &gt; N &gt; D]           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  [T &gt; R &gt; K &gt; N &gt; C &gt; V]           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9          [W &gt; P &gt; A &gt; Y]           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 [Y &gt; I &gt; X &gt; S &gt; C &gt; R]           1</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
