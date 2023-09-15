@@ -63,6 +63,7 @@
 #' @docType class
 #'
 #' @importFrom R6 R6Class
+#' @importFrom prefio preferences
 #'
 #' @references
 #' \insertRef{dtree_eis}{elections.dtree}.

@@ -6,6 +6,7 @@ arXiv
 ARXIV
 aut
 Blom
+booktitle
 BugReports
 cardinality
 carlo
@@ -25,9 +26,11 @@ debian
 desc
 dirichlet
 dirtree
+diss
 doi
 dtree
 eis
+ESORICS
 et
 evoteid
 factorially
@@ -45,9 +48,11 @@ HRNJAK
 https
 initialise
 initialised
+InProceedings
 io
 IRV
 irv
+isbn
 LazyData
 lgpl
 licensors
@@ -79,6 +84,7 @@ sc
 SHA
 soi
 SORENSEN
+Springer
 stackoverflow
 stdout
 Stuckey

@@ -31,6 +31,7 @@
 #'    \item{"stv"}{Not yet implemented.}
 #' }
 #' @export
+#' @importFrom stats aggregate na.omit
 social_choice <- function(ballots,
                           sc_function = c("plurality", "irv", "stv"),
                           n_winners = 1,

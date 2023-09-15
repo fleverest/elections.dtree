@@ -9,6 +9,7 @@ repos:
     -   id: roxygenize
         # roxygen requires loading pkg -> add dependencies from DESCRIPTION
         additional_dependencies:
+        -    pkgbuild
         -    Rcpp
         -    methods
         -    Rdpack
