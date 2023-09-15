@@ -1,6 +1,4 @@
 
-# [prefio](https://fleverest.github.io/prefio/)
-
 # [elections.dtree](https://fleverest.github.io/elections.dtree): Audit ranked voting elections with Dirichlet-trees
 
 Perform ballot-polling Bayesian audits for ranked voting elections using
@@ -140,6 +138,51 @@ max(wakehurst$preferences, na.rm = TRUE)
 
 In this election, the maximum ballot length was not bounded.
 
+If we inspect the first-preferences, we can see that while
+`"WILLIAMS Toby"` receives the most first-preference ballots,
+`"REGAN Michael"` wins the election with the distributed ballots from
+the IRV process:
+
+``` r
+wakehurst[, 1, by.rank = TRUE]
+```
+
+    ##        preferences frequencies
+    ## 1  [WILLIAMS Toby]       18940
+    ## 2  [REGAN Michael]       18430
+    ## 3     [WRIGHT Sue]        7617
+    ## 4   [HRNJAK Ethan]        4000
+    ## 5 [SORENSEN Susan]        1220
+    ## 6    [MAWSON Greg]        1127
+
+``` r
+social_choice(
+  as.preferences(wakehurst),
+  sc_function = "plurality"
+)
+```
+
+    ## Warning in social_choice(as.preferences(wakehurst), sc_function = "plurality"):
+    ## `ballots` contains entries with more than one preference. To compute the
+    ## plurality social choice outcome, they will be truncated to their first
+    ## preferences only.
+
+    ## [1] "WILLIAMS Toby"
+
+``` r
+social_choice(
+  as.preferences(wakehurst),
+  sc_function = "irv"
+)
+```
+
+    ## $elimination_order
+    ## [1] "MAWSON Greg"    "SORENSEN Susan" "HRNJAK Ethan"   "WRIGHT Sue"    
+    ## [5] "WILLIAMS Toby" 
+    ## 
+    ## $winners
+    ## [1] "REGAN Michael"
+
 #### Specifying the prior
 
 To work with `dirichlet_tree`s in R, there are two interfaces at your
@@ -214,15 +257,14 @@ dtree
     ## Candidates: WRIGHT Sue SORENSEN Susan REGAN Michael MAWSON Greg WILLIAMS Toby HRNJAK Ethan
     ## Observations:
     ##                               preferences frequencies
-    ##                           [WILLIAMS Toby]           2
-    ##                           [REGAN Michael]           1
-    ##  [HRNJAK Ethan > WRIGHT Sue > MAWSON ...]           1
-    ##  [WRIGHT Sue > WILLIAMS Toby > REGAN ...]           1
-    ##                            [HRNJAK Ethan]           1
+    ##                           [REGAN Michael]           3
     ##  [WILLIAMS Toby > WRIGHT Sue > REGAN ...]           1
     ##  [MAWSON Greg > WRIGHT Sue > SORENSE ...]           1
     ##                             [MAWSON Greg]           1
     ##  [REGAN Michael > WRIGHT Sue > HRNJA ...]           1
+    ##                           [WILLIAMS Toby]           1
+    ##  [WRIGHT Sue > REGAN Michael > HRNJA ...]           1
+    ##                            [HRNJAK Ethan]           1
 
 #### Bayesian inference using the posterior Dirichlet-tree
 
@@ -255,15 +297,15 @@ ps
 ```
 
     ##   HRNJAK Ethan    MAWSON Greg  REGAN Michael SORENSEN Susan  WILLIAMS Toby 
-    ##           0.20           0.18           0.13           0.02           0.33 
+    ##           0.09           0.17           0.51           0.00           0.13 
     ##     WRIGHT Sue 
-    ##           0.14
+    ##           0.10
 
 We can also take one realisation from the posterior distribution to
-examine it directly, rather than automatically compute the simulated
-election outcome and aggregate the results. To simulate the unobserved
-`N = length(ballots) - 10` ballots from the posterior predictive
-distribution we can run the following command:
+examine it directly, rather than automatically compute simulated
+election outcomes and aggregating the results in a single step. To
+simulate the unobserved `N = length(ballots) - 10` ballots from the
+posterior predictive distribution, we can run the following command:
 
 ``` r
 # S3
@@ -284,13 +326,13 @@ simulated <- dirichlet_tree$new(
 head(simulated)
 ```
 
-    ##                        preferences frequencies
-    ## 1                    [MAWSON Greg]          81
-    ## 2                  [REGAN Michael]          48
-    ## 3                   [HRNJAK Ethan]          31
-    ## 4                     [WRIGHT Sue]          24
-    ## 5     [WILLIAMS Toby > WRIGHT Sue]          20
-    ## 6 [REGAN Michael > SORENSEN Susan]          18
+    ##                                preferences frequencies
+    ## 1                          [REGAN Michael]         113
+    ## 2                          [WILLIAMS Toby]          27
+    ## 3                           [HRNJAK Ethan]          26
+    ## 4                            [MAWSON Greg]          24
+    ## 5                         [SORENSEN Susan]          20
+    ## 6 [HRNJAK Ethan > WRIGHT Sue > MAWSON ...]          13
 
 Then we can compute the (IRV) election outcome for this simulation (plus
 the observed data) explicitly like this:
@@ -306,11 +348,11 @@ social_choice(
 ```
 
     ## $elimination_order
-    ## [1] "SORENSEN Susan" "MAWSON Greg"    "WILLIAMS Toby"  "REGAN Michael" 
-    ## [5] "HRNJAK Ethan"  
+    ## [1] "SORENSEN Susan" "WILLIAMS Toby"  "HRNJAK Ethan"   "MAWSON Greg"   
+    ## [5] "WRIGHT Sue"    
     ## 
     ## $winners
-    ## [1] "WRIGHT Sue"
+    ## [1] "REGAN Michael"
 
 Finally, we can reset the model to the original prior distribution:
 

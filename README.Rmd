@@ -9,8 +9,6 @@ knitr::opts_chunk$set(fig.path = "man/figures/")
 set.seed(1)
 ```
 
-# [prefio](https://fleverest.github.io/prefio/)
-
 # [elections.dtree](https://fleverest.github.io/elections.dtree): Audit ranked voting elections with Dirichlet-trees
 
 Perform ballot-polling Bayesian audits for ranked voting elections using a Dirichlet-tree prior distribution.
