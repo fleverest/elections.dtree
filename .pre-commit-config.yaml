@@ -2,25 +2,18 @@
 # R specific hooks: https://github.com/lorenzwalthert/precommit
 repos:
 -   repo: https://github.com/lorenzwalthert/precommit
-    rev: v0.3.2.9007
+    rev: v0.3.2.9019
     hooks:
     -   id: style-files
         args: [--style_pkg=styler, --style_fun=tidyverse_style]
-        exclude: >
-          (?x)^(
-          (.*/|)RcppExports\.(cpp|r|R)|
-          )$
     -   id: roxygenize
-        exclude: |
-          (?x)^(
-          (.*/|)RcppExports\.(cpp|r|R)|
-          )$
+        # roxygen requires loading pkg -> add dependencies from DESCRIPTION
         additional_dependencies:
-        -    pkgbuild
         -    Rcpp
         -    methods
         -    Rdpack
         -    R6
+        -    parallel
         -    prefio
     -   id: use-tidy-description
     -   id: spell-check
@@ -64,6 +57,7 @@ repos:
           R/catch-routine-registration.R|
           README\.(Rmd|md)|
           )$
+        verbose: true
     -   id: readme-rmd-rendered
     -   id: parsable-R
     -   id: no-browser-statement
@@ -77,11 +71,12 @@ repos:
     -   id: file-contents-sorter
         files: '^\.Rbuildignore$'
     -   id: end-of-file-fixer
-        exclude: >
-          (?x)^(
-          .*\.Rd|
-          (.*/|)RcppExports\.(cpp|r|R)|
-          )$
+        exclude: '\.Rd'
+-   repo: https://github.com/pre-commit-ci/pre-commit-ci-config
+    rev: v1.6.1
+    hooks:
+    # Only reuiqred when https://pre-commit.ci is used for config validation
+    -   id: check-pre-commit-ci-config
 -   repo: local
     hooks:
     -   id: forbid-to-commit
@@ -90,3 +85,6 @@ repos:
         language: fail
         files: '\.(Rhistory|RData|Rds|rds)$'
         # `exclude: <regex>` to allow committing specific files
+
+ci:
+    autoupdate_schedule: monthly
