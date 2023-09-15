@@ -1,7 +1,8 @@
 # elections.dtree 2.0.0
 
-Rewrote some of the interface to make use of the `prefio` library for preference
-data.
+* Rewrote the package to use `prefio` for handling ballots.
+* Added the function `social_choice` for computing election results explicitly.
+* Improved documentation in README.
 
 ## 1.1.2
 
