@@ -109,23 +109,23 @@ consider this carefully).
 Let’s start off by downloading some data from
 [PrefLib](https://www.preflib.org/) using
 [prefio](https://cran.r-project.org/package=prefio). In this example, we
-select the Albury 2023 dataset containing the ballots cast in Albury for
-the 2023 NSW Legislative Assembly Election. Other elections for the NSW
-Legislative Assembly can be found
+select the Wakehurst 2023 dataset containing the ballots cast in
+Wakehurst for the 2023 NSW Legislative Assembly Election. Other
+elections for the NSW Legislative Assembly can be found
 [here](https://www.preflib.org/dataset/00058).
 
 ``` r
-albury <- prefio::read_preflib("nswla/00058-00000187.soi", from_preflib = TRUE)
-head(albury)
+wakehurst <- prefio::read_preflib("nswla/00058-00000273.soi", from_preflib = TRUE)
+head(wakehurst)
 ```
 
-    ##         preferences frequencies
-    ## 1   [CLANCY Justin]       20249
-    ## 2  [ROWLAND Marcus]        6563
-    ## 3  [SINCLAIR Peter]        2392
-    ## 4      [DAVERN Eli]        1651
-    ## 5 [FERNANDO Asanki]         685
-    ## 6   [HAMILTON Ross]         624
+    ##                       preferences frequencies
+    ## 1                 [WILLIAMS Toby]       14115
+    ## 2                 [REGAN Michael]        8499
+    ## 3                    [WRIGHT Sue]        3179
+    ## 4                  [HRNJAK Ethan]        1195
+    ## 5 [WILLIAMS Toby > REGAN Michael]         976
+    ## 6 [REGAN Michael > WILLIAMS Toby]         918
 
 We can see that in this election, voters could specify as few as one
 candidate. Since the underlying structure for `prefio::preferences` is a
@@ -133,10 +133,10 @@ ranking matrix, we can easily find the length of the longest ballot as
 follows:
 
 ``` r
-max(albury$preferences, na.rm = TRUE)
+max(wakehurst$preferences, na.rm = TRUE)
 ```
 
-    ## [1] 7
+    ## [1] 6
 
 In this election, the maximum ballot length was not bounded.
 
@@ -148,21 +148,21 @@ familiar with. The second is an R6 interface which can be useful when
 you would like to chain commands. Other than the ability to chain
 commands, either interface is equivalent.
 
-Here, we initialise a new Dirichlet-tree for the Albury 2023 election,
-requiring exactly at least one preference specified per formal ballot
-and using a prior `a0` parameter equal to `1.5`.
+Here, we initialise a new Dirichlet-tree for the Wakehurst 2023
+election, requiring exactly at least one preference specified per formal
+ballot and using a prior `a0` parameter equal to `1.5`.
 
 ``` r
 # S3 interface
 dtree <- dirtree(
-  candidates = names(albury$preferences),
+  candidates = names(wakehurst$preferences),
   min_depth = 1,
   a0 = 1.5
 )
 
 # R6 interface (equivalent to S3)
 dtree <- dirichlet_tree$new(
-  candidates = names(albury$preferences),
+  candidates = names(wakehurst$preferences),
   min_depth = 1,
   a0 = 1.5
 )
@@ -170,8 +170,8 @@ dtree <- dirichlet_tree$new(
 dtree
 ```
 
-    ## Dirichlet-tree (a0=1.5, min_depth=1, max_depth=6, vd=FALSE)
-    ## Candidates: SINCLAIR Peter ROWLAND Marcus ROBERTSON Geoffrey HAMILTON Ross FERNANDO Asanki DAVERN Eli CLANCY Justin
+    ## Dirichlet-tree (a0=1.5, min_depth=1, max_depth=5, vd=FALSE)
+    ## Candidates: WRIGHT Sue SORENSEN Susan REGAN Michael MAWSON Greg WILLIAMS Toby HRNJAK Ethan
     ## Observations:
     ## [1] preferences frequencies
     ## <0 rows> (or 0-length row.names)
@@ -179,14 +179,15 @@ dtree
 #### Observing data
 
 The data observed during the auditing process should be formatted as a
-`prefio::preferences` object. Currently, our `albury` object has class
-`prefio::aggregated_preferences`. We will also shuffle the ballots to
-imitate a real auditing scenario where we sample the ballots at random.
-We will only use 1000 ballots for ease of computation. To convert it to
-the appropriate format and shuffle we can do the following:
+`prefio::preferences` object. Currently, our `wakehurst` object has
+class `prefio::aggregated_preferences`. We will also shuffle the ballots
+to imitate a real auditing scenario where we sample the ballots at
+random. We will only use 1000 ballots for ease of computation. To
+convert it to the appropriate format and shuffle we can do the
+following:
 
 ``` r
-ballots <- sample(prefio::as.preferences(albury))[1:1000]
+ballots <- sample(prefio::as.preferences(wakehurst))[1:1000]
 ```
 
 Then to observe our first batch of say 10 ballots, we can update the
@@ -201,7 +202,7 @@ dtree$update(ballots[1:10])
 
 # R6 using chained commands
 dtree <- dirichlet_tree$new(
-  candidates = names(albury$preferences),
+  candidates = names(wakehurst$preferences),
   min_depth = 1,
   a0 = 1.5
 )$update(ballots[1:10])
@@ -209,19 +210,19 @@ dtree <- dirichlet_tree$new(
 dtree
 ```
 
-    ## Dirichlet-tree (a0=1.5, min_depth=1, max_depth=6, vd=FALSE)
-    ## Candidates: SINCLAIR Peter ROWLAND Marcus ROBERTSON Geoffrey HAMILTON Ross FERNANDO Asanki DAVERN Eli CLANCY Justin
+    ## Dirichlet-tree (a0=1.5, min_depth=1, max_depth=5, vd=FALSE)
+    ## Candidates: WRIGHT Sue SORENSEN Susan REGAN Michael MAWSON Greg WILLIAMS Toby HRNJAK Ethan
     ## Observations:
     ##                               preferences frequencies
-    ##                           [CLANCY Justin]           2
-    ##                          [ROWLAND Marcus]           1
-    ##  [CLANCY Justin > SINCLAIR Peter > R ...]           1
-    ##  [ROWLAND Marcus > FERNANDO Asanki > ...]           1
-    ##                          [SINCLAIR Peter]           1
-    ##  [ROWLAND Marcus > SINCLAIR Peter >  ...]           1
-    ##  [ROWLAND Marcus > DAVERN Eli > FERN ...]           1
-    ##                         [FERNANDO Asanki]           1
-    ##  [CLANCY Justin > ROWLAND Marcus > S ...]           1
+    ##                           [WILLIAMS Toby]           2
+    ##                           [REGAN Michael]           1
+    ##  [HRNJAK Ethan > WRIGHT Sue > MAWSON ...]           1
+    ##  [WRIGHT Sue > WILLIAMS Toby > REGAN ...]           1
+    ##                            [HRNJAK Ethan]           1
+    ##  [WILLIAMS Toby > WRIGHT Sue > REGAN ...]           1
+    ##  [MAWSON Greg > WRIGHT Sue > SORENSE ...]           1
+    ##                             [MAWSON Greg]           1
+    ##  [REGAN Michael > WRIGHT Sue > HRNJA ...]           1
 
 #### Bayesian inference using the posterior Dirichlet-tree
 
@@ -240,7 +241,7 @@ ps <- dtree$sample_posterior(n_elections = 1000, n_ballots = length(ballots))
 
 # R6 using chained commands
 ps <- dirichlet_tree$new(
-  candidates = names(albury$preferences),
+  candidates = names(wakehurst$preferences),
   min_depth = 1,
   a0 = 1.5
 )$update(
@@ -253,10 +254,10 @@ ps <- dirichlet_tree$new(
 ps
 ```
 
-    ##      CLANCY Justin         DAVERN Eli    FERNANDO Asanki      HAMILTON Ross 
-    ##               0.40               0.01               0.02               0.00 
-    ## ROBERTSON Geoffrey     ROWLAND Marcus     SINCLAIR Peter 
-    ##               0.02               0.48               0.07
+    ##   HRNJAK Ethan    MAWSON Greg  REGAN Michael SORENSEN Susan  WILLIAMS Toby 
+    ##           0.20           0.18           0.13           0.02           0.33 
+    ##     WRIGHT Sue 
+    ##           0.14
 
 We can also take one realisation from the posterior distribution to
 examine it directly, rather than automatically compute the simulated
@@ -273,7 +274,7 @@ simulated <- dtree$sample_predictive(n_ballots = length(ballots) - 10)
 
 # R6 using chained commands
 simulated <- dirichlet_tree$new(
-  candidates = names(albury$preferences),
+  candidates = names(wakehurst$preferences),
   min_depth = 1,
   a0 = 1.5
 )$update(
@@ -284,12 +285,12 @@ head(simulated)
 ```
 
     ##                        preferences frequencies
-    ## 1                 [ROWLAND Marcus]         137
-    ## 2                [FERNANDO Asanki]          41
-    ## 3                 [SINCLAIR Peter]          32
-    ## 4 [ROWLAND Marcus > HAMILTON Ross]          30
-    ## 5  [CLANCY Justin > HAMILTON Ross]          29
-    ## 6                  [CLANCY Justin]          28
+    ## 1                    [MAWSON Greg]          81
+    ## 2                  [REGAN Michael]          48
+    ## 3                   [HRNJAK Ethan]          31
+    ## 4                     [WRIGHT Sue]          24
+    ## 5     [WILLIAMS Toby > WRIGHT Sue]          20
+    ## 6 [REGAN Michael > SORENSEN Susan]          18
 
 Then we can compute the (IRV) election outcome for this simulation (plus
 the observed data) explicitly like this:
@@ -305,11 +306,11 @@ social_choice(
 ```
 
     ## $elimination_order
-    ## [1] "DAVERN Eli"         "HAMILTON Ross"      "ROBERTSON Geoffrey"
-    ## [4] "SINCLAIR Peter"     "FERNANDO Asanki"    "CLANCY Justin"     
+    ## [1] "SORENSEN Susan" "MAWSON Greg"    "WILLIAMS Toby"  "REGAN Michael" 
+    ## [5] "HRNJAK Ethan"  
     ## 
     ## $winners
-    ## [1] "ROWLAND Marcus"
+    ## [1] "WRIGHT Sue"
 
 Finally, we can reset the model to the original prior distribution:
 
@@ -323,8 +324,8 @@ dtree$reset()
 dtree
 ```
 
-    ## Dirichlet-tree (a0=1.5, min_depth=1, max_depth=6, vd=FALSE)
-    ## Candidates: SINCLAIR Peter ROWLAND Marcus ROBERTSON Geoffrey HAMILTON Ross FERNANDO Asanki DAVERN Eli CLANCY Justin
+    ## Dirichlet-tree (a0=1.5, min_depth=1, max_depth=5, vd=FALSE)
+    ## Candidates: WRIGHT Sue SORENSEN Susan REGAN Michael MAWSON Greg WILLIAMS Toby HRNJAK Ethan
     ## Observations:
     ## [1] preferences frequencies
     ## <0 rows> (or 0-length row.names)

@@ -114,13 +114,13 @@ carefully).
 Let's start off by downloading some data from
 [PrefLib](https://www.preflib.org/) using
 [prefio](https://cran.r-project.org/package=prefio). In this example, we select
-the Albury 2023 dataset containing the ballots cast in Albury for the 2023 NSW
-Legislative Assembly Election. Other elections for the NSW Legislative Assembly
-can be found [here](https://www.preflib.org/dataset/00058).
+the Wakehurst 2023 dataset containing the ballots cast in Wakehurst for the 2023
+NSW Legislative Assembly Election. Other elections for the NSW Legislative
+Assembly can be found [here](https://www.preflib.org/dataset/00058).
 
 ```{r}
-albury <- prefio::read_preflib("nswla/00058-00000187.soi", from_preflib = TRUE)
-head(albury)
+wakehurst <- prefio::read_preflib("nswla/00058-00000273.soi", from_preflib = TRUE)
+head(wakehurst)
 ```
 
 We can see that in this election, voters could specify as few as one candidate.
@@ -128,10 +128,32 @@ Since the underlying structure for `prefio::preferences` is a ranking matrix,
 we can easily find the length of the longest ballot as follows:
 
 ```{r}
-max(albury$preferences, na.rm = TRUE)
+max(wakehurst$preferences, na.rm = TRUE)
 ```
 
 In this election, the maximum ballot length was not bounded.
+
+If we inspect the first-preferences, we can see that while `"WILLIAMS Toby"`
+receives the most first-preference ballots, `"REGAN Michael"` wins the election
+with the distributed ballots from the IRV process:
+
+```{r}
+wakehurst[, 1, by.rank = TRUE]
+```
+
+```{r}
+social_choice(
+  as.preferences(wakehurst),
+  sc_function = "plurality"
+)
+```
+
+```{r}
+social_choice(
+  as.preferences(wakehurst),
+  sc_function = "irv"
+)
+```
 
 
 #### Specifying the prior
@@ -142,21 +164,21 @@ The second is an R6 interface which can be useful when you would like to chain
 commands. Other than the ability to chain commands, either interface is
 equivalent.
 
-Here, we initialise a new Dirichlet-tree for the Albury 2023 election, requiring
+Here, we initialise a new Dirichlet-tree for the Wakehurst 2023 election, requiring
 exactly at least one preference specified per formal ballot and using a prior
 `a0` parameter equal to `1.5`.
 
 ```{r}
 # S3 interface
 dtree <- dirtree(
-  candidates = names(albury$preferences),
+  candidates = names(wakehurst$preferences),
   min_depth = 1,
   a0 = 1.5
 )
 
 # R6 interface (equivalent to S3)
 dtree <- dirichlet_tree$new(
-  candidates = names(albury$preferences),
+  candidates = names(wakehurst$preferences),
   min_depth = 1,
   a0 = 1.5
 )
@@ -167,14 +189,14 @@ dtree
 #### Observing data
 
 The data observed during the auditing process should be formatted as a
-`prefio::preferences` object. Currently, our `albury` object has class
+`prefio::preferences` object. Currently, our `wakehurst` object has class
 `prefio::aggregated_preferences`. We will also shuffle the ballots to imitate
 a real auditing scenario where we sample the ballots at random. We will only
 use 1000 ballots for ease of computation. To convert it to the appropriate
 format and shuffle we can do the following:
 
 ```{r}
-ballots <- sample(prefio::as.preferences(albury))[1:1000]
+ballots <- sample(prefio::as.preferences(wakehurst))[1:1000]
 ```
 
 Then to observe our first batch of say 10 ballots, we can update the model to obtain our posterior:
@@ -188,7 +210,7 @@ dtree$update(ballots[1:10])
 
 # R6 using chained commands
 dtree <- dirichlet_tree$new(
-  candidates = names(albury$preferences),
+  candidates = names(wakehurst$preferences),
   min_depth = 1,
   a0 = 1.5
 )$update(ballots[1:10])
@@ -213,7 +235,7 @@ ps <- dtree$sample_posterior(n_elections = 1000, n_ballots = length(ballots))
 
 # R6 using chained commands
 ps <- dirichlet_tree$new(
-  candidates = names(albury$preferences),
+  candidates = names(wakehurst$preferences),
   min_depth = 1,
   a0 = 1.5
 )$update(
@@ -227,10 +249,10 @@ ps
 ```
 
 We can also take one realisation from the posterior distribution to examine it
-directly, rather than automatically compute the simulated election outcome
-and aggregate the results. To simulate the unobserved `N = length(ballots) - 10`
-ballots from the posterior predictive distribution we can run the following
-command:
+directly, rather than automatically compute simulated election outcomes and
+aggregating the results in a single step. To simulate the unobserved
+`N = length(ballots) - 10` ballots from the posterior predictive distribution,
+we can run the following command:
 
 ```{r}
 # S3
@@ -241,7 +263,7 @@ simulated <- dtree$sample_predictive(n_ballots = length(ballots) - 10)
 
 # R6 using chained commands
 simulated <- dirichlet_tree$new(
-  candidates = names(albury$preferences),
+  candidates = names(wakehurst$preferences),
   min_depth = 1,
   a0 = 1.5
 )$update(
